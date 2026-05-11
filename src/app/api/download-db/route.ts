@@ -3,7 +3,7 @@ import { exportAllData } from '@/lib/backup'
 
 /**
  * GET /api/download-db — Export all data as a JSON file
- * (replaces the old SQLite .db file download)
+ * Exports all data as a downloadable JSON file
  */
 export async function GET() {
   try {

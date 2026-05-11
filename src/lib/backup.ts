@@ -47,13 +47,3 @@ export async function exportAllData(): Promise<BackupData> {
     instructions,
   }
 }
-
-/**
- * @deprecated File-based backup is not supported on Vercel.
- * This function is kept as a no-op for backward compatibility.
- * Use exportAllData() instead for data export.
- */
-export function autoBackup() {
-  // No-op: file-based backups are incompatible with serverless environments.
-  // Data durability is handled by the managed PostgreSQL database.
-}
