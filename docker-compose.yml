@@ -1,0 +1,26 @@
+# =============================================================================
+# Wiki Codex - Local Development with PostgreSQL
+# =============================================================================
+# Usage:
+#   docker compose up -d          # Start PostgreSQL
+#   bun run db:migrate            # Apply migrations
+#   bun run dev                   # Start Next.js dev server
+#   docker compose down           # Stop PostgreSQL
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wiki-codex-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wiki_codex
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

@@ -31,7 +31,11 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
-.env*
+.env
+.env.local
+.env.*.local
+# Keep .env.example in the repo!
+!.env.example
 
 # vercel
 .vercel

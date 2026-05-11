@@ -4,7 +4,7 @@
 # =============================================================================
 # Runtime:     node:20-alpine + Bun
 # Build:       Next.js 16 standalone output
-# Database:    SQLite via Prisma (runtime DATABASE_URL required)
+# Database:    PostgreSQL via Prisma (runtime DATABASE_URL required)
 # =============================================================================
 
 # ── Stage 1: Builder ──────────────────────────────────────────────────────────
@@ -29,7 +29,7 @@ COPY . .
 
 # Build Next.js (standalone output)
 # Override postinstall to prevent db operations during build
-RUN DATABASE_URL="file:./db/build-placeholder.db" \
+RUN DATABASE_URL="postgresql://placeholder:placeholder@placeholder:5432/placeholder" \
     NEXT_TELEMETRY_DISABLED=1 \
     bun run build
 
@@ -58,9 +58,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 # Copy generated Prisma client
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-
-# Create db directory for SQLite at runtime
-RUN mkdir -p /app/db && chown nextjs:nodejs /app/db
 
 # Switch to non-root user
 USER nextjs
