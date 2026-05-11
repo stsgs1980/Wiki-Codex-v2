@@ -17,10 +17,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Wiki Codex -- Интеллектуальная база знаний для разработчиков",
   description: "Современная база знаний разработчика для управления документацией, фрагментами кода и техническими заметками с AI-анализом.",
-  keywords: ["база знаний", "разработчик", "документация", "markdown", "фрагменты кода"],
+  keywords: ["база знаний", "разработчик", "документация", "markdown", "фрагменты кода", "NEURO"],
   authors: [{ name: "Wiki Codex Team" }],
   icons: {
     icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
+  openGraph: {
+    title: "Wiki Codex v2",
+    description: "Интеллектуальная база знаний для разработчиков",
+    images: ["/logo-banner.png"],
   },
 };
 

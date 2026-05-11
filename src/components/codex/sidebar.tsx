@@ -53,6 +53,7 @@ import { useAppStore, type ViewType } from '@/lib/store'
 import type { Category, Tag } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
+import { NeuroLogo } from '@/components/codex/neuro-logo'
 
 interface SidebarContentProps {
   categories: Category[]
@@ -279,11 +280,16 @@ function SidebarContent({
     <>
       {/* Brand */}
       <div className="flex items-center gap-2 px-3 py-4">
-        <span className="text-green-600 dark:text-green-400 font-mono text-sm font-bold select-none shrink-0">{'>'}_</span>
+        <NeuroLogo size="sm" className="shrink-0 text-foreground" />
         {!isCollapsed && (
-          <h1 className="text-sm font-bold tracking-tight text-foreground leading-tight font-mono">
-            Wiki Codex
-          </h1>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <h1 className="text-sm font-bold tracking-tight text-foreground leading-tight font-mono">
+              Wiki Codex
+            </h1>
+            <span className="text-[9px] font-mono text-[#FA3913] tracking-widest uppercase">
+              NEURO
+            </span>
+          </div>
         )}
       </div>
 
@@ -309,7 +315,7 @@ function SidebarContent({
                 'text-[10px] select-none shrink-0',
                 isActive ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground/50'
               )}>
-                {isActive ? '▸' : '▹'}
+                {isActive ? '>' : '-'}
               </span>
               {!isCollapsed && (
                 <>

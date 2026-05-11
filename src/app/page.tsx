@@ -28,7 +28,7 @@ import {
   useTerms,
 } from '@/hooks/use-codex-data'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
-import { TECH_ITEMS } from '@/components/codex/tech-logos'
+import { TECH_ITEMS, NeuroLogoSmall } from '@/components/codex/tech-logos'
 
 export default function WikiCodex() {
   const {
@@ -403,6 +403,7 @@ export default function WikiCodex() {
 
         <footer className="mt-auto border-t bg-zinc-900 dark:bg-zinc-950 px-4 py-1.5 md:px-6 flex items-center justify-between gap-2 font-mono text-[11px]">
           <span className="text-zinc-400 whitespace-nowrap flex items-center gap-2">
+            <NeuroLogoSmall className="size-4 shrink-0" />
             <span className="text-green-500">{'//>'}</span> Wiki Codex <span className="text-zinc-600">v2.0</span>
             <span className="text-[#FA3913] mx-1">|</span>
             <span className="text-zinc-500">NEURO</span>

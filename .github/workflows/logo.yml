@@ -1,0 +1,55 @@
+name: Logo CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  logo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Detect logo theme
+        env:
+          DARK_MODE: ''
+        run: |
+          if [ -f "scripts-logo/logo-agent.js" ]; then
+            desc=$(jq -r '.description // "platform"' package.json)
+            mode="${DARK_MODE:-auto}"
+            theme=$(node scripts-logo/logo-agent.js "$desc" "$mode" 2>/dev/null || echo "light")
+            echo "Detected logo theme: $theme"
+
+            if [ -f "logos/${theme}.svg" ]; then
+              echo "Logo file exists: logos/${theme}.svg"
+            else
+              echo "WARNING: Logo file not found: logos/${theme}.svg"
+            fi
+          else
+            echo "logo-agent.js not found, skipping"
+          fi
+
+      - name: Update README logo reference
+        if: github.event_name == 'push'
+        run: |
+          if [ -f "scripts-logo/logo-agent.js" ]; then
+            desc=$(jq -r '.description // "platform"' package.json)
+            theme=$(node scripts-logo/logo-agent.js "$desc" "auto" 2>/dev/null || echo "light")
+
+            if [ -f "logos/${theme}.svg" ]; then
+              sed -i "s|src=\"logos/[^\"]*\.svg\"|src=\"logos/${theme}.svg\"|g" README.md 2>/dev/null || true
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git diff --quiet README.md || git add README.md && git commit -m "ci: update logo theme to ${theme}" && git push
+            fi
+          fi

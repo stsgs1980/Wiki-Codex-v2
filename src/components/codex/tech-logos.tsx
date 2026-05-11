@@ -87,48 +87,32 @@ export function TailwindLogo({ className, ...props }: LogoProps) {
 }
 
 /**
- * SQLite logo - simplified feather / database document
+ * PostgreSQL logo - elephant silhouette (simplified)
  */
-export function SqliteLogo({ className, ...props }: LogoProps) {
+export function PostgresqlLogo({ className, ...props }: LogoProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
-      {/* Feather quill */}
       <path
-        d="M20 4L10 14l-1 4 4-1L23 7l-3-3Z"
+        d="M17 3c-1.5 0-3 .5-4 1.5C12 4 11 3.5 9.5 3.5 6.5 3.5 4 6 4 9.5c0 4.5 3.5 9 8 11 .5.2 1 .2 1.5 0 4.5-2 8-6.5 8-11C21.5 5.5 19.5 3 17 3Z"
         fill="currentColor"
         opacity="0.12"
       />
       <path
-        d="M20 4L10 14l-1 4 4-1L23 7l-3-3Z"
+        d="M17 3c-1.5 0-3 .5-4 1.5C12 4 11 3.5 9.5 3.5 6.5 3.5 4 6 4 9.5c0 4.5 3.5 9 8 11 .5.2 1 .2 1.5 0 4.5-2 8-6.5 8-11C21.5 5.5 19.5 3 17 3Z"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <path
-        d="M16 8l3 3"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      {/* Database lines */}
-      <path
-        d="M4 20h6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M2 16h8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M4 12h4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <text
+        x="13" y="12"
+        textAnchor="middle"
+        fill="currentColor"
+        fontSize="6"
+        fontWeight="700"
+        fontFamily="system-ui, sans-serif"
+      >
+        PG
+      </text>
     </svg>
   )
 }
@@ -194,11 +178,32 @@ export function ZustandLogo({ className, ...props }: LogoProps) {
   )
 }
 
+/**
+ * NEURO brand logo - coral R in box for footer
+ */
+export function NeuroLogoSmall({ className, ...props }: LogoProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="3" fill="#FA3913" />
+      <text
+        x="12" y="16.5"
+        textAnchor="middle"
+        fill="#FFFFFF"
+        fontSize="14"
+        fontWeight="700"
+        fontFamily="system-ui, sans-serif"
+      >
+        R
+      </text>
+    </svg>
+  )
+}
+
 export const TECH_ITEMS = [
   { name: 'Next.js', Logo: NextJsLogo },
   { name: 'TypeScript', Logo: TypeScriptLogo },
   { name: 'Tailwind CSS', Logo: TailwindLogo },
-  { name: 'SQLite', Logo: SqliteLogo },
+  { name: 'PostgreSQL', Logo: PostgresqlLogo },
   { name: 'Prisma ORM', Logo: PrismaLogo },
   { name: 'Zustand', Logo: ZustandLogo },
 ] as const

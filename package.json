@@ -1,6 +1,7 @@
 {
   "name": "wiki-codex",
   "version": "2.0.0",
+  "description": "AI-powered knowledge base platform for developers",
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
@@ -13,7 +14,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "vercel-build": "prisma migrate deploy && next build"
+    "vercel-build": "prisma migrate deploy && next build",
+    "logo": "node scripts-logo/logo-agent.js"
   },
   "engines": {
     "node": ">=22.0.0"
