@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  color       String     @default("#6366f1")
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  documents   Document[]
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  color     String     @default("#8b5cf6")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  documents DocumentTag[]
+}
+
+model Document {
+  id          String        @id @default(cuid())
+  title       String
+  content     String
+  summary     String?
+  fileType    String        @default("md")
+  fileSize    Int           @default(0)
+  fileName    String
+  categoryId  String?
+  category    Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags        DocumentTag[]
+  isStarred   Boolean       @default(false)
+  viewCount   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  terms        Term[]
+  instructions Instruction[]
+}
+
+model DocumentTag {
+  documentId String
+  tagId      String
+  document   Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  tag        Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, tagId])
+}
+
+model Term {
+  id          String   @id @default(cuid())
+  term        String   @unique
+  translation String
+  explanation String
+  usage       String?
+  documentId  String?
+  document    Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Instruction {
+  id             String   @id @default(cuid())
+  title          String
+  description    String   @default("")
+  steps          String   // JSON: [{title, description, codeBlocks: [{label, code}]}]
+  sourceDocId    String?
+  sourceDoc      Document? @relation(fields: [sourceDocId], references: [id], onDelete: SetNull)
+  isBuiltIn      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

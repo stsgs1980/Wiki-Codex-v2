@@ -1,0 +1,71 @@
+# =============================================================================
+# Wiki Codex - CI Pipeline
+# Z.ai Reproducibility Standard v1.0 L3
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint, Test, Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Generate Prisma Client
+        run: bunx prisma generate
+        env:
+          DATABASE_URL: "file:./ci-test.db"
+
+      - name: Push DB schema
+        run: bunx prisma db push --skip-generate
+        env:
+          DATABASE_URL: "file:./ci-test.db"
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Start dev server for tests
+        run: bun run dev &
+        env:
+          DATABASE_URL: "file:./ci-test.db"
+
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server failed to start"
+          exit 1
+
+      - name: Run tests
+        run: bun test
+
+      - name: Build
+        run: bun run build
+        env:
+          DATABASE_URL: "file:./ci-test.db"

@@ -1,0 +1,58 @@
+# =============================================================================
+# Wiki Codex - Docker Ignore
+# Z.ai Reproducibility Standard v1.0 L3
+# =============================================================================
+
+# Dependencies (installed fresh in container)
+node_modules/
+
+# Build artifacts
+.next/
+out/
+dist/
+
+# Version control
+.git/
+.gitignore
+
+# CI / GitHub
+.github/
+
+# Environment files (NEVER ship secrets into the image)
+.env
+.env.local
+.env.*.local
+
+# Database files and backups (runtime only, NOT in the image)
+db/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Caddy (used in dev, not in container)
+Caddyfile
+
+# Misc
+README.md
+LICENSE
