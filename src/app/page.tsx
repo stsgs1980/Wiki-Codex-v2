@@ -403,7 +403,9 @@ export default function WikiCodex() {
 
         <footer className="mt-auto border-t bg-zinc-900 dark:bg-zinc-950 px-4 py-1.5 md:px-6 flex items-center justify-between gap-2 font-mono text-[11px]">
           <span className="text-zinc-400 whitespace-nowrap flex items-center gap-2">
-            <span className="text-green-500">{'//>'}</span> Wiki Codex <span className="text-zinc-600">v1.0</span>
+            <span className="text-green-500">{'//>'}</span> Wiki Codex <span className="text-zinc-600">v2.0</span>
+            <span className="text-[#FA3913] mx-1">|</span>
+            <span className="text-zinc-500">NEURO</span>
             <span className="hidden md:flex items-center gap-1.5 ml-2">
               {TECH_ITEMS.map(({ name, Logo }) => (
                 <Logo key={name} className="size-3.5 text-zinc-500" />

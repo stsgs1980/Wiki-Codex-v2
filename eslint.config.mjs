@@ -46,7 +46,7 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "no-unicode-policy/no-unicode-policy": "warn",
   },
 }, {
-  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "tests/**"]
+  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills/**", "tests/**", "templates/**", "standards/**", "instructions/**", "scripts-logo/**", "logos/**"]
 }];
 
 export default eslintConfig;

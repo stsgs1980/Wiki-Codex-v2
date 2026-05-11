@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   keywords: ["база знаний", "разработчик", "документация", "markdown", "фрагменты кода"],
   authors: [{ name: "Wiki Codex Team" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/favicon.png",
   },
 };
 
