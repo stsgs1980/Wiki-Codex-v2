@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { autoBackup } from '@/lib/backup'
 
 export async function POST() {
   if (process.env.NODE_ENV === 'production') {
@@ -351,7 +350,6 @@ function useDebounce<T>(value: T, delay: number): T {
       })
     }
 
-    autoBackup()
     return NextResponse.json({ message: 'Тестовые данные успешно созданы', counts: { categories: 4, tags: tagNames.length, documents: docs.length } })
   } catch (error) {
     console.error('Ошибка при посеве данных:', error)

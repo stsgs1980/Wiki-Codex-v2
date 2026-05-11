@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { autoBackup } from '@/lib/backup'
 import { sanitizeField } from '@/lib/sanitize'
+import { contains, equals } from '@/lib/db-filter'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { term: { contains: search } },
-        { translation: { contains: search } },
-        { explanation: { contains: search } },
+        { term: contains(search) },
+        { translation: contains(search) },
+        { explanation: contains(search) },
       ]
     }
 
@@ -86,23 +86,11 @@ export async function POST(request: NextRequest) {
     const cleanExplanation = sanitizeField(explanation, 'term.explanation')
     const cleanUsage = usage ? sanitizeField(usage, 'term.usage') : null
 
-    // Dedup: check if a term with the same name already exists (exact + lowercase)
+    // Dedup: check if a term with the same name already exists (case-insensitive)
     const existing = await db.term.findFirst({
-      where: { term: { equals: cleanTerm } },
+      where: { term: equals(cleanTerm) },
       include: { document: { select: { id: true, title: true } } },
     })
-    if (!existing) {
-      const existingLower = await db.term.findFirst({
-        where: { term: { equals: cleanTerm.toLowerCase() } },
-        include: { document: { select: { id: true, title: true } } },
-      })
-      if (existingLower) {
-        return NextResponse.json(
-          { term: existingLower, isDuplicate: true },
-          { status: 200 }
-        )
-      }
-    }
     if (existing) {
       return NextResponse.json(
         { term: existing, isDuplicate: true },
@@ -125,7 +113,6 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    autoBackup()
     return NextResponse.json({ term: created, isDuplicate: false }, { status: 201 })
   } catch (error) {
     console.error('Error creating term:', error)
@@ -156,8 +143,7 @@ export async function DELETE(request: NextRequest) {
         where: { id: { in: idList } },
       })
 
-      autoBackup()
-      return NextResponse.json({ success: true, deleted: result.count })
+        return NextResponse.json({ success: true, deleted: result.count })
     }
 
     if (!id) {
@@ -171,7 +157,6 @@ export async function DELETE(request: NextRequest) {
       where: { id },
     })
 
-    autoBackup()
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting term:', error)
@@ -237,7 +222,6 @@ export async function PATCH(request: NextRequest) {
       include: { document: { select: { id: true, title: true } } },
     })
 
-    autoBackup()
     return NextResponse.json({
       success: true,
       merged: result.count,

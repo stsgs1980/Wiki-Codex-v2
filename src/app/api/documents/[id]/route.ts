@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { autoBackup } from '@/lib/backup'
 import { sanitizeField, ensureStackSignature } from '@/lib/sanitize'
 
 export async function GET(
@@ -98,7 +97,6 @@ export async function PATCH(
       })
     })
 
-    autoBackup()
     return NextResponse.json(document)
   } catch (error) {
     console.error('Error updating document:', error)
@@ -127,7 +125,6 @@ export async function DELETE(
       await tx.document.delete({ where: { id } })
     })
 
-    autoBackup()
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting document:', error)

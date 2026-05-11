@@ -1,47 +1,59 @@
 /**
- * Lightweight auto-backup utility.
- * Copies db/custom.db to db/backups/custom_YYYY-MM-DD_HH-MM.db
- * Keeps last 10 backups, deletes older ones.
- * Designed to be called after any write mutation (POST/PATCH/DELETE).
+ * Backup utility for Vercel/serverless environments.
+ * Exports all data as JSON from the PostgreSQL database.
+ * The old file-based backup system is incompatible with Vercel's read-only filesystem.
  */
-import { execSync } from 'child_process'
-import { existsSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'fs'
-import { join } from 'path'
+import { db } from '@/lib/db'
 
-const DB_DIR = join(process.cwd(), 'db')
-const BACKUP_DIR = join(DB_DIR, 'backups')
-const DB_FILE = join(DB_DIR, 'custom.db')
-const MAX_BACKUPS = 10
-
-function ensureDir() {
-  if (!existsSync(BACKUP_DIR)) mkdirSync(BACKUP_DIR, { recursive: true })
+export interface BackupData {
+  exportedAt: string
+  version: string
+  categories: unknown[]
+  tags: unknown[]
+  documents: unknown[]
+  documentTags: unknown[]
+  terms: unknown[]
+  notes: unknown[]
+  instructions: unknown[]
 }
 
-function ts(): string {
-  const d = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`
-}
+/**
+ * Export all database data as a JSON object.
+ * Use this for downloading or migrating data.
+ */
+export async function exportAllData(): Promise<BackupData> {
+  const [categories, tags, documents, documentTags, terms, notes, instructions] = await Promise.all([
+    db.category.findMany({ orderBy: { sortOrder: 'asc' } }),
+    db.tag.findMany({ orderBy: { name: 'asc' } }),
+    db.document.findMany({
+      include: { category: true, tags: { include: { tag: true } } },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    db.documentTag.findMany(),
+    db.term.findMany({ orderBy: { term: 'asc' } }),
+    db.note.findMany({ orderBy: { updatedAt: 'desc' } }),
+    db.instruction.findMany({ orderBy: { updatedAt: 'desc' } }),
+  ])
 
-function cleanup() {
-  if (!existsSync(BACKUP_DIR)) return
-  const files = readdirSync(BACKUP_DIR)
-    .filter((f) => f.endsWith('.db'))
-    .map((f) => ({ path: join(BACKUP_DIR, f), mtime: statSync(join(BACKUP_DIR, f)).mtimeMs }))
-    .sort((a, b) => b.mtime - a.mtime)
-  for (let i = MAX_BACKUPS; i < files.length; i++) {
-    try { unlinkSync(files[i].path) } catch { /* ignore */ }
+  return {
+    exportedAt: new Date().toISOString(),
+    version: '2.0',
+    categories,
+    tags,
+    documents,
+    documentTags,
+    terms,
+    notes,
+    instructions,
   }
 }
 
+/**
+ * @deprecated File-based backup is not supported on Vercel.
+ * This function is kept as a no-op for backward compatibility.
+ * Use exportAllData() instead for data export.
+ */
 export function autoBackup() {
-  if (!existsSync(DB_FILE)) return
-  try {
-    ensureDir()
-    const dest = join(BACKUP_DIR, `custom_${ts()}.db`)
-    execSync(`cp "${DB_FILE}" "${dest}"`)
-    cleanup()
-  } catch {
-    // Backup failure must never break the main operation
-  }
+  // No-op: file-based backups are incompatible with serverless environments.
+  // Data durability is handled by the managed PostgreSQL database.
 }

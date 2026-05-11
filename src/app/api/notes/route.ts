@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { autoBackup } from "@/lib/backup";
 import { createNoteSchema } from "@/lib/validations";
 import { sanitizeField } from "@/lib/sanitize";
+import { contains } from "@/lib/db-filter";
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
       where: search
         ? {
             OR: [
-              { title: { contains: search } },
-              { content: { contains: search } },
+              { title: contains(search) },
+              { content: contains(search) },
             ],
           }
         : undefined,
@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    autoBackup();
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     console.error('Error creating note:', error)

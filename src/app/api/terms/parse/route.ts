@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 import { db } from '@/lib/db'
-import { autoBackup } from '@/lib/backup'
 import { sanitizeField } from '@/lib/sanitize'
+import { equals } from '@/lib/db-filter'
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,22 +65,14 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      // Check for existing term (case-insensitive, SQLite compatible)
+      // Check for existing term (case-insensitive)
       const existing = await db.term.findFirst({
         where: {
-          term: { equals: item.term },
+          term: equals(item.term),
         },
       })
-      // Also check case-insensitive fallback
-      const existingLower = !existing
-        ? await db.term.findFirst({
-            where: {
-              term: { equals: item.term.toLowerCase() },
-            },
-          })
-        : null
 
-      if (existing || existingLower) {
+      if (existing) {
         skipped++
         continue
       }
@@ -104,7 +96,6 @@ export async function POST(request: NextRequest) {
       created++
     }
 
-    autoBackup()
     return NextResponse.json({
       terms: createdTerms,
       created,

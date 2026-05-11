@@ -98,9 +98,7 @@ Response format -- ONLY valid JSON, no markdown fences, no extra text:
       }
 
       // Save each extracted instruction to DB
-            // Save each extracted instruction to DB
-
-      const created: any[] = []
+      const created = []
       for (const instr of extracted) {
         if (!instr.title || !instr.steps?.length) continue
         // Apply No-Unicode Policy: strip any remaining non-ASCII
@@ -126,7 +124,7 @@ Response format -- ONLY valid JSON, no markdown fences, no extra text:
         created.push(instruction)
       }
 
-        return NextResponse.json({ instructions: created, total: created.length })
+      return NextResponse.json({ instructions: created, total: created.length })
     }
 
     // --- Manual creation mode ---

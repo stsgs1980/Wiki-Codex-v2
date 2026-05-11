@@ -1,20 +1,24 @@
 import { NextResponse } from 'next/server'
-import { readFileSync, existsSync } from 'fs'
-import { resolve, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { exportAllData } from '@/lib/backup'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const dbPath = resolve(__dirname, '../../../../db/custom.db')
-
+/**
+ * GET /api/download-db — Export all data as a JSON file
+ * (replaces the old SQLite .db file download)
+ */
 export async function GET() {
-  if (!existsSync(dbPath)) {
-    return NextResponse.json({ error: 'Database file not found' }, { status: 404 })
+  try {
+    const data = await exportAllData()
+    const jsonString = JSON.stringify(data, null, 2)
+    const filename = `wiki-codex-backup-${new Date().toISOString().slice(0, 10)}.json`
+
+    return new NextResponse(jsonString, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
+    })
+  } catch (error) {
+    console.error('Data export failed:', error)
+    return NextResponse.json({ error: 'Data export failed' }, { status: 500 })
   }
-  const data = readFileSync(dbPath)
-  return new NextResponse(data, {
-    headers: {
-      'Content-Type': 'application/octet-stream',
-      'Content-Disposition': 'attachment; filename="wiki-codex-backup.db"',
-    },
-  })
 }

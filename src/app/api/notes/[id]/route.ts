@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { autoBackup } from "@/lib/backup";
 import { sanitizeField } from "@/lib/sanitize";
 
 export async function GET(
@@ -62,7 +61,6 @@ export async function PATCH(
       data: updateData,
     });
 
-    autoBackup();
     return NextResponse.json(note);
   } catch (error) {
     console.error('Error updating note:', error)
@@ -84,7 +82,6 @@ export async function DELETE(
       where: { id },
     });
 
-    autoBackup();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting note:', error)

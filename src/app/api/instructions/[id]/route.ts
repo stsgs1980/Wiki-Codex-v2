@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { autoBackup } from '@/lib/backup'
 
 export async function DELETE(
   _request: NextRequest,
@@ -15,7 +14,6 @@ export async function DELETE(
     }
 
     await db.instruction.delete({ where: { id } })
-    autoBackup()
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting instruction:', error)

@@ -1,5 +1,5 @@
 ==========================================
-[2026-05-11 14:18:05] Starting: bun install
+[2026-05-11 16:37:51] Starting: bun install
 ==========================================
 [BUN] Installing dependencies...
 [0.03ms] ".env"
@@ -9,21 +9,21 @@ $ prisma generate
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.11.1) to ./node_modules/@prisma/client in 59ms
+✔ Generated Prisma Client (v6.11.1) to ./node_modules/@prisma/client in 55ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
 Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
 
 
-Checked 531 installs across 590 packages (no changes) [831.00ms]
+Checked 531 installs across 590 packages (no changes) [816.00ms]
 ==========================================
-[2026-05-11 14:18:06] Completed: bun install
+[2026-05-11 16:37:52] Completed: bun install
 [LOG] Step: bun install | Duration: 1s
 ==========================================
 
 ==========================================
-[2026-05-11 14:18:06] Starting: bun run db:push
+[2026-05-11 16:37:52] Starting: bun run db:push
 ==========================================
 [BUN] Setting up database...
 $ prisma db push
@@ -31,29 +31,29 @@ Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 Datasource "db": SQLite database "custom.db" at "file:/home/z/my-project/db/custom.db"
 
-🚀  Your database is now in sync with your Prisma schema. Done in 15ms
+The database is already in sync with the Prisma schema.
 
 Running generate... (Use --skip-generate to skip the generators)
 [2K[1A[2K[GRunning generate... - Prisma Client
-[2K[1A[2K[G✔ Generated Prisma Client (v6.11.1) to ./node_modules/@prisma/client in 55ms
+[2K[1A[2K[G✔ Generated Prisma Client (v6.11.1) to ./node_modules/@prisma/client in 61ms
 
 ==========================================
-[2026-05-11 14:18:06] Completed: bun run db:push
-[LOG] Step: bun run db:push | Duration: 0s
+[2026-05-11 16:37:53] Completed: bun run db:push
+[LOG] Step: bun run db:push | Duration: 1s
 ==========================================
 
 ==========================================
-[2026-05-11 14:18:06] Starting: Starting Next.js dev server
+[2026-05-11 16:37:53] Starting: Starting Next.js dev server
 ==========================================
 [BUN] Starting development server...
 ==========================================
-$ next dev -p 3000
-[2026-05-11 14:18:06] Completed: Starting Next.js dev server
+[2026-05-11 16:37:53] Completed: Starting Next.js dev server
 [LOG] Step: Starting Next.js dev server | Duration: 0s
 ==========================================
 
 ==========================================
-[2026-05-11 14:18:06] Starting: Waiting for Next.js dev server
+$ next dev -p 3000
+[2026-05-11 16:37:53] Starting: Waiting for Next.js dev server
 ==========================================
 Waiting for Next.js dev server to be ready on localhost:3000...
 Attempt 1/60: Next.js dev server not ready yet, waiting...
@@ -61,41 +61,46 @@ Attempt 1/60: Next.js dev server not ready yet, waiting...
 - Local:         http://localhost:3000
 - Network:       http://21.0.18.131:3000
 - Environments: .env
-✓ Ready in 281ms
+✓ Ready in 284ms
 
+○ Compiling / ...
+Attempt 2/60: Next.js dev server not ready yet, waiting...
+ GET / 200 in 1190ms (next.js: 1123ms, application-code: 67ms)
 Next.js dev server is ready!
- GET / 200 in 1915ms (next.js: 1296ms, application-code: 619ms)
 ==========================================
-[2026-05-11 14:18:09] Completed: Waiting for Next.js dev server
-[LOG] Step: Waiting for Next.js dev server | Duration: 3s
+[2026-05-11 16:38:01] Completed: Waiting for Next.js dev server
+[LOG] Step: Waiting for Next.js dev server | Duration: 8s
 ==========================================
 
 ==========================================
-[2026-05-11 14:18:09] Starting: Health check
+[2026-05-11 16:38:01] Starting: Health check
 ==========================================
 [BUN] Performing health check...
- GET / 200 in 49ms (next.js: 4ms, application-code: 45ms)
+ GET / 200 in 44ms (next.js: 3ms, application-code: 42ms)
 [BUN] Health check passed
 ==========================================
-[2026-05-11 14:18:09] Completed: Health check
+[2026-05-11 16:38:01] Completed: Health check
 [LOG] Step: Health check | Duration: 0s
 ==========================================
 
 ==========================================
-[2026-05-11 14:18:09] Starting: Starting mini-services
+[2026-05-11 16:38:01] Starting: Starting mini-services
 ==========================================
 Found mini-services directory, scanning for sub-services...
 Mini-services startup completed. Started 0 service(s).
 ==========================================
-[2026-05-11 14:18:09] Completed: Starting mini-services
+[2026-05-11 16:38:01] Completed: Starting mini-services
 [LOG] Step: Starting mini-services | Duration: 0s
 ==========================================
 
-Next.js dev server is running in background (PID: 2683).
-Use 'kill 2683' to stop it.
- GET / 200 in 58ms (next.js: 4ms, application-code: 54ms)
- GET /api/categories 200 in 771ms (next.js: 743ms, application-code: 28ms)
- GET /api/seed 405 in 146ms (next.js: 141ms, application-code: 6ms)
- POST /api/seed 200 in 68ms (next.js: 2ms, application-code: 66ms)
- GET /api/categories 200 in 11ms (next.js: 3ms, application-code: 8ms)
- GET /api/documents 200 in 208ms (next.js: 195ms, application-code: 13ms)
+Next.js dev server is running in background (PID: 5249).
+Use 'kill 5249' to stop it.
+ GET /api/categories 200 in 667ms (next.js: 636ms, application-code: 32ms)
+ GET /api/documents?search=Next 200 in 170ms (next.js: 157ms, application-code: 12ms)
+ GET /api/instructions 200 in 121ms (next.js: 113ms, application-code: 8ms)
+ GET /api/backup 200 in 115ms (next.js: 106ms, application-code: 9ms)
+ GET /api/download-db 200 in 104ms (next.js: 95ms, application-code: 9ms)
+ GET /api/notes 200 in 198ms (next.js: 190ms, application-code: 9ms)
+ GET /api/tags 200 in 166ms (next.js: 159ms, application-code: 7ms)
+ GET /api/terms 200 in 130ms (next.js: 121ms, application-code: 9ms)
+ POST /api/notes 201 in 11ms (next.js: 1903µs, application-code: 9ms)

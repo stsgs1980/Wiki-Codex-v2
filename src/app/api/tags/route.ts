@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { autoBackup } from '@/lib/backup'
 import { createTagSchema, deleteByIdSchema } from '@/lib/validations'
+import { equals } from '@/lib/db-filter'
 
 export async function GET() {
   try {
@@ -30,7 +30,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'id query parameter is required' }, { status: 400 })
     }
     await db.tag.delete({ where: { id: parsed.data.id } })
-    autoBackup()
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting tag:', error)
@@ -49,16 +48,8 @@ export async function POST(request: NextRequest) {
     const { name, color } = parsed.data
 
     const existing = await db.tag.findFirst({
-      where: { name: { equals: name } },
+      where: { name: equals(name) },
     })
-    if (!existing) {
-      const existingLower = await db.tag.findFirst({
-        where: { name: { equals: name.toLowerCase() } },
-      })
-      if (existingLower) {
-        return NextResponse.json(existingLower, { status: 200 })
-      }
-    }
     if (existing) {
       return NextResponse.json(existing, { status: 200 })
     }
@@ -67,7 +58,6 @@ export async function POST(request: NextRequest) {
       data: { name, color },
     })
 
-    autoBackup()
     return NextResponse.json(tag, { status: 201 })
   } catch (error) {
     console.error('Error creating tag:', error)

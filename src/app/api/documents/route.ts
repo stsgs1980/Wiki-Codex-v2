@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { Prisma } from '@prisma/client'
-import { autoBackup } from '@/lib/backup'
 import { createDocumentSchema, paginationSchema } from '@/lib/validations'
 import { sanitizeField, ensureStackSignature } from '@/lib/sanitize'
+import { contains, equals } from '@/lib/db-filter'
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { title: { contains: search } },
-        { content: { contains: search } },
-        { summary: { contains: search } },
+        { title: contains(search) },
+        { content: contains(search) },
+        { summary: contains(search) },
       ]
     }
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     const normalizedCategoryId = categoryId && categoryId !== 'none' && categoryId !== 'all' ? categoryId : null
 
     const existing = await db.document.findFirst({
-      where: { title: cleanTitle },
+      where: { title: equals(cleanTitle) },
       include: { category: true, tags: { include: { tag: true } } },
     })
     if (existing) {
@@ -118,7 +118,6 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    autoBackup()
     return NextResponse.json(document, { status: 201 })
   } catch (error) {
     console.error('Error creating document:', error)
