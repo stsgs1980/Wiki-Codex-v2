@@ -98,7 +98,17 @@ Response format -- ONLY valid JSON, no markdown fences, no extra text:
       }
 
       // Save each extracted instruction to DB
-      const created = []
+      const created: Array<{
+        id: string
+        title: string
+        description: string
+        steps: string
+        sourceDocId: string | null
+        isBuiltIn: boolean
+        createdAt: Date
+        updatedAt: Date
+        sourceDoc: { id: string; title: string } | null
+      }> = []
       for (const instr of extracted) {
         if (!instr.title || !instr.steps?.length) continue
         // Apply No-Unicode Policy: strip any remaining non-ASCII
