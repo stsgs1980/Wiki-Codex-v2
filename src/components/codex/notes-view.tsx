@@ -3,6 +3,7 @@
 import { StickyNote, Trash2, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { motion } from 'framer-motion'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +18,7 @@ import {
 import type { Note } from '@/lib/types'
 import { formatDate } from '@/lib/format'
 import { TerminalFrame } from '@/components/codex/terminal-frame'
+import { staggerContainer, staggerItem, listItemHover } from '@/lib/motion'
 
 interface NotesViewProps {
   notes: Note[]
@@ -30,8 +32,10 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
   const preview = note.content.length > 100 ? note.content.slice(0, 100) + '...' : note.content
 
   return (
-    <div
-      className="flex items-start gap-3 rounded-lg border px-3 py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono text-sm group"
+    <motion.div
+      variants={staggerItem}
+      {...listItemHover}
+      className="flex items-start gap-3 border-b px-3 py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono text-sm group"
       onClick={() => onSelect(note.id)}
     >
       <span className="text-terminal-accent shrink-0 select-none text-xs leading-5">$</span>
@@ -70,7 +74,7 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
           {formatDate(note.updatedAt)}
         </span>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -114,11 +118,16 @@ export function NotesView({ notes, onNoteSelect, onCreateNote, onDeleteNote, isL
           </Button>
         </div>
       ) : (
-        <div className="flex flex-col divide-y">
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="flex flex-col"
+        >
           {notes.map((note) => (
             <NoteCard key={note.id} note={note} onSelect={onNoteSelect} onDelete={onDeleteNote} />
           ))}
-        </div>
+        </motion.div>
       )}
     </TerminalFrame>
   )

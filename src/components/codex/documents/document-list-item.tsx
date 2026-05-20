@@ -2,6 +2,8 @@
 
 import { Star, FileText, File } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { motion } from 'framer-motion'
+import { staggerItem, listItemHover } from '@/lib/motion'
 import type { Document } from '@/lib/types'
 
 function getFileIcon(fileType: string) {
@@ -24,7 +26,9 @@ interface DocumentListItemProps {
 
 export function DocumentListItem({ doc, formatDate, formatFileSize, onClick }: DocumentListItemProps) {
   return (
-    <button
+    <motion.button
+      variants={staggerItem}
+      {...listItemHover}
       className="flex items-center gap-3 rounded-md border border-dashed p-3 text-left hover:bg-accent/50 transition-colors w-full font-mono group"
       onClick={onClick}
     >
@@ -58,6 +62,6 @@ export function DocumentListItem({ doc, formatDate, formatFileSize, onClick }: D
         <span>{formatFileSize(doc.fileSize)}</span>
         <span>{formatDate(doc.updatedAt)}</span>
       </div>
-    </button>
+    </motion.button>
   )
 }

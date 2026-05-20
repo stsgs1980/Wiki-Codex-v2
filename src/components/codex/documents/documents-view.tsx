@@ -16,6 +16,7 @@ import type { Document, Category, Tag } from '@/lib/types'
 import { formatDate, formatFileSize, pluralDocs } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
+import { staggerContainer } from '@/lib/motion'
 import { TerminalFrame } from '@/components/codex/terminal-frame'
 import { DocumentCard } from './document-card'
 import { DocumentListItem } from './document-list-item'
@@ -141,8 +142,9 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
         {viewMode === 'grid' ? (
           <motion.div
             key="grid"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
@@ -161,8 +163,9 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
         ) : (
           <motion.div
             key="list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
             exit={{ opacity: 0 }}
             className="flex flex-col gap-2"
           >

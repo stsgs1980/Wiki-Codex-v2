@@ -16,8 +16,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { motion, AnimatePresence } from 'framer-motion'
 import { pluralize } from '@/lib/format'
 import { TECH_ITEMS, NeuroLogoSmall } from '@/components/codex/tech-logos'
+import { viewTransition } from '@/lib/motion'
 import { useWikiCodex } from './use-wiki-codex'
 
 export default function WikiCodex() {
@@ -209,7 +211,18 @@ export default function WikiCodex() {
         <Header onMenuToggle={() => setMobileMenuOpen(true)} />
 
         <ScrollArea className="flex-1 overflow-auto">
-          {renderView()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentView}
+              variants={viewTransition}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              {renderView()}
+            </motion.div>
+          </AnimatePresence>
         </ScrollArea>
 
         <footer className="mt-auto border-t bg-card px-4 py-1.5 md:px-6 flex items-center justify-between gap-2 font-mono text-[11px]">
