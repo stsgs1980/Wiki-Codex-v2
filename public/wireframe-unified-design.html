@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiki Codex — Unified Design System Proposal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    :root {
+      /* Brand */
+      --brand-coral: #FA3913;
+      --brand-coral-light: #ff5a38;
+
+      /* Accent semantic tokens */
+      --accent-green: #16a34a;
+      --accent-green-muted: rgba(22, 163, 74, 0.1);
+      --accent-amber: #d97706;
+      --accent-amber-muted: rgba(217, 119, 6, 0.1);
+      --accent-violet: #7c3aed;
+      --accent-violet-muted: rgba(124, 58, 237, 0.1);
+      --accent-red: #dc2626;
+      --accent-red-muted: rgba(220, 38, 38, 0.1);
+
+      /* Code syntax tokens */
+      --syntax-comment: #6b7280;
+      --syntax-keyword: #16a34a;
+      --syntax-string: #d97706;
+      --syntax-function: #7c3aed;
+      --syntax-path: #0891b2;
+      --syntax-flag: #2563eb;
+      --syntax-number: #ea580c;
+      --syntax-env: #0d9488;
+
+      /* Typography scale */
+      --text-2xs: 10px;
+      --text-xs-alt: 11px;
+      --text-xs: 12px;
+      --text-sm: 14px;
+      --text-base: 16px;
+      --text-lg: 18px;
+      --text-xl: 20px;
+      --text-2xl: 24px;
+
+      /* Spacing */
+      --frame-margin: 1rem;
+      --frame-margin-sm: 1.5rem;
+      --frame-margin-md: 2rem;
+      --frame-padding: 0.75rem;
+      --frame-padding-sm: 1rem;
+
+      /* Surface */
+      --surface-base: #ffffff;
+      --surface-card: #ffffff;
+      --surface-muted: #f5f5f4;
+      --surface-elevated: #fafaf9;
+      --text-primary: #1c1917;
+      --text-secondary: #78716c;
+      --text-tertiary: #a8a29e;
+      --border-default: #e7e5e4;
+      --border-dashed: #d6d3d1;
+    }
+
+    .dark {
+      --surface-base: #0c0a09;
+      --surface-card: #1c1917;
+      --surface-muted: #292524;
+      --surface-elevated: #1c1917;
+      --text-primary: #fafaf9;
+      --text-secondary: #a8a29e;
+      --text-tertiary: #78716c;
+      --border-default: rgba(255,255,255,0.1);
+      --border-dashed: rgba(255,255,255,0.15);
+
+      --accent-green: #4ade80;
+      --accent-green-muted: rgba(74, 222, 128, 0.08);
+      --accent-amber: #fbbf24;
+      --accent-amber-muted: rgba(251, 191, 36, 0.08);
+      --accent-violet: #a78bfa;
+      --accent-violet-muted: rgba(167, 139, 250, 0.08);
+      --accent-red: #f87171;
+      --accent-red-muted: rgba(248, 113, 113, 0.08);
+
+      --syntax-comment: #78716c;
+      --syntax-keyword: #4ade80;
+      --syntax-string: #fbbf24;
+      --syntax-function: #c084fc;
+      --syntax-path: #22d3ee;
+      --syntax-flag: #60a5fa;
+      --syntax-number: #fb923c;
+      --syntax-env: #2dd4bf;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--surface-base);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    h1 { font-size: var(--text-2xl); font-weight: 700; margin-bottom: 0.5rem; }
+    h2 { font-size: var(--text-xl); font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-default); padding-bottom: 0.5rem; }
+    h3 { font-size: var(--text-lg); font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    p { color: var(--text-secondary); margin-bottom: 0.75rem; font-size: var(--text-sm); }
+
+    /* Proposal card */
+    .proposal {
+      background: var(--surface-card);
+      border: 1px solid var(--border-default);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .proposal-label {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-2xs);
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+    .label-critical { background: var(--accent-red-muted); color: var(--accent-red); }
+    .label-high { background: var(--accent-amber-muted); color: var(--accent-amber); }
+    .label-medium { background: var(--accent-green-muted); color: var(--accent-green); }
+
+    /* Before/After comparison */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 640px) {
+      .comparison { grid-template-columns: 1fr; }
+    }
+
+    .before, .after {
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-size: var(--text-xs);
+    }
+    .before {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+    .dark .before {
+      background: rgba(220, 38, 38, 0.08);
+      border-color: rgba(220, 38, 38, 0.2);
+    }
+    .after {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+    .dark .after {
+      background: rgba(22, 163, 74, 0.08);
+      border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    .comparison-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-2xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .before .comparison-label { color: var(--accent-red); }
+    .after .comparison-label { color: var(--accent-green); }
+
+    /* Code block demo */
+    .code-block-demo {
+      border-radius: 0.5rem;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.375rem 0.75rem;
+    }
+    .code-header-dark {
+      background: #18181b;
+      border-bottom: 1px solid #27272a;
+    }
+    .code-header-themed {
+      background: var(--surface-muted);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .code-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+    .code-label { font-family: 'JetBrains Mono', monospace; font-size: var(--text-2xs); }
+    .code-body {
+      padding: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-xs);
+      line-height: 1.6;
+      white-space: pre;
+    }
+    .code-body-dark { background: #09090b; color: rgba(228, 228, 231, 0.9); }
+    .code-body-themed { background: var(--surface-muted); color: var(--text-primary); }
+
+    /* Token demo */
+    .tok-comment { color: var(--syntax-comment); }
+    .tok-keyword { color: var(--syntax-keyword); font-weight: 600; }
+    .tok-string { color: var(--syntax-string); }
+    .tok-path { color: var(--syntax-path); text-decoration: underline; text-decoration-color: rgba(8, 145, 178, 0.3); }
+    .tok-flag { color: var(--syntax-flag); }
+    .tok-env { color: var(--syntax-env); }
+    .tok-number { color: var(--syntax-number); font-weight: 600; }
+
+    /* Footer demo */
+    .footer-demo {
+      padding: 0.375rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-xs-alt);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-dark { background: #18181b; color: #a1a1aa; }
+    .footer-themed { background: var(--surface-muted); color: var(--text-secondary); border-top: 1px solid var(--border-default); }
+
+    /* Step card demo */
+    .step-demo {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid;
+      font-size: var(--text-xs);
+    }
+    .step-dark {
+      background: rgba(113, 113, 122, 0.05);
+      border-color: rgba(113, 113, 122, 0.2);
+      color: rgba(212, 212, 216, 0.8);
+    }
+    .step-themed {
+      background: var(--surface-muted);
+      border-color: var(--border-default);
+      color: var(--text-secondary);
+    }
+
+    /* Token table */
+    .token-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-xs);
+      margin-top: 0.75rem;
+    }
+    .token-table th {
+      text-align: left;
+      padding: 0.375rem 0.5rem;
+      border-bottom: 2px solid var(--border-default);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-2xs);
+      color: var(--text-tertiary);
+    }
+    .token-table td {
+      padding: 0.375rem 0.5rem;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .swatch {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      vertical-align: middle;
+      margin-right: 6px;
+      border: 1px solid var(--border-default);
+    }
+
+    /* Stat boxes */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .stat-box {
+      text-align: center;
+      padding: 1rem 0.5rem;
+      border-radius: 0.5rem;
+      background: var(--surface-muted);
+      border: 1px solid var(--border-default);
+    }
+    .stat-value {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      display: block;
+    }
+    .stat-label {
+      font-size: var(--text-2xs);
+      color: var(--text-tertiary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border-default);
+      background: var(--surface-card);
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-xs);
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.15s;
+    }
+    .theme-toggle:hover {
+      background: var(--surface-muted);
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-2xs);
+      padding: 1px 6px;
+      border-radius: 9999px;
+      border: 1px solid;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle mono" onclick="document.documentElement.classList.toggle('dark')">
+    ☀ / 🌙 toggle theme
+  </button>
+
+  <div class="container">
+    <h1>Wiki Codex — Unified Design System</h1>
+    <p>Proposal для единой дизайн-системы: типографика, цвета, spacing, theme-поддержка. Нажми ☀/🌙 чтобы переключить тему и увидеть проблемы.</p>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 1: Critical — Code blocks in light mode -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>1. Code Blocks — Dark-Only → Theme-Adaptive</h2>
+    <div class="proposal">
+      <span class="proposal-label label-critical">CRITICAL — 5 files</span>
+      <p><strong>Проблема:</strong> CopyableCodeBlock, semantic-highlight, step-type-config, step-card — всё захардкожено под тёмную тему. В light режиме код нечитаем.</p>
+      <p><strong>Решение:</strong> Code block использует semantic tokens (bg-muted / bg-card), а syntax highlighting переключается через CSS custom properties.</p>
+
+      <div class="comparison">
+        <div class="before">
+          <div class="comparison-label">❌ Before — dark-only</div>
+          <div class="code-block-demo">
+            <div class="code-header code-header-dark">
+              <div><span class="code-dot" style="background:#71717a99"></span><span class="code-label" style="color:#a1a1aa">Установить зависимости</span></div>
+            </div>
+            <div class="code-body code-body-dark"><span style="color:#78716c">// Открой в браузере</span>
+<span style="color:#4ade80">POST</span> <span style="color:#c084fc">/api/backup</span>
+<span style="color:#d97706">"https://example.com"</span>
+<span style="color:#60a5fa">--verbose</span>
+<span style="color:#2dd4bf">DATABASE_URL=</span><span style="color:#fbbf24">postgres://...</span></div>
+          </div>
+          <p style="margin-top:0.5rem;color:var(--accent-red);font-size:var(--text-2xs)">⚡ В light теме — белый текст на белом фоне</p>
+        </div>
+        <div class="after">
+          <div class="comparison-label">✅ After — theme-adaptive</div>
+          <div class="code-block-demo">
+            <div class="code-header code-header-themed">
+              <div><span class="code-dot" style="background:var(--accent-green)"></span><span class="code-label" style="color:var(--text-secondary)">Установить зависимости</span></div>
+            </div>
+            <div class="code-body code-body-themed"><span class="tok-comment">// Открой в браузере</span>
+<span class="tok-keyword">POST</span> <span class="tok-path">/api/backup</span>
+<span class="tok-string">"https://example.com"</span>
+<span class="tok-flag">--verbose</span>
+<span class="tok-env">DATABASE_URL=</span><span class="tok-string">postgres://...</span></div>
+          </div>
+          <p style="margin-top:0.5rem;color:var(--accent-green);font-size:var(--text-2xs)">✓ Работает в обеих темах через CSS variables</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 2: Critical — Footer dark-only -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>2. Footer — Dark-Only → Semantic Tokens</h2>
+    <div class="proposal">
+      <span class="proposal-label label-critical">CRITICAL — page.tsx</span>
+      <p><strong>Проблема:</strong> Footer захардкожен как <code>bg-zinc-900 text-zinc-400</code> — чёрная полоса на белой странице.</p>
+
+      <div class="comparison">
+        <div class="before">
+          <div class="comparison-label">❌ Before</div>
+          <div class="footer-demo footer-dark">
+            <span><span style="color:#22c55e">//&gt;</span> Wiki Codex <span style="color:#52525b">v2.0</span> <span style="color:#FA3913">|</span> <span style="color:#71717a">NEURO</span></span>
+            <span style="color:#71717a">5 docs</span>
+          </div>
+        </div>
+        <div class="after">
+          <div class="comparison-label">✅ After</div>
+          <div class="footer-demo footer-themed">
+            <span><span style="color:var(--accent-green)">//&gt;</span> Wiki Codex <span style="color:var(--text-tertiary)">v2.0</span> <span style="color:var(--brand-coral)">|</span> <span style="color:var(--text-tertiary)">NEURO</span></span>
+            <span style="color:var(--text-tertiary)">5 docs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 3: Syntax Highlighting Tokens -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>3. Syntax Highlighting — CSS Custom Properties</h2>
+    <div class="proposal">
+      <span class="proposal-label label-high">HIGH — semantic-highlight.tsx</span>
+      <p><strong>Проблема:</strong> Все 9 типов токенов используют zinc/lime/purple/amber/green/blue/cyan-300/400 shade — невидимые на белом фоне.</p>
+      <p><strong>Решение:</strong> Определить CSS variables для каждого типа токена, с разными значениями для light/dark.</p>
+
+      <table class="token-table">
+        <thead>
+          <tr><th>Token</th><th>Light</th><th>Dark</th><th>Demo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">--syntax-comment</td><td>#6b7280</td><td>#78716c</td><td><span class="tok-comment">// comment</span></td></tr>
+          <tr><td class="mono">--syntax-keyword</td><td>#16a34a</td><td>#4ade80</td><td><span class="tok-keyword">POST</span></td></tr>
+          <tr><td class="mono">--syntax-path</td><td>#0891b2</td><td>#22d3ee</td><td><span class="tok-path">/api/backup</span></td></tr>
+          <tr><td class="mono">--syntax-string</td><td>#d97706</td><td>#fbbf24</td><td><span class="tok-string">"value"</span></td></tr>
+          <tr><td class="mono">--syntax-flag</td><td>#2563eb</td><td>#60a5fa</td><td><span class="tok-flag">--verbose</span></td></tr>
+          <tr><td class="mono">--syntax-env</td><td>#0d9488</td><td>#2dd4bf</td><td><span class="tok-env">KEY=</span><span class="tok-string">val</span></td></tr>
+          <tr><td class="mono">--syntax-number</td><td>#ea580c</td><td>#fb923c</td><td><span class="tok-number">1.</span> step</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 4: Step Type Config -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>4. Step Types — Dual Light/Dark Classes</h2>
+    <div class="proposal">
+      <span class="proposal-label label-critical">CRITICAL — step-type-config.tsx</span>
+      <p><strong>Проблема:</strong> Все 5 step type конфигов используют dark-only цвета (zinc-500, amber-200/80, blue-200/80 и т.д.). В light теме текст описания невидим.</p>
+
+      <div class="comparison">
+        <div class="before">
+          <div class="comparison-label">❌ Before — dark-only</div>
+          <div class="step-demo step-dark">
+            ⚠️ <strong>Внимание!</strong> Используйте безопасное соединение<br>
+            <span style="color:rgba(251,191,36,0.8);font-size:var(--text-2xs)">descriptionClass: 'text-amber-200/80'</span>
+          </div>
+        </div>
+        <div class="after">
+          <div class="comparison-label">✅ After — dual theme</div>
+          <div class="step-demo step-themed">
+            ⚠️ <strong>Внимание!</strong> Используйте безопасное соединение<br>
+            <span style="color:var(--accent-amber);font-size:var(--text-2xs)">light: text-amber-700 / dark: text-amber-400</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 5: Accent Semantic Tokens -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>5. Accent Color Tokens</h2>
+    <div class="proposal">
+      <span class="proposal-label label-high">HIGH — 30+ instances</span>
+      <p><strong>Проблема:</strong> <code>text-green-600 dark:text-green-400</code> повторяется 12 раз. <code>text-amber-500</code> — 8 раз. Нет единого токена.</p>
+      <p><strong>Решение:</strong> Определить CSS variables для accent цветов, с light/dark значениями. Использовать утилитарный класс <code>text-accent-green</code> вместо пары.</p>
+
+      <table class="token-table">
+        <thead>
+          <tr><th>Token</th><th>Light</th><th>Dark</th><th>Usage</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">--accent-green</td>
+            <td><span class="swatch" style="background:#16a34a"></span>#16a34a</td>
+            <td><span class="swatch" style="background:#4ade80"></span>#4ade80</td>
+            <td>Prompt $, active nav, terminal cursor</td>
+          </tr>
+          <tr>
+            <td class="mono">--accent-amber</td>
+            <td><span class="swatch" style="background:#d97706"></span>#d97706</td>
+            <td><span class="swatch" style="background:#fbbf24"></span>#fbbf24</td>
+            <td>Stars, warnings, AI sparkles</td>
+          </tr>
+          <tr>
+            <td class="mono">--accent-violet</td>
+            <td><span class="swatch" style="background:#7c3aed"></span>#7c3aed</td>
+            <td><span class="swatch" style="background:#a78bfa"></span>#a78bfa</td>
+            <td>Semantic search, AI badges</td>
+          </tr>
+          <tr>
+            <td class="mono">--accent-coral</td>
+            <td><span class="swatch" style="background:#FA3913"></span>#FA3913</td>
+            <td><span class="swatch" style="background:#ff5a38"></span>#ff5a38</td>
+            <td>NEURO brand, dividers</td>
+          </tr>
+          <tr>
+            <td class="mono">--accent-emerald</td>
+            <td><span class="swatch" style="background:#059669"></span>#059669</td>
+            <td><span class="swatch" style="background:#34d399"></span>#34d399</td>
+            <td>DB instruction badges, success</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 6: Typography Scale -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>6. Typography Scale — Standardize</h2>
+    <div class="proposal">
+      <span class="proposal-label label-medium">MEDIUM — 22 instances</span>
+      <p><strong>Проблема:</strong> Микро-размеры <code>text-[9px]</code>, <code>text-[10px]</code>, <code>text-[11px]</code>, <code>text-[13px]</code> разбросаны повсюду без системы.</p>
+      <p><strong>Решение:</strong> Утвердить 3 уровня: mono-label (10px), mono-badge (11px), mono-body (13px). Использовать Tailwind arbitrary values с CSS variables.</p>
+
+      <table class="token-table">
+        <thead>
+          <tr><th>Token</th><th>Size</th><th>Usage</th><th>Current mess</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">--text-micro</td><td>10px</td><td>Section headers, counts, indicators</td><td>text-[9px], text-[10px]</td></tr>
+          <tr><td class="mono">--text-label</td><td>11px</td><td>Terminal title bar, breadcrumbs, labels</td><td>text-[11px]</td></tr>
+          <tr><td class="mono">--text-code</td><td>13px</td><td>Code block body text</td><td>text-[13px]</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Font Convention</h3>
+      <div style="background:var(--surface-muted);border-radius:0.5rem;padding:1rem;margin-top:0.75rem;font-size:var(--text-sm);">
+        <p style="margin-bottom:0.5rem"><code class="mono" style="background:var(--surface-card);padding:2px 6px;border-radius:3px">font-mono</code> — Terminal chrome: labels, badges, buttons, metadata, footer, sidebar, prompts</p>
+        <p style="margin-bottom:0.5rem"><code class="mono" style="background:var(--surface-card);padding:2px 6px;border-radius:3px">font-sans</code> — Readable text: headings, descriptions, body content, card text</p>
+        <p><code class="mono" style="background:var(--surface-card);padding:2px 6px;border-radius:3px">font-sans</code> на h1-h3 — обязательно. Headings читаются лучше в sans-serif.</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 7: Spacing Standardization -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>7. Spacing — Standardize TerminalFrame Pattern</h2>
+    <div class="proposal">
+      <span class="proposal-label label-medium">MEDIUM — 12 inconsistencies</span>
+      <p><strong>Проблема:</strong> TerminalFrame margins варьируются: <code>m-4 md:m-6</code>, <code>m-3 sm:m-4 md:m-6</code>, <code>m-3 sm:m-4</code>. Внутренний padding: <code>p-3</code>, <code>p-3 sm:p-4</code>, <code>p-4</code>.</p>
+      <p><strong>Решение:</strong> Единый паттерн для всех views:</p>
+
+      <div style="background:var(--surface-muted);border-radius:0.5rem;padding:1rem;margin-top:0.75rem;font-size:var(--text-sm);">
+        <p style="margin-bottom:0.5rem"><strong>TerminalFrame margin:</strong> <code class="mono" style="background:var(--surface-card);padding:2px 6px;border-radius:3px">className="m-3 sm:m-4 md:m-6"</code></p>
+        <p><strong>Inner padding:</strong> <code class="mono" style="background:var(--surface-card);padding:2px 6px;border-radius:3px">className="p-3 sm:p-4"</code></p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PROPOSAL 8: globals.css → CSS Variables -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>8. globals.css — Replace Hardcoded Hex</h2>
+    <div class="proposal">
+      <span class="proposal-label label-medium">MEDIUM — 14 hex values</span>
+      <p><strong>Проблема:</strong> Prose overrides, scrollbar, Prism — всё использует захардкоженные hex (#f5f5f4, #292524, #1c1917, #44403c и т.д.).</p>
+      <p><strong>Решение:</strong> Заменить на <code>var(--muted)</code>, <code>var(--border)</code>, <code>var(--card)</code> и т.д.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- Summary -->
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>Summary — 8 Proposals</h2>
+
+    <div class="stat-grid">
+      <div class="stat-box">
+        <span class="stat-value" style="color:var(--accent-red)">5</span>
+        <span class="stat-label">critical</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value" style="color:var(--accent-amber)">2</span>
+        <span class="stat-label">high</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value" style="color:var(--accent-green)">3</span>
+        <span class="stat-label">medium</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value">68</span>
+        <span class="stat-label">hardcoded colors</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value">12</span>
+        <span class="stat-label">theme-unsafe</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value">22</span>
+        <span class="stat-label">typo issues</span>
+      </div>
+    </div>
+
+    <div class="proposal" style="margin-top:1.5rem;">
+      <h3 style="margin-top:0">Files to modify</h3>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:var(--text-xs);line-height:2;color:var(--text-secondary)">
+        globals.css • layout.tsx • page.tsx • header.tsx • dashboard-view.tsx<br>
+        instructions/step-type-config.tsx • instructions/semantic-highlight.tsx<br>
+        instructions/copyable-code-block.tsx • instructions/step-card.tsx<br>
+        instructions/template-card.tsx • instructions/instructions-view.tsx<br>
+        doc-viewer/document-view-mode.tsx • doc-viewer/markdown-renderer.tsx<br>
+        documents/document-card.tsx • documents/document-list-item.tsx<br>
+        documents/documents-view.tsx • notes-view.tsx • note-editor/*<br>
+        sidebar-modules/* • upload/* • terminal-frame.tsx<br>
+        neuro-logo.tsx • tech-logos.tsx
+      </p>
+    </div>
+  </div>
+</body>
+</html>
