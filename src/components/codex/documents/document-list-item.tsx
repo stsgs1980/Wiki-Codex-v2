@@ -53,8 +53,8 @@ export function DocumentListItem({ doc, formatDate, formatFileSize, onClick }: D
         {doc.category && (
           <Badge
             variant="secondary"
-            className="text-[10px] px-1.5 py-0 font-mono"
-            style={{ backgroundColor: doc.category.color + '20', color: doc.category.color }}
+            className="text-[10px] px-1.5 py-0 font-mono tag-color-text tag-color-bg"
+            style={{ '--tag-color': doc.category.color } as React.CSSProperties}
           >
             {doc.category.name}
           </Badge>

@@ -32,13 +32,13 @@ export const staggerItem: Variants = {
 
 /** Hover tap for interactive cards */
 export const cardHover = {
-  whileHover: { y: -2, transition: { type: 'spring', stiffness: 400, damping: 25 } },
+  whileHover: { y: -2, transition: { type: 'spring' as const, stiffness: 400, damping: 25 } },
   whileTap: { scale: 0.985 },
 }
 
 /** Hover tap for list items (subtler) */
 export const listItemHover = {
-  whileHover: { x: 4, transition: { type: 'spring', stiffness: 500, damping: 30 } },
+  whileHover: { x: 4, transition: { type: 'spring' as const, stiffness: 500, damping: 30 } },
   whileTap: { scale: 0.99 },
 }
 
@@ -64,7 +64,7 @@ export const sectionEntrance: Variants = {
 
 /** Sidebar nav item hover — subtle slide right */
 export const navItemHover = {
-  whileHover: { x: 3, transition: { type: 'spring', stiffness: 500, damping: 30 } },
+  whileHover: { x: 3, transition: { type: 'spring' as const, stiffness: 500, damping: 30 } },
   whileTap: { scale: 0.98 },
 }
 
@@ -88,6 +88,6 @@ export const fadeIn: Variants = {
 
 /** Scale pop — for badges, counters */
 export const scalePop = {
-  whileHover: { scale: 1.05, transition: { type: 'spring', stiffness: 400, damping: 20 } },
+  whileHover: { scale: 1.05, transition: { type: 'spring' as const, stiffness: 400, damping: 20 } },
   whileTap: { scale: 0.95 },
 }

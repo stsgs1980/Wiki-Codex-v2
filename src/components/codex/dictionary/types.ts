@@ -1,5 +1,7 @@
 import type { Term, Document } from '@/lib/types'
 
+export type { Term } from '@/lib/types'
+
 export interface DictionaryViewProps {
   terms: Term[]
   isLoading: boolean

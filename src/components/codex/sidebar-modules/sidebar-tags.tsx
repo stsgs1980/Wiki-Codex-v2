@@ -127,11 +127,12 @@ export function SidebarTags({
                       'text-xs cursor-pointer transition-colors',
                       isActive
                         ? 'font-medium'
-                        : 'hover:bg-accent'
+                        : 'hover:bg-accent tag-color-text',
+                      !isActive && 'tag-color-border'
                     )}
                     style={isActive
-                      ? { backgroundColor: tag.color + '20', borderColor: tag.color, color: tag.color }
-                      : { borderColor: tag.color, color: tag.color }
+                      ? { '--tag-color': tag.color, backgroundColor: 'var(--tag-color)', borderColor: tag.color, color: 'var(--primary-foreground)' } as React.CSSProperties
+                      : { '--tag-color': tag.color } as React.CSSProperties
                     }
                     onClick={() => {
                       if (isActive) {

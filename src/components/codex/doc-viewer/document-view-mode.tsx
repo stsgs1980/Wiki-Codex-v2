@@ -17,6 +17,7 @@ import { TerminalFrame } from '@/components/codex/terminal-frame'
 import { formatDate, formatFileSize } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { Document, AIAnalysis } from '@/lib/types'
+import type { ViewType } from '@/lib/store'
 import type { RelatedDocument } from './types'
 import { MarkdownContent } from './markdown-renderer'
 import { RelatedDocsSection } from './related-docs-section'
@@ -38,7 +39,7 @@ interface DocumentViewModeProps {
   onFetchRelated: (docId: string) => void
   onRelatedClick: (relDoc: RelatedDocument) => void
   onEdit: () => void
-  setView: (view: string) => void
+  setView: (view: ViewType) => void
   selectDocument: (id: string) => void
   setSelectedCategory: (id: string) => void
 }
@@ -100,7 +101,7 @@ export function DocumentViewMode({
           {doc.category && (
             <div className="flex items-center gap-1">
               <FolderOpen className="size-3" />
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-mono" style={{ backgroundColor: doc.category.color + '20', color: doc.category.color }}>
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-mono tag-color-text tag-color-bg" style={{ '--tag-color': doc.category.color } as React.CSSProperties}>
                 {doc.category.name}
               </Badge>
             </div>
@@ -116,7 +117,7 @@ export function DocumentViewMode({
           <div className="flex flex-wrap items-center gap-1.5 mb-3">
             <TagIcon className="size-3 text-muted-foreground shrink-0" />
             {doc.tags.map((dt) => (
-              <Badge key={dt.tag.id} variant="outline" className="text-[10px] font-mono" style={{ borderColor: dt.tag.color, color: dt.tag.color }}>
+              <Badge key={dt.tag.id} variant="outline" className="text-[10px] font-mono tag-color-text tag-color-border" style={{ '--tag-color': dt.tag.color } as React.CSSProperties}>
                 {dt.tag.name}
               </Badge>
             ))}

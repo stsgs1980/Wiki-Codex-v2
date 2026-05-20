@@ -58,8 +58,8 @@ export function DocumentCard({ doc, formatDate, onClick }: DocumentCardProps) {
               <Badge
                 key={dt.tag.id}
                 variant="outline"
-                className="text-xs px-1.5 py-0"
-                style={{ borderColor: dt.tag.color, color: dt.tag.color }}
+                className="text-xs px-1.5 py-0 tag-color-text tag-color-border"
+                style={{ '--tag-color': dt.tag.color } as React.CSSProperties}
               >
                 {dt.tag.name}
               </Badge>
@@ -75,8 +75,8 @@ export function DocumentCard({ doc, formatDate, onClick }: DocumentCardProps) {
             <div className="flex items-center gap-2">
               {doc.category && (
                 <span
-                  className="inline-flex items-center gap-1"
-                  style={{ color: doc.category.color }}
+                  className="inline-flex items-center gap-1 tag-color-text"
+                  style={{ '--tag-color': doc.category.color } as React.CSSProperties}
                 >
                   <span
                     className="size-1.5 rounded-full inline-block"
