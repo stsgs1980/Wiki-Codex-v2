@@ -1,6 +1,3 @@
-import { format } from 'date-fns'
-import { ru } from 'date-fns/locale'
-
 export function pluralize(n: number, forms: [string, string, string]): string {
   const abs = n % 100
   const last = abs % 10
@@ -10,8 +7,15 @@ export function pluralize(n: number, forms: [string, string, string]): string {
   return forms[2]
 }
 
+// Native Intl formatter — replaces date-fns (saves ~21 MB from bundle)
+const dateFmt = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+})
+
 export function formatDate(dateStr: string): string {
-  return format(new Date(dateStr), 'd MMM yyyy', { locale: ru })
+  return dateFmt.format(new Date(dateStr))
 }
 
 export function formatFileSize(bytes: number): string {

@@ -10,8 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
-import { ru } from 'date-fns/locale'
+import { formatDate } from '@/lib/format'
 import { motion } from 'framer-motion'
 import type { TermCardProps } from './types'
 
@@ -75,7 +74,7 @@ export function TermCardList({
 
         {/* Date - desktop only */}
         <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0 hidden sm:inline">
-          {format(new Date(t.createdAt), 'd MMM yyyy', { locale: ru })}
+          {formatDate(t.createdAt)}
         </span>
 
         {/* Delete - desktop only (hover) */}

@@ -2,14 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Exclude heavy wireframe HTML files from the build output
-  // They are development-only assets served statically
+  output: 'standalone',
   experimental: {
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',
-      'date-fns',
       '@radix-ui/react-icons',
+      'react-syntax-highlighter',
+      'z-ai-web-dev-sdk',
     ],
   },
 };
