@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instructions Redesign Wireframe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            codex: {
+              red: '#dc2626',
+              orange: '#ea580c',
+              green: '#16a34a',
+              purple: '#9333ea',
+              cyan: '#0891b2',
+              pink: '#c026d3',
+              amber: '#d97706',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #09090b; }
+    .step-line { position: absolute; left: 15px; top: 40px; bottom: 0; width: 2px; }
+    .code-comment { color: #6b7280; }
+    .code-cmd { color: #a3e635; }
+    .code-flag { color: #60a5fa; }
+    .code-string { color: #fbbf24; }
+    .code-prompt { color: #4ade80; font-weight: 600; }
+    .code-path { color: #c084fc; }
+    .step-card:hover { transform: translateY(-1px); }
+    .copy-btn { opacity: 0; transition: opacity 0.2s; }
+    .code-block:hover .copy-btn { opacity: 1; }
+    .tag-pill { font-size: 10px; padding: 2px 8px; border-radius: 9999px; font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="text-gray-100 font-sans min-h-screen p-6 max-w-4xl mx-auto">
+
+  <!-- ==================== BEFORE (current) ==================== -->
+  <div class="mb-12">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-mono rounded">BEFORE</span>
+      <h1 class="text-2xl font-bold">Current Design</h1>
+    </div>
+
+    <!-- Current TemplateCard mockup -->
+    <div class="bg-zinc-900 rounded-lg border border-zinc-800 p-5">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg" style="background: rgba(220,38,38,0.15); color: #dc2626;">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-base font-semibold">Survival Guide</span>
+            <span class="px-1.5 py-0.5 bg-zinc-800 text-zinc-400 text-[10px] rounded">5 шагов</span>
+          </div>
+          <span class="text-sm text-zinc-400">Как экспортировать данные и восстановить информацию</span>
+        </div>
+        <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+
+      <div class="flex items-center gap-2 mb-5">
+        <span class="px-1.5 py-0.5 border border-zinc-700 text-zinc-400 text-[10px] rounded">Шаблон</span>
+        <button class="flex items-center gap-2 px-3 py-1.5 border border-zinc-700 rounded text-xs">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Копировать всё
+        </button>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="relative pl-8 pb-6">
+        <div class="absolute left-3 top-6 bottom-0 w-px border-l border-dashed border-zinc-700"></div>
+        <div class="absolute left-1 top-1.5 w-[22px] h-[22px] rounded-sm bg-zinc-100 text-zinc-900 flex items-center justify-center text-[10px] font-mono font-bold ring-4 ring-zinc-900">1</div>
+        <button class="flex items-center gap-2 text-left w-full">
+          <svg class="w-3 h-3 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <span class="text-xs font-mono font-semibold">Экспорт данных (JSON)</span>
+        </button>
+        <div class="mt-3 flex flex-col gap-3">
+          <p class="text-sm text-zinc-400">Все данные хранятся в облачной PostgreSQL базе. Экспортируй данные в JSON:</p>
+          <div class="rounded-md border border-dashed border-zinc-700 bg-zinc-800/30 overflow-hidden">
+            <div class="flex items-center justify-between px-3 py-1 border-b border-dashed border-zinc-700 bg-zinc-800/60">
+              <span class="text-[10px] font-mono text-zinc-500">Скачать данные</span>
+            </div>
+            <pre class="px-3 py-2 overflow-x-auto text-[12px] leading-relaxed"><code class="font-mono text-zinc-300 whitespace-pre">Открой в браузере: /api/download-db
+Файл wiki-codex-backup-YYYY-MM-DD.json скачается автоматически
+Содержит: все документы, заметки, инструкции, термины, категории, теги</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="relative pl-8 pb-6">
+        <div class="absolute left-3 top-6 bottom-0 w-px border-l border-dashed border-zinc-700"></div>
+        <div class="absolute left-1 top-1.5 w-[22px] h-[22px] rounded-sm bg-zinc-100 text-zinc-900 flex items-center justify-center text-[10px] font-mono font-bold ring-4 ring-zinc-900">2</div>
+        <button class="flex items-center gap-2 text-left w-full">
+          <svg class="w-3 h-3 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <span class="text-xs font-mono font-semibold">Создать бэкап</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AFTER (proposed) ==================== -->
+  <div class="mb-12">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-mono rounded">AFTER</span>
+      <h1 class="text-2xl font-bold">Proposed Redesign</h1>
+    </div>
+
+    <!-- PROPOSED TemplateCard -->
+    <div class="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden transition-shadow hover:shadow-lg hover:shadow-codex-red/5">
+      <!-- Header with color accent -->
+      <div class="px-6 py-5 border-b border-zinc-800 flex items-start gap-4">
+        <div class="flex items-center justify-center w-11 h-11 rounded-xl shrink-0" style="background: linear-gradient(135deg, rgba(220,38,38,0.2), rgba(220,38,38,0.05)); color: #dc2626;">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-1">
+            <h2 class="text-lg font-bold text-white font-sans">Survival Guide</h2>
+            <span class="tag-pill bg-codex-red/15 text-codex-red border border-codex-red/20">5 steps</span>
+          </div>
+          <p class="text-sm text-zinc-400 font-sans">Как экспортировать данные и восстановить информацию</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="tag-pill bg-zinc-800 text-zinc-400 border border-zinc-700">template</span>
+          <button class="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs font-mono transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy all
+          </button>
+          <button class="p-1.5 hover:bg-zinc-800 rounded-lg transition-colors">
+            <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Steps with colored timeline -->
+      <div class="px-6 py-6 space-y-0">
+
+        <!-- Step 1 - with semantic code highlighting -->
+        <div class="step-card relative pl-10 pb-8 transition-all">
+          <!-- Colored timeline line -->
+          <div class="step-line bg-gradient-to-b from-codex-red/60 to-codex-red/10 rounded-full"></div>
+          <!-- Number badge with color -->
+          <div class="absolute left-1.5 top-0.5 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold text-white" style="background: #dc2626; box-shadow: 0 0 12px rgba(220,38,38,0.3);">1</div>
+
+          <div>
+            <button class="flex items-center gap-2.5 text-left w-full group">
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-codex-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <h3 class="text-sm font-semibold text-white font-sans group-hover:text-codex-red transition-colors">Экспорт данных (JSON)</h3>
+              <span class="tag-pill bg-amber-500/10 text-amber-400 border border-amber-500/20 ml-1">important</span>
+            </button>
+          </div>
+
+          <div class="mt-4 space-y-4">
+            <p class="text-sm text-zinc-300 leading-relaxed font-sans pl-6">
+              Все данные хранятся в облачной PostgreSQL базе. Экспортируй данные в JSON для резервной копии:
+            </p>
+
+            <!-- Code block with semantic highlighting -->
+            <div class="code-block rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden ml-6">
+              <div class="flex items-center justify-between px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-codex-red/60"></span>
+                  <span class="text-[11px] font-mono text-zinc-400 font-medium">Скачать данные</span>
+                </div>
+                <button class="copy-btn flex items-center gap-1.5 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px] font-mono text-zinc-400 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  copy
+                </button>
+              </div>
+              <pre class="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed"><code class="font-mono whitespace-pre"><span class="code-comment">// Открой в браузере</span>
+<span class="code-path">/api/download-db</span>
+
+<span class="code-comment">// Файл скачается автоматически</span>
+<span class="code-string">wiki-codex-backup-YYYY-MM-DD.json</span>
+
+<span class="code-comment">// Содержит:</span>
+  - документы
+  - заметки
+  - инструкции
+  - термины, категории, теги</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 - command type -->
+        <div class="step-card relative pl-10 pb-8 transition-all">
+          <div class="step-line bg-gradient-to-b from-codex-red/10 to-codex-red/60 rounded-full"></div>
+          <div class="absolute left-1.5 top-0.5 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold text-white" style="background: #dc2626; box-shadow: 0 0 12px rgba(220,38,38,0.3);">2</div>
+
+          <div>
+            <button class="flex items-center gap-2.5 text-left w-full group">
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-codex-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <h3 class="text-sm font-semibold text-white font-sans group-hover:text-codex-red transition-colors">Создать бэкап</h3>
+            </button>
+          </div>
+
+          <div class="mt-4 space-y-4">
+            <p class="text-sm text-zinc-300 leading-relaxed font-sans pl-6">
+              Создай моментальный снимок данных через API:
+            </p>
+
+            <!-- API endpoint code block -->
+            <div class="code-block rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden ml-6">
+              <div class="flex items-center justify-between px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-green-500/60"></span>
+                  <span class="text-[11px] font-mono text-zinc-400 font-medium">API бэкапа</span>
+                </div>
+                <button class="copy-btn flex items-center gap-1.5 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px] font-mono text-zinc-400 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  copy
+                </button>
+              </div>
+              <pre class="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed"><code class="font-mono whitespace-pre"><span class="code-cmd">POST</span> <span class="code-path">/api/backup</span>
+
+<span class="code-comment">// Вернёт статистику экспортированных данных</span></code></pre>
+            </div>
+
+            <!-- Second code block -->
+            <div class="code-block rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden ml-6">
+              <div class="flex items-center justify-between px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-blue-500/60"></span>
+                  <span class="text-[11px] font-mono text-zinc-400 font-medium">Скачать JSON</span>
+                </div>
+                <button class="copy-btn flex items-center gap-1.5 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px] font-mono text-zinc-400 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  copy
+                </button>
+              </div>
+              <pre class="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed"><code class="font-mono whitespace-pre"><span class="code-cmd">GET</span> <span class="code-path">/api/download-db</span>
+
+<span class="code-comment">// Скачает полный JSON-экспорт всех данных</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 - with WARNING type -->
+        <div class="step-card relative pl-10 pb-8 transition-all">
+          <div class="step-line bg-gradient-to-b from-amber-500/10 to-amber-500/60 rounded-full"></div>
+          <div class="absolute left-1.5 top-0.5 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold text-white" style="background: #d97706; box-shadow: 0 0 12px rgba(217,119,6,0.3);">3</div>
+
+          <div>
+            <button class="flex items-center gap-2.5 text-left w-full group">
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <h3 class="text-sm font-semibold text-white font-sans group-hover:text-amber-400 transition-colors">Восстановление на Vercel</h3>
+              <span class="tag-pill bg-amber-500/10 text-amber-400 border border-amber-500/20 ml-1">warning</span>
+            </button>
+          </div>
+
+          <div class="mt-4 space-y-4">
+            <!-- Warning box -->
+            <div class="ml-6 flex items-start gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+              <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+              <p class="text-sm text-amber-200/80 leading-relaxed font-sans">
+                Данные защищены управляемой PostgreSQL базей. Для восстановления требуется доступ к провайдеру.
+              </p>
+            </div>
+
+            <!-- Code blocks -->
+            <div class="code-block rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden ml-6">
+              <div class="flex items-center justify-between px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-cyan-500/60"></span>
+                  <span class="text-[11px] font-mono text-zinc-400 font-medium">Vercel Postgres</span>
+                </div>
+                <button class="copy-btn flex items-center gap-1.5 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px] font-mono text-zinc-400 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  copy
+                </button>
+              </div>
+              <pre class="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed"><code class="font-mono whitespace-pre"><span class="code-comment">// Данные автоматически сохраняются</span>
+<span class="code-comment">// Бэкапы управляются провайдером</span>
+<span class="code-path">Neon/Supabase</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 - with INFO type -->
+        <div class="step-card relative pl-10 pb-8 transition-all">
+          <div class="step-line bg-gradient-to-b from-codex-red/60 to-codex-red/10 rounded-full"></div>
+          <div class="absolute left-1.5 top-0.5 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold text-white" style="background: #dc2626; box-shadow: 0 0 12px rgba(220,38,38,0.3);">4</div>
+
+          <div>
+            <button class="flex items-center gap-2.5 text-left w-full group">
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-codex-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              <h3 class="text-sm font-semibold text-white font-sans group-hover:text-codex-red transition-colors">Проверь что всё работает</h3>
+              <span class="tag-pill bg-blue-500/10 text-blue-400 border border-blue-500/20 ml-1">tip</span>
+            </button>
+          </div>
+
+          <div class="mt-4 space-y-4">
+            <p class="text-sm text-zinc-300 leading-relaxed font-sans pl-6">
+              После развертывания открой приложение и проверь:
+            </p>
+
+            <div class="code-block rounded-lg border border-zinc-800 bg-zinc-950 overflow-hidden ml-6">
+              <div class="flex items-center justify-between px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-codex-red/60"></span>
+                  <span class="text-[11px] font-mono text-zinc-400 font-medium">Что проверить</span>
+                </div>
+                <button class="copy-btn flex items-center gap-1.5 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px] font-mono text-zinc-400 transition-colors">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  copy
+                </button>
+              </div>
+              <pre class="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed"><code class="font-mono whitespace-pre"><span class="code-prompt">1.</span> Sidebar -- счётчики не нули
+<span class="code-prompt">2.</span> Документы -- открой любой документ
+<span class="code-prompt">3.</span> Заметки -- есть ли твои заметки
+<span class="code-prompt">4.</span> Инструкции -- встроенные шаблоны видны
+<span class="code-prompt">5.</span> Footer -- <span class="code-string">"Built with: Next.js 16 + TypeScript + Tailwind CSS"</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 - terminal command style -->
+        <div class="step-card relative pl-10 pb-2 transition-all">
+          <div class="absolute left-1.5 top-0.5 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold text-white" style="background: #dc2626; box-shadow: 0 0 12px rgba(220,38,38,0.3);">5</div>
+
+          <div>
+            <button class="flex items-center gap-2.5 text-left w-full group">
+              <svg class="w-4 h-4 text-zinc-500 group-hover:text-codex-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              <h3 class="text-sm font-semibold text-white font-sans group-hover:text-codex-red transition-colors">Локальная разработка</h3>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DESIGN TOKENS SUMMARY ==================== -->
+  <div class="bg-zinc-900 rounded-xl border border-zinc-800 p-6 mb-12">
+    <h2 class="text-lg font-bold text-white mb-4 font-sans">Design Tokens: What Changed</h2>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Typography -->
+      <div class="bg-zinc-950 rounded-lg p-5 border border-zinc-800">
+        <h3 class="text-sm font-semibold text-amber-400 font-mono mb-3">1. Typography</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Step title</span>
+            <span class="text-white font-sans font-semibold">Inter 14px semibold</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Description</span>
+            <span class="text-white font-sans">Inter 14px regular</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Code</span>
+            <span class="text-white font-mono">JetBrains 13px</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Labels/badges</span>
+            <span class="text-white font-mono">JetBrains 10-11px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Separation -->
+      <div class="bg-zinc-950 rounded-lg p-5 border border-zinc-800">
+        <h3 class="text-sm font-semibold text-green-400 font-mono mb-3">2. Visual Separation</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Timeline</span>
+            <span class="text-white">Color gradient line (2px)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Step numbers</span>
+            <span class="text-white">Colored badge + glow</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Code blocks</span>
+            <span class="text-white">bg-zinc-950 + border</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Type boxes</span>
+            <span class="text-white">warning/info/tip callout</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Highlighting -->
+      <div class="bg-zinc-950 rounded-lg p-5 border border-zinc-800">
+        <h3 class="text-sm font-semibold text-blue-400 font-mono mb-3">3. Code Highlighting</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex items-center gap-3">
+            <span class="code-comment">// comment</span>
+            <span class="text-zinc-500">gray-500</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="code-cmd">POST</span>
+            <span class="text-zinc-500">lime-400</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="code-path">/api/path</span>
+            <span class="text-zinc-500">purple-400</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="code-string">"string"</span>
+            <span class="text-zinc-500">amber-400</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="code-flag">--flag</span>
+            <span class="text-zinc-500">blue-400</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="code-prompt">1.</span>
+            <span class="text-zinc-500">green-400 bold</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacing -->
+      <div class="bg-zinc-950 rounded-lg p-5 border border-zinc-800">
+        <h3 class="text-sm font-semibold text-purple-400 font-mono mb-3">4. Spacing</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Step gap</span>
+            <span class="text-white">pb-8 (32px)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Step indent</span>
+            <span class="text-white">pl-10 (40px)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Code padding</span>
+            <span class="text-white">px-4 py-3 (16/12px)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Description indent</span>
+            <span class="text-white">pl-6 (24px)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-zinc-400">Card padding</span>
+            <span class="text-white">px-6 py-5/6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== NEW: Step Types ==================== -->
+  <div class="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
+    <h2 class="text-lg font-bold text-white mb-4 font-sans">5. New: Step Types (extensible)</h2>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- WARNING -->
+      <div class="flex items-start gap-3 p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/15 shrink-0">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-amber-400">warning</span>
+            <span class="tag-pill bg-amber-500/10 text-amber-400 border border-amber-500/20">amber</span>
+          </div>
+          <p class="text-xs text-zinc-400 mt-1">Потенциальная проблема, требует внимания</p>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="flex items-start gap-3 p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15 shrink-0">
+          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-blue-400">info</span>
+            <span class="tag-pill bg-blue-500/10 text-blue-400 border border-blue-500/20">blue</span>
+          </div>
+          <p class="text-xs text-zinc-400 mt-1">Полезная информация, не требует действия</p>
+        </div>
+      </div>
+
+      <!-- TIP -->
+      <div class="flex items-start gap-3 p-4 rounded-lg bg-green-500/5 border border-green-500/20">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/15 shrink-0">
+          <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-green-400">tip</span>
+            <span class="tag-pill bg-green-500/10 text-green-400 border border-green-500/20">green</span>
+          </div>
+          <p class="text-xs text-zinc-400 mt-1">Совет, улучшающий работу</p>
+        </div>
+      </div>
+
+      <!-- STEP (default) -->
+      <div class="flex items-start gap-3 p-4 rounded-lg bg-zinc-500/5 border border-zinc-500/20">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-500/15 shrink-0">
+          <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-zinc-300">step</span>
+            <span class="tag-pill bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">default</span>
+          </div>
+          <p class="text-xs text-zinc-400 mt-1">Обычный шаг (по умолчанию)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
