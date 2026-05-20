@@ -34,10 +34,10 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
       className="flex items-start gap-3 rounded-lg border px-3 py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono text-sm group"
       onClick={() => onSelect(note.id)}
     >
-      <span className="text-green-600 dark:text-green-400 shrink-0 select-none text-xs leading-5">$</span>
+      <span className="text-terminal-accent shrink-0 select-none text-xs leading-5">$</span>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <span className="font-semibold text-foreground truncate leading-tight text-sm">{note.title}</span>
+          <span className="font-semibold text-foreground truncate leading-tight text-sm font-sans">{note.title}</span>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button

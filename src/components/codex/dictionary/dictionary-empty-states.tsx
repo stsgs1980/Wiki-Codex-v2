@@ -44,8 +44,8 @@ export function DictionaryEmptyStates({
     return (
       <div className="flex flex-col items-center justify-center py-12 sm:py-20 text-center px-4">
         <BookOpen className="size-10 sm:h-12 sm:w-12 text-muted-foreground/40 mb-3 sm:mb-4" />
-        <p className="text-sm text-muted-foreground leading-relaxed">Список терминов пуст</p>
-        <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1">
+        <p className="text-sm text-muted-foreground leading-relaxed font-sans">Список терминов пуст</p>
+        <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1 font-sans">
           Загрузите документы -- термины будут извлечены автоматически
         </p>
         {documentsCount > 0 && (
@@ -62,8 +62,8 @@ export function DictionaryEmptyStates({
     return (
       <div className="flex flex-col items-center justify-center py-12 sm:py-20 text-center px-4">
         <Search className="size-10 sm:h-12 sm:w-12 text-muted-foreground/40 mb-3 sm:mb-4" />
-        <p className="text-sm text-muted-foreground leading-relaxed">Ничего не найдено</p>
-        <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1">Попробуйте изменить запрос</p>
+        <p className="text-sm text-muted-foreground leading-relaxed font-sans">Ничего не найдено</p>
+        <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1 font-sans">Попробуйте изменить запрос</p>
         <Button variant="outline" size="sm" className="mt-4" onClick={onResetSearch}>Сбросить</Button>
       </div>
     )

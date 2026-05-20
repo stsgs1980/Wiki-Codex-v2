@@ -1,0 +1,2405 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiki-Codex-v2 — Unified Design System Proposal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    /* ═══════════════════════════════════════════════════════════════
+       PRESENTATION TOKENS — mirrors proposed :root / .dark
+       ═══════════════════════════════════════════════════════════════ */
+    :root {
+      /* ── Semantic Colors ── */
+      --terminal-accent: oklch(0.55 0.18 145);
+      --terminal-accent-dark: oklch(0.75 0.18 145);
+      --neuro-brand: #FA3913;
+      --neuro-brand-light: #ff5a38;
+      --star-color: oklch(0.72 0.16 75);
+      --star-color-dark: oklch(0.82 0.16 75);
+      --semantic-violet: oklch(0.50 0.25 295);
+      --semantic-violet-dark: oklch(0.65 0.22 295);
+
+      /* ── Accent Pairs ── */
+      --accent-green: #16a34a;
+      --accent-green-dark: #4ade80;
+      --accent-amber: #b45309;
+      --accent-amber-dark: #fbbf24;
+      --accent-violet: #7c3aed;
+      --accent-violet-dark: #a78bfa;
+      --accent-red: #dc2626;
+      --accent-red-dark: #f87171;
+
+      /* ── Surfaces ── */
+      --surface-base: #ffffff;
+      --surface-card: #ffffff;
+      --surface-muted: #f5f5f4;
+      --surface-elevated: #fafaf9;
+      --surface-dark-base: #0a0a0a;
+      --surface-dark-card: #171717;
+      --surface-dark-muted: #262626;
+      --surface-dark-elevated: #1c1c1c;
+
+      /* ── Text ── */
+      --text-primary: #171717;
+      --text-secondary: #525252;
+      --text-tertiary: #a3a3a3;
+      --text-dark-primary: #fafafa;
+      --text-dark-secondary: #a1a1aa;
+      --text-dark-tertiary: #71717a;
+
+      /* ── Borders ── */
+      --border-default: #e5e5e5;
+      --border-dashed: #d4d4d4;
+      --border-dark: rgba(255,255,255,0.10);
+      --border-dark-dashed: rgba(255,255,255,0.15);
+
+      /* ── Syntax ── */
+      --syn-comment: #6b7280;
+      --syn-keyword: #16a34a;
+      --syn-string: #b45309;
+      --syn-function: #7c3aed;
+      --syn-path: #0891b2;
+      --syn-flag: #2563eb;
+      --syn-number: #c2410c;
+      --syn-env: #0d9488;
+
+      --syn-dark-comment: #78716c;
+      --syn-dark-keyword: #4ade80;
+      --syn-dark-string: #fbbf24;
+      --syn-dark-function: #c084fc;
+      --syn-dark-path: #22d3ee;
+      --syn-dark-flag: #60a5fa;
+      --syn-dark-number: #fb923c;
+      --syn-dark-env: #2dd4bf;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BASE
+       ═══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8f8f8;
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════════════════════════ */
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-default);
+      padding: 0 2rem;
+    }
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      height: 56px;
+    }
+    .nav-brand {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-brand .prompt {
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+    .nav-brand .neuro {
+      color: var(--neuro-brand);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+    .nav-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border-default);
+    }
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .nav-link:hover {
+      background: var(--surface-muted);
+      color: var(--text-primary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(135deg, #0a0a0a 0%, #171717 50%, #1a1a2e 100%);
+      color: #fafafa;
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse 600px 400px at 20% 50%, oklch(0.55 0.18 145 / 0.08), transparent),
+        radial-gradient(ellipse 400px 300px at 80% 30%, oklch(0.50 0.25 295 / 0.06), transparent);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hero-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-green-dark);
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      letter-spacing: -0.03em;
+    }
+    .hero h1 .accent { color: var(--accent-green-dark); }
+    .hero h1 .coral { color: var(--neuro-brand); }
+    .hero-sub {
+      font-size: 16px;
+      color: #a1a1aa;
+      max-width: 640px;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .hero-stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      display: block;
+    }
+    .hero-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .hero-stat-val.critical { color: var(--accent-red-dark); }
+    .hero-stat-val.high { color: var(--accent-amber-dark); }
+    .hero-stat-val.medium { color: var(--accent-green-dark); }
+    .hero-stat-val.neutral { color: #e4e4e7; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SECTION LAYOUT
+       ═══════════════════════════════════════════════════════════════ */
+    .section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-green);
+      margin-bottom: 0.5rem;
+    }
+    .section-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .section-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CARD WRAPPERS
+       ═══════════════════════════════════════════════════════════════ */
+    .card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TYPOGRAPHY SCALE DEMO
+       ═══════════════════════════════════════════════════════════════ */
+    .typo-grid {
+      display: grid;
+      gap: 0;
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .typo-row {
+      display: grid;
+      grid-template-columns: 180px 120px 1fr;
+      border-bottom: 1px solid var(--border-default);
+      align-items: center;
+    }
+    .typo-row:last-child { border-bottom: none; }
+    .typo-cell {
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .typo-cell:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      border-right: 1px solid var(--border-default);
+      background: var(--surface-muted);
+    }
+    .typo-cell:nth-child(2) {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      border-right: 1px solid var(--border-default);
+      background: var(--surface-muted);
+    }
+    .typo-cell:last-child {
+      padding: 10px 16px;
+    }
+    .typo-demo-h1 { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .typo-demo-h2 { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .typo-demo-h3 { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .typo-demo-body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-secondary); }
+    .typo-demo-body-sm { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-secondary); }
+    .typo-demo-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-tertiary); }
+    .typo-demo-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-tertiary); }
+    .typo-demo-section { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-tertiary); }
+    .typo-demo-code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-primary); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       COLOR PALETTE
+       ═══════════════════════════════════════════════════════════════ */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .palette-swatch {
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .swatch-preview {
+      height: 64px;
+      display: flex;
+      align-items: flex-end;
+      padding: 8px 12px;
+    }
+    .swatch-preview span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .swatch-info {
+      padding: 10px 12px;
+      background: var(--surface-card);
+    }
+    .swatch-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .swatch-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+    .swatch-usage {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SPACING SCALE
+       ═══════════════════════════════════════════════════════════════ */
+    .spacing-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .spacing-row:last-child { border-bottom: none; }
+    .spacing-token {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+      width: 80px;
+      flex-shrink: 0;
+    }
+    .spacing-tw {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      width: 120px;
+      flex-shrink: 0;
+    }
+    .spacing-bar-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+    .spacing-bar {
+      height: 24px;
+      border-radius: 4px;
+      background: oklch(0.55 0.18 145 / 0.15);
+      border: 1px solid oklch(0.55 0.18 145 / 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+    }
+    .spacing-bar span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: oklch(0.55 0.18 145);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CARD STYLE DEMOS
+       ═══════════════════════════════════════════════════════════════ */
+    .card-styles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .card-styles-grid { grid-template-columns: 1fr; }
+    }
+
+    .demo-terminal-card {
+      border: 1px dashed var(--border-dashed);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .demo-terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 12px;
+      border-bottom: 1px dashed var(--border-dashed);
+      background: var(--surface-muted);
+    }
+    .demo-terminal-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .demo-terminal-dots span {
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+    .demo-terminal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+    .demo-terminal-body {
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .demo-content-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .demo-stat-card {
+      background: var(--surface-muted);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BEFORE/AFTER COMPARISON
+       ═══════════════════════════════════════════════════════════════ */
+    .comparison-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 768px) {
+      .comparison-wrapper { grid-template-columns: 1fr; }
+    }
+    .before-box, .after-box {
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid;
+    }
+    .before-box {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .after-box {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .comp-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .before-box .comp-label { color: var(--accent-red); }
+    .after-box .comp-label { color: var(--accent-green); }
+    .comp-list {
+      list-style: none;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    .comp-list li {
+      padding-left: 18px;
+      position: relative;
+    }
+    .before-box .comp-list li::before {
+      content: '\2717';
+      position: absolute;
+      left: 0;
+      color: var(--accent-red);
+      font-weight: 700;
+    }
+    .after-box .comp-list li::before {
+      content: '\2713';
+      position: absolute;
+      left: 0;
+      color: var(--accent-green);
+      font-weight: 700;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LIGHT / DARK SIDE-BY-SIDE
+       ═══════════════════════════════════════════════════════════════ */
+    .theme-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .theme-compare { grid-template-columns: 1fr; }
+    }
+    .theme-light, .theme-dark {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+    }
+    .theme-light { background: #ffffff; }
+    .theme-dark { background: #0a0a0a; color: #fafafa; }
+    .theme-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .theme-light .theme-tag {
+      background: #fafafa;
+      color: var(--text-tertiary);
+    }
+    .theme-dark .theme-tag {
+      background: #141414;
+      color: #71717a;
+      border-color: rgba(255,255,255,0.08);
+    }
+    .theme-content {
+      padding: 16px;
+    }
+
+    /* Dark theme inner styles */
+    .theme-dark .d-card {
+      background: #171717;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .theme-dark .d-muted { color: #a1a1aa; }
+    .theme-dark .d-dim { color: #71717a; }
+    .theme-dark .d-bright { color: #fafafa; }
+    .theme-dark .d-green { color: #4ade80; }
+    .theme-dark .d-amber { color: #fbbf24; }
+    .theme-dark .d-violet { color: #a78bfa; }
+    .theme-dark .d-red { color: #f87171; }
+    .theme-dark .d-coral { color: #ff5a38; }
+    .theme-dark .d-bg-muted { background: #262626; }
+    .theme-dark .d-border { border-color: rgba(255,255,255,0.10); }
+    .theme-dark .d-border-dashed { border: 1px dashed rgba(255,255,255,0.15); }
+    .theme-dark .d-code-bg { background: #0a0a0a; }
+
+    /* Light theme inner styles */
+    .theme-light .l-card {
+      background: #ffffff;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .theme-light .l-muted { color: #525252; }
+    .theme-light .l-dim { color: #a3a3a3; }
+    .theme-light .l-bright { color: #171717; }
+    .theme-light .l-green { color: #16a34a; }
+    .theme-light .l-amber { color: #b45309; }
+    .theme-light .l-violet { color: #7c3aed; }
+    .theme-light .l-red { color: #dc2626; }
+    .theme-light .l-coral { color: #FA3913; }
+    .theme-light .l-bg-muted { background: #f5f5f4; }
+    .theme-light .l-border { border-color: #e5e5e5; }
+    .theme-light .l-border-dashed { border: 1px dashed #d4d4d4; }
+    .theme-light .l-code-bg { background: #f5f5f4; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TOKEN MAP TABLE
+       ═══════════════════════════════════════════════════════════════ */
+    .token-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .token-table thead th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--border-default);
+      background: var(--surface-muted);
+      position: sticky;
+      top: 0;
+    }
+    .token-table tbody td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-default);
+      vertical-align: top;
+    }
+    .token-table tbody tr:hover {
+      background: var(--surface-muted);
+    }
+    .token-table .mono-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-primary);
+    }
+    .token-table .dim-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+    .inline-swatch {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      vertical-align: middle;
+      margin-right: 5px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BLOCK BEFORE/AFTER CARDS
+       ═══════════════════════════════════════════════════════════════ */
+    .block-section {
+      margin-bottom: 3rem;
+    }
+    .block-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .block-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      background: oklch(0.55 0.18 145);
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .block-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .block-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-left: auto;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BADGE TAGS
+       ═══════════════════════════════════════════════════════════════ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      gap: 4px;
+    }
+    .badge-critical { background: rgba(220,38,38,0.1); color: var(--accent-red); }
+    .badge-high { background: rgba(180,83,9,0.1); color: var(--accent-amber); }
+    .badge-medium { background: rgba(22,163,74,0.1); color: var(--accent-green); }
+    .badge-terminal { background: oklch(0.55 0.18 145 / 0.1); color: oklch(0.55 0.18 145); }
+    .badge-content { background: rgba(124,58,237,0.1); color: var(--accent-violet); }
+    .badge-stat { background: rgba(8,145,178,0.1); color: #0891b2; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MINI DEMO COMPONENTS
+       ═══════════════════════════════════════════════════════════════ */
+    .demo-sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: default;
+    }
+    .demo-sidebar-item.active {
+      background: var(--surface-muted);
+      font-weight: 600;
+    }
+    .demo-sidebar-item .arrow {
+      font-size: 10px;
+      width: 14px;
+    }
+    .demo-sidebar-item .count {
+      margin-left: auto;
+      font-size: 10px;
+      opacity: 0.5;
+    }
+
+    .demo-prompt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    .demo-prompt .dollar {
+      color: var(--accent-green);
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    .demo-badge-inline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      border: 1px solid;
+      display: inline;
+    }
+
+    .demo-code-block {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .demo-code-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 5px 10px;
+    }
+    .demo-code-bar-dots { display: flex; gap: 4px; }
+    .demo-code-bar-dots span { width: 6px; height: 6px; border-radius: 50%; }
+    .demo-code-bar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+    }
+    .demo-code-body {
+      padding: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════ */
+    .pres-footer {
+      background: #0a0a0a;
+      color: #71717a;
+      padding: 2rem;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .pres-footer .green { color: #4ade80; }
+    .pres-footer .coral { color: #FA3913; }
+    .pres-footer .bright { color: #a1a1aa; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       UTILITIES
+       ═══════════════════════════════════════════════════════════════ */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+    .mt-1 { margin-top: 8px; }
+    .mt-2 { margin-top: 16px; }
+    .mt-3 { margin-top: 24px; }
+    .mb-2 { margin-bottom: 16px; }
+    .gap-sm { gap: 8px; }
+    .flex-center { display: flex; align-items: center; }
+    .text-dim { color: var(--text-tertiary); }
+    .text-mono-sm { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .divider {
+      height: 1px;
+      background: var(--border-default);
+      margin: 2rem 0;
+    }
+    .code-inline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--surface-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+    }
+    .highlight-box {
+      background: var(--surface-muted);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     NAVIGATION
+     ═══════════════════════════════════════════════════════════════════ -->
+<nav class="nav-bar">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <span class="prompt">$</span> wiki-codex-v2
+      <span class="neuro">NEURO</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#overview">Overview</a>
+      <a class="nav-link" href="#typography">Typography</a>
+      <a class="nav-link" href="#colors">Colors</a>
+      <a class="nav-link" href="#spacing">Spacing</a>
+      <a class="nav-link" href="#cards">Cards</a>
+      <a class="nav-link" href="#before-after">Before/After</a>
+      <a class="nav-link" href="#theme-demo">Theme Demo</a>
+      <a class="nav-link" href="#token-map">Token Map</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Design System Proposal &mdash; v2.0</div>
+    <h1>
+      Unified <span class="accent">Design System</span><br>
+      for <span class="coral">Wiki-Codex</span>-v2
+    </h1>
+    <p class="hero-sub">
+      Comprehensive proposal to align all 9 UI blocks under a single design language:
+      consistent typography, semantic color tokens, theme-adaptive components, and a
+      terminal/code aesthetic that works in both light and dark modes.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <span class="hero-stat-val critical">5</span>
+        <span class="hero-stat-label">Critical Issues</span>
+      </div>
+      <div>
+        <span class="hero-stat-val high">2</span>
+        <span class="hero-stat-label">High Priority</span>
+      </div>
+      <div>
+        <span class="hero-stat-val medium">3</span>
+        <span class="hero-stat-label">Medium Priority</span>
+      </div>
+      <div>
+        <span class="hero-stat-val neutral">68</span>
+        <span class="hero-stat-label">Hardcoded Colors</span>
+      </div>
+      <div>
+        <span class="hero-stat-val neutral">9</span>
+        <span class="hero-stat-label">Blocks to Align</span>
+      </div>
+      <div>
+        <span class="hero-stat-val neutral">22</span>
+        <span class="hero-stat-label">Typo Issues</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 1: DESIGN SYSTEM OVERVIEW
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="overview">
+  <div class="section-label">Section 1</div>
+  <h2 class="section-title">Design System Overview</h2>
+  <p class="section-desc">
+    The foundation of the unified system: typography scale, semantic color tokens,
+    spacing rhythm, and card style taxonomy. Every element in the app maps to one
+    of these tokens.
+  </p>
+</section>
+
+<!-- ─── TYPOGRAPHY ─── -->
+<section class="section" id="typography" style="padding-top: 0;">
+  <div class="section-label">1.1</div>
+  <h2 class="section-title">Typography Scale</h2>
+  <p class="section-desc">
+    Two font families, nine levels. <strong>Inter</strong> (font-sans) for readable prose &amp; headings.
+    <strong>JetBrains Mono</strong> (font-mono) for code, labels, badges, and terminal chrome.
+  </p>
+
+  <div class="typo-grid">
+    <div class="typo-row" style="background: var(--surface-muted);">
+      <div class="typo-cell" style="font-weight: 700; color: var(--text-secondary);">Token</div>
+      <div class="typo-cell" style="font-weight: 700; color: var(--text-secondary);">Tailwind</div>
+      <div class="typo-cell" style="font-weight: 700; color: var(--text-secondary); font-size: 11px;">Preview</div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-h1</div>
+      <div class="typo-cell">text-2xl font-bold font-sans</div>
+      <div class="typo-cell"><span class="typo-demo-h1">Заголовок страницы</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-h2</div>
+      <div class="typo-cell">text-lg font-bold font-sans</div>
+      <div class="typo-cell"><span class="typo-demo-h2">Заголовок секции</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-h3</div>
+      <div class="typo-cell">text-sm font-semibold font-sans</div>
+      <div class="typo-cell"><span class="typo-demo-h3">Заголовок карточки / элемента</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-body</div>
+      <div class="typo-cell">text-sm font-sans</div>
+      <div class="typo-cell"><span class="typo-demo-body">Описание документа, текст заметки, пояснения к терминам</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-body-sm</div>
+      <div class="typo-cell">text-xs font-sans</div>
+      <div class="typo-cell"><span class="typo-demo-body-sm">Второстепенный текст, подзаголовки, даты</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-label</div>
+      <div class="typo-cell">text-[11px] font-mono</div>
+      <div class="typo-cell"><span class="typo-demo-label">field.label &middot; breadcrumb &middot; terminal-title</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-badge</div>
+      <div class="typo-cell">text-[10px] font-mono</div>
+      <div class="typo-cell"><span class="typo-demo-badge">count &middot; badge &middot; tiny-label</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-section</div>
+      <div class="typo-cell">text-[10px] font-mono uppercase tracking-wider</div>
+      <div class="typo-cell"><span class="typo-demo-section">section header &middot; category label</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-code</div>
+      <div class="typo-cell">text-[13px] font-mono</div>
+      <div class="typo-cell"><span class="typo-demo-code">POST /api/backup &mdash;verbose</span></div>
+    </div>
+    <div class="typo-row">
+      <div class="typo-cell">--text-code-label</div>
+      <div class="typo-cell">text-[11px] font-mono font-medium</div>
+      <div class="typo-cell"><span class="typo-demo-label" style="font-weight: 500;">terminal-title-bar label</span></div>
+    </div>
+  </div>
+
+  <div class="highlight-box mt-2">
+    <strong>Font Convention:</strong><br>
+    <span class="code-inline">font-mono</span> &mdash; Terminal chrome: labels, badges, buttons, metadata, footer, sidebar, prompts<br>
+    <span class="code-inline">font-sans</span> &mdash; Readable text: headings, descriptions, body content, card text<br>
+    <span class="code-inline">font-sans</span> on h1&ndash;h3 &mdash; mandatory. Headings read better in sans-serif.
+  </div>
+</section>
+
+<div class="divider" style="max-width: 1280px; margin: 0 auto;"></div>
+
+<!-- ─── COLORS ─── -->
+<section class="section" id="colors">
+  <div class="section-label">1.2</div>
+  <h2 class="section-title">Semantic Color Tokens</h2>
+  <p class="section-desc">
+    New CSS custom properties to add to <span class="code-inline">:root</span> and
+    <span class="code-inline">.dark</span>. Each token has a light and dark variant,
+    eliminating all <span class="code-inline">text-X dark:text-Y</span> pairs.
+  </p>
+
+  <!-- NEW SEMANTIC TOKENS -->
+  <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; color: var(--text-primary);">
+    New Tokens (to add)
+  </h3>
+  <div class="palette-grid mb-2">
+    <!-- Terminal Accent -->
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: oklch(0.55 0.18 145);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3);">Light</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--terminal-accent</div>
+        <div class="swatch-value">oklch(0.65 0.2 145)</div>
+        <div class="swatch-usage">Green for $ prompts, active nav cursor</div>
+      </div>
+    </div>
+    <!-- Terminal Accent Dark -->
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: oklch(0.75 0.18 145);">
+        <span style="color:#000; background:rgba(255,255,255,0.3);">Dark</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--terminal-accent-dark</div>
+        <div class="swatch-value">oklch(0.75 0.18 145)</div>
+        <div class="swatch-usage">Lighter green for dark mode prompts</div>
+      </div>
+    </div>
+    <!-- NEURO Brand -->
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: #FA3913;">
+        <span style="color:#fff; background:rgba(0,0,0,0.3);">Both</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--neuro-brand</div>
+        <div class="swatch-value">#FA3913</div>
+        <div class="swatch-usage">Coral for NEURO brand, dividers</div>
+      </div>
+    </div>
+    <!-- Star Color -->
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: oklch(0.72 0.16 75);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3);">Light</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--star-color</div>
+        <div class="swatch-value">oklch(0.78 0.16 75)</div>
+        <div class="swatch-usage">Amber for stars/bookmarks, AI sparkles</div>
+      </div>
+    </div>
+    <!-- Semantic Violet -->
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: oklch(0.50 0.25 295);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3);">Light</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--semantic-violet</div>
+        <div class="swatch-value">oklch(0.55 0.25 295)</div>
+        <div class="swatch-usage">Violet for semantic search, AI badges</div>
+      </div>
+    </div>
+    <!-- Semantic Violet Dark -->
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: oklch(0.65 0.22 295);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3);">Dark</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--semantic-violet-dark</div>
+        <div class="swatch-value">oklch(0.65 0.22 295)</div>
+        <div class="swatch-usage">Lighter violet for dark mode</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCENT PAIRS -->
+  <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; margin-top: 2rem; color: var(--text-primary);">
+    Accent Color Pairs (replacing text-X dark:text-Y)
+  </h3>
+  <div class="palette-grid">
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: linear-gradient(135deg, #16a34a 50%, #4ade80 50%);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3); margin-right:4px;">L</span>
+        <span style="color:#000; background:rgba(255,255,255,0.3);">D</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--accent-green</div>
+        <div class="swatch-value">#16a34a / #4ade80</div>
+        <div class="swatch-usage">Prompt $, active nav, terminal cursor</div>
+      </div>
+    </div>
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: linear-gradient(135deg, #b45309 50%, #fbbf24 50%);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3); margin-right:4px;">L</span>
+        <span style="color:#000; background:rgba(255,255,255,0.3);">D</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--accent-amber</div>
+        <div class="swatch-value">#b45309 / #fbbf24</div>
+        <div class="swatch-usage">Stars, warnings, AI sparkles</div>
+      </div>
+    </div>
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: linear-gradient(135deg, #7c3aed 50%, #a78bfa 50%);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3); margin-right:4px;">L</span>
+        <span style="color:#fff; background:rgba(255,255,255,0.2);">D</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--accent-violet</div>
+        <div class="swatch-value">#7c3aed / #a78bfa</div>
+        <div class="swatch-usage">Semantic search, AI badges</div>
+      </div>
+    </div>
+    <div class="palette-swatch">
+      <div class="swatch-preview" style="background: linear-gradient(135deg, #dc2626 50%, #f87171 50%);">
+        <span style="color:#fff; background:rgba(0,0,0,0.3); margin-right:4px;">L</span>
+        <span style="color:#000; background:rgba(255,255,255,0.3);">D</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">--accent-red</div>
+        <div class="swatch-value">#dc2626 / #f87171</div>
+        <div class="swatch-usage">Destructive, error, terminal dot</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYNTAX TOKENS -->
+  <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; margin-top: 2rem; color: var(--text-primary);">
+    Syntax Highlighting Tokens
+  </h3>
+  <div style="overflow-x: auto;">
+    <table class="token-table">
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Light</th>
+          <th>Dark</th>
+          <th>Demo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono-cell">--syntax-comment</td>
+          <td><span class="inline-swatch" style="background:#6b7280;"></span>#6b7280</td>
+          <td><span class="inline-swatch" style="background:#78716c;"></span>#78716c</td>
+          <td style="color:#6b7280; font-family:'JetBrains Mono',monospace; font-size:12px;">// comment</td>
+        </tr>
+        <tr>
+          <td class="mono-cell">--syntax-keyword</td>
+          <td><span class="inline-swatch" style="background:#16a34a;"></span>#16a34a</td>
+          <td><span class="inline-swatch" style="background:#4ade80;"></span>#4ade80</td>
+          <td style="color:#16a34a; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600;">POST</td>
+        </tr>
+        <tr>
+          <td class="mono-cell">--syntax-string</td>
+          <td><span class="inline-swatch" style="background:#b45309;"></span>#b45309</td>
+          <td><span class="inline-swatch" style="background:#fbbf24;"></span>#fbbf24</td>
+          <td style="color:#b45309; font-family:'JetBrains Mono',monospace; font-size:12px;">"value"</td>
+        </tr>
+        <tr>
+          <td class="mono-cell">--syntax-function</td>
+          <td><span class="inline-swatch" style="background:#7c3aed;"></span>#7c3aed</td>
+          <td><span class="inline-swatch" style="background:#c084fc;"></span>#c084fc</td>
+          <td style="color:#7c3aed; font-family:'JetBrains Mono',monospace; font-size:12px;">/api/backup</td>
+        </tr>
+        <tr>
+          <td class="mono-cell">--syntax-path</td>
+          <td><span class="inline-swatch" style="background:#0891b2;"></span>#0891b2</td>
+          <td><span class="inline-swatch" style="background:#22d3ee;"></span>#22d3ee</td>
+          <td style="color:#0891b2; font-family:'JetBrains Mono',monospace; font-size:12px; text-decoration: underline;">/path/to/file</td>
+        </tr>
+        <tr>
+          <td class="mono-cell">--syntax-flag</td>
+          <td><span class="inline-swatch" style="background:#2563eb;"></span>#2563eb</td>
+          <td><span class="inline-swatch" style="background:#60a5fa;"></span>#60a5fa</td>
+          <td style="color:#2563eb; font-family:'JetBrains Mono',monospace; font-size:12px;">--verbose</td>
+        </tr>
+        <tr>
+          <td class="mono-cell">--syntax-number</td>
+          <td><span class="inline-swatch" style="background:#c2410c;"></span>#c2410c</td>
+          <td><span class="inline-swatch" style="background:#fb923c;"></span>#fb923c</td>
+          <td style="color:#c2410c; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600;">42</td>
+        </tr>
+        <tr>
+          <td class="mono-cell">--syntax-env</td>
+          <td><span class="inline-swatch" style="background:#0d9488;"></span>#0d9488</td>
+          <td><span class="inline-swatch" style="background:#2dd4bf;"></span>#2dd4bf</td>
+          <td style="color:#0d9488; font-family:'JetBrains Mono',monospace; font-size:12px;">DATABASE_URL=</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider" style="max-width: 1280px; margin: 0 auto;"></div>
+
+<!-- ─── SPACING ─── -->
+<section class="section" id="spacing">
+  <div class="section-label">1.3</div>
+  <h2 class="section-title">Spacing Scale</h2>
+  <p class="section-desc">
+    Five levels of spacing rhythm. Every gap, padding, and margin in the system maps to one of these tokens.
+  </p>
+
+  <div class="card">
+    <div class="spacing-row">
+      <div class="spacing-token">--space-xs</div>
+      <div class="spacing-tw">gap-1.5 / p-1.5</div>
+      <div class="spacing-bar-wrap">
+        <div class="spacing-bar" style="width: 24px;"><span>6px</span></div>
+      </div>
+      <div style="font-size:11px; color:var(--text-tertiary); width:180px; flex-shrink:0;">Inside badges, tight groups</div>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-token">--space-sm</div>
+      <div class="spacing-tw">gap-2 / p-2</div>
+      <div class="spacing-bar-wrap">
+        <div class="spacing-bar" style="width: 32px;"><span>8px</span></div>
+      </div>
+      <div style="font-size:11px; color:var(--text-tertiary); width:180px; flex-shrink:0;">Within groups, icon gaps</div>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-token">--space-md</div>
+      <div class="spacing-tw">gap-3 / p-3</div>
+      <div class="spacing-bar-wrap">
+        <div class="spacing-bar" style="width: 48px;"><span>12px</span></div>
+      </div>
+      <div style="font-size:11px; color:var(--text-tertiary); width:180px; flex-shrink:0;">Within cards, sections</div>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-token">--space-lg</div>
+      <div class="spacing-tw">gap-4 / p-4</div>
+      <div class="spacing-bar-wrap">
+        <div class="spacing-bar" style="width: 64px;"><span>16px</span></div>
+      </div>
+      <div style="font-size:11px; color:var(--text-tertiary); width:180px; flex-shrink:0;">Between sections, card padding</div>
+    </div>
+    <div class="spacing-row">
+      <div class="spacing-token">--space-xl</div>
+      <div class="spacing-tw">gap-6 / p-6</div>
+      <div class="spacing-bar-wrap">
+        <div class="spacing-bar" style="width: 96px;"><span>24px</span></div>
+      </div>
+      <div style="font-size:11px; color:var(--text-tertiary); width:180px; flex-shrink:0;">Page-level padding, view margins</div>
+    </div>
+  </div>
+
+  <div class="highlight-box mt-2">
+    <strong>TerminalFrame Spacing Pattern (unified):</strong><br>
+    <span class="code-inline">className="m-3 sm:m-4 md:m-6"</span> &mdash; outer margin<br>
+    <span class="code-inline">className="p-3 sm:p-4"</span> &mdash; inner padding
+  </div>
+</section>
+
+<div class="divider" style="max-width: 1280px; margin: 0 auto;"></div>
+
+<!-- ─── CARD STYLES ─── -->
+<section class="section" id="cards">
+  <div class="section-label">1.4</div>
+  <h2 class="section-title">Card Style Taxonomy</h2>
+  <p class="section-desc">
+    Three card archetypes. Each has a distinct visual treatment aligned to its content type.
+  </p>
+
+  <div class="card-styles-grid">
+    <!-- Terminal Card -->
+    <div>
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+        <span class="badge badge-terminal">Terminal</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-tertiary);">border-dashed + TerminalFrame</span>
+      </div>
+      <div class="demo-terminal-card">
+        <div class="demo-terminal-bar">
+          <div class="demo-terminal-dots">
+            <span style="background:#f87171;"></span>
+            <span style="background:#fbbf24;"></span>
+            <span style="background:#4ade80;"></span>
+          </div>
+          <span class="demo-terminal-title">dashboard</span>
+        </div>
+        <div class="demo-terminal-body">
+          <span style="color:#16a34a;">$</span> <span style="color:var(--text-primary);">ls ~/documents</span><br>
+          <span style="color:var(--text-tertiary);">report.pdf  notes.md  config.yaml</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Card -->
+    <div>
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+        <span class="badge badge-content">Content</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-tertiary);">Card component + solid border</span>
+      </div>
+      <div class="demo-content-card">
+        <div style="font-family:'Inter',sans-serif; font-size:14px; font-weight:600; margin-bottom:4px;">Развертывание проекта</div>
+        <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">
+          Инструкция по настройке окружения и запуску Wiki Codex в production-режиме.
+        </div>
+        <div style="margin-top:8px;">
+          <span class="demo-badge-inline" style="border-color:#16a34a; color:#16a34a; background:rgba(22,163,74,0.08);">devops</span>
+          <span class="demo-badge-inline" style="border-color:#7c3aed; color:#7c3aed; background:rgba(124,58,237,0.08);">setup</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Card -->
+    <div>
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+        <span class="badge badge-stat">Stat</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-tertiary);">bg-muted/50 minimal</span>
+      </div>
+      <div class="demo-stat-card">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:700; color:var(--text-primary);">42</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.1em;">documents</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" style="max-width: 1280px; margin: 0 auto;"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 2: BLOCK-BY-BLOCK BEFORE/AFTER
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="before-after">
+  <div class="section-label">Section 2</div>
+  <h2 class="section-title">Block-by-Block Before / After</h2>
+  <p class="section-desc">
+    Each of the 9 UI blocks analyzed: current problems vs. proposed unified fix.
+    The Instructions block is the reference &mdash; all others align to its pattern.
+  </p>
+
+  <!-- ─── 1. SIDEBAR ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">1</div>
+      <div class="block-name">Sidebar</div>
+      <span class="badge badge-high">HIGH</span>
+      <div class="block-file">sidebar-content.tsx, sidebar-nav.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before &mdash; Inconsistent</div>
+        <ul class="comp-list">
+          <li>NEURO label uses <code>text-[9px]</code> &mdash; too small, below scale</li>
+          <li>Brand color <code>text-[#FA3913]</code> hardcoded hex</li>
+          <li>Nav active arrow <code>text-green-600 dark:text-green-400</code> pair</li>
+          <li>Title <code>font-mono font-bold</code> &mdash; should be font-sans for readability</li>
+          <li>Collapse button <code>text-green-600 dark:text-green-400</code> pair</li>
+          <li>Count labels <code>text-[10px]</code> without font-mono context</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After &mdash; Unified</div>
+        <ul class="comp-list">
+          <li>NEURO label &rarr; <code>--text-badge</code> (text-[10px] font-mono)</li>
+          <li>Brand color &rarr; <code>var(--neuro-brand)</code></li>
+          <li>Active arrow &rarr; <code>var(--terminal-accent)</code></li>
+          <li>Title &rarr; <code>--text-h3</code> (text-sm font-semibold font-sans)</li>
+          <li>Collapse &rarr; <code>var(--terminal-accent)</code></li>
+          <li>Count labels &rarr; <code>--text-badge</code> with explicit font-mono</li>
+        </ul>
+      </div>
+    </div>
+    <!-- Mini demo -->
+    <div class="grid-2 mt-2">
+      <div class="card">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Light Theme</div>
+        <div style="border:1px solid var(--border-default); border-radius:8px; overflow:hidden;">
+          <div style="padding:8px 10px; border-bottom:1px solid var(--border-default);">
+            <div style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; color:#171717;">Wiki Codex</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#FA3913; letter-spacing:0.12em; text-transform:uppercase;">NEURO</div>
+          </div>
+          <div style="padding:4px 0;">
+            <div class="demo-sidebar-item" style="color:#525252;"><span class="arrow" style="color:#a3a3a3;">-</span> Панель управления</div>
+            <div class="demo-sidebar-item active"><span class="arrow" style="color:#16a34a;">&gt;</span> <span style="color:#171717;">Документы</span><span class="count">12</span></div>
+            <div class="demo-sidebar-item" style="color:#525252;"><span class="arrow" style="color:#a3a3a3;">-</span> Заметки<span class="count">5</span></div>
+            <div class="demo-sidebar-item" style="color:#525252;"><span class="arrow" style="color:#a3a3a3;">-</span> Термины<span class="count">28</span></div>
+            <div class="demo-sidebar-item" style="color:#525252;"><span class="arrow" style="color:#a3a3a3;">-</span> Инструкции<span class="count">8</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="background:#0a0a0a; border-color:rgba(255,255,255,0.1);">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Dark Theme</div>
+        <div style="border:1px solid rgba(255,255,255,0.1); border-radius:8px; overflow:hidden;">
+          <div style="padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; color:#fafafa;">Wiki Codex</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#FA3913; letter-spacing:0.12em; text-transform:uppercase;">NEURO</div>
+          </div>
+          <div style="padding:4px 0;">
+            <div class="demo-sidebar-item" style="color:#a1a1aa;"><span class="arrow" style="color:#71717a;">-</span> Панель управления</div>
+            <div class="demo-sidebar-item active" style="background:rgba(255,255,255,0.06);"><span class="arrow" style="color:#4ade80;">&gt;</span> <span style="color:#fafafa; font-weight:600;">Документы</span><span class="count" style="color:#71717a;">12</span></div>
+            <div class="demo-sidebar-item" style="color:#a1a1aa;"><span class="arrow" style="color:#71717a;">-</span> Заметки<span class="count" style="color:#71717a;">5</span></div>
+            <div class="demo-sidebar-item" style="color:#a1a1aa;"><span class="arrow" style="color:#71717a;">-</span> Термины<span class="count" style="color:#71717a;">28</span></div>
+            <div class="demo-sidebar-item" style="color:#a1a1aa;"><span class="arrow" style="color:#71717a;">-</span> Инструкции<span class="count" style="color:#71717a;">8</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 2. DICTIONARY ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">2</div>
+      <div class="block-name">Dictionary (Термины)</div>
+      <span class="badge badge-medium">MEDIUM</span>
+      <div class="block-file">dictionary-view.tsx, term-card-grid.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Term name <code>font-mono font-semibold text-sm</code> &mdash; should be font-sans</li>
+          <li>Translation <code>text-xs sm:text-sm</code> &mdash; inconsistent responsive sizing</li>
+          <li>Explanation <code>text-[10px]</code> without font context</li>
+          <li>Category badge <code>text-[10px]</code> missing font-mono</li>
+          <li>Card uses <code>border-dashed</code> on a Content Card (should be solid)</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Term name &rarr; <code>--text-h3</code> (text-sm font-semibold font-sans)</li>
+          <li>Translation &rarr; <code>--text-body</code> (text-sm font-sans)</li>
+          <li>Explanation &rarr; <code>--text-body-sm</code> (text-xs font-sans)</li>
+          <li>Category badge &rarr; <code>--text-badge</code> (text-[10px] font-mono)</li>
+          <li>Card &rarr; Content Card style (solid border, no dashed)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 3. DOCUMENT VIEWER ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">3</div>
+      <div class="block-name">Document Viewer</div>
+      <span class="badge badge-critical">CRITICAL</span>
+      <div class="block-file">document-viewer.tsx, markdown-renderer.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Prose pre blocks use hardcoded <code>#f5f5f4</code> / <code>#292524</code></li>
+          <li>Prism override uses <code>#fafaf9</code> / <code>#1c1917</code> !important</li>
+          <li>Dark inline code <code>#292524</code> / <code>#e7e5e4</code></li>
+          <li>Dark blockquote <code>#57534e</code> / <code>#a8a29e</code></li>
+          <li>6+ hardcoded hex colors in globals.css</li>
+          <li>Markdown headings render in browser default serif</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Prose pre &rarr; <code>var(--muted)</code> / <code>var(--border)</code></li>
+          <li>Prism override &rarr; <code>var(--card)</code></li>
+          <li>Inline code &rarr; <code>var(--muted)</code> / <code>var(--muted-foreground)</code></li>
+          <li>Blockquote &rarr; <code>var(--border)</code> / <code>var(--muted-foreground)</code></li>
+          <li>All hex replaced with semantic tokens</li>
+          <li>Prose headings &rarr; font-sans via <code>--text-h1/h2/h3</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 4. UPLOAD ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">4</div>
+      <div class="block-name">Upload View</div>
+      <span class="badge badge-medium">MEDIUM</span>
+      <div class="block-file">upload-view.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Drop zone text likely uses font-mono for description</li>
+          <li>Status messages inconsistent font sizing</li>
+          <li>Progress indicator may use hardcoded colors</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Description &rarr; <code>--text-body</code> (font-sans)</li>
+          <li>Status &rarr; <code>--text-label</code> (font-mono) for chrome</li>
+          <li>Progress &rarr; <code>var(--terminal-accent)</code> for active state</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 5. DOCUMENTS ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">5</div>
+      <div class="block-name">Documents View</div>
+      <span class="badge badge-high">HIGH</span>
+      <div class="block-file">documents-view.tsx, document-card.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Star icon <code>text-amber-500 fill-amber-500</code> &mdash; no dark variant</li>
+          <li>Date labels <code>text-[10px]</code> without font-mono</li>
+          <li>Category badge <code>text-[10px] px-1.5</code> missing font-mono</li>
+          <li>Doc title missing font-sans (inherits font-mono from parent)</li>
+          <li>Filter prompt <code>text-green-600 dark:text-green-400</code> pair</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Star &rarr; <code>var(--star-color)</code> (oklch amber, auto light/dark)</li>
+          <li>Date labels &rarr; <code>--text-badge</code> (text-[10px] font-mono)</li>
+          <li>Category badge &rarr; <code>--text-badge</code> with font-mono</li>
+          <li>Doc title &rarr; <code>--text-h3</code> (font-sans font-semibold)</li>
+          <li>Prompt &rarr; <code>var(--terminal-accent)</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 6. NOTES ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">6</div>
+      <div class="block-name">Notes View</div>
+      <span class="badge badge-high">HIGH</span>
+      <div class="block-file">notes-view.tsx, note-editor.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Note title likely font-mono (should be font-sans)</li>
+          <li>AI analysis badges may use hardcoded violet</li>
+          <li>Editor content area font inconsistencies</li>
+          <li>Prompt decorations <code>text-green-600 dark:text-green-400</code></li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Note title &rarr; <code>--text-h3</code> (font-sans)</li>
+          <li>AI badges &rarr; <code>var(--semantic-violet)</code></li>
+          <li>Editor &rarr; <code>--text-body</code> for content, <code>--text-code</code> for code</li>
+          <li>Prompts &rarr; <code>var(--terminal-accent)</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 7. DASHBOARD ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">7</div>
+      <div class="block-name">Dashboard</div>
+      <span class="badge badge-medium">MEDIUM</span>
+      <div class="block-file">dashboard-view.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Stat value <code>font-mono font-bold</code> &mdash; fine for numbers</li>
+          <li>Stat label <code>text-[10px] font-mono</code> &mdash; correct but not tokenized</li>
+          <li>Quick action prompt <code>text-green-600 dark:text-green-400</code> pair</li>
+          <li>Section header <code>text-[10px] font-mono</code> &mdash; should use --text-section</li>
+          <li>Recent item <code>font-mono</code> on whole row, title should be font-sans</li>
+          <li>Star <code>text-amber-500</code> no dark variant</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Stat value stays font-mono (tabular-nums) &rarr; <code>--text-code</code></li>
+          <li>Stat label &rarr; <code>--text-badge</code></li>
+          <li>Prompt &rarr; <code>var(--terminal-accent)</code></li>
+          <li>Section header &rarr; <code>--text-section</code></li>
+          <li>Recent item: chrome mono, title &rarr; <code>--text-h3</code> font-sans</li>
+          <li>Star &rarr; <code>var(--star-color)</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 8. HEADER ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">8</div>
+      <div class="block-name">Header</div>
+      <span class="badge badge-critical">CRITICAL</span>
+      <div class="block-file">header.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Title <code>font-mono font-semibold</code> &mdash; entire breadcrumb is mono</li>
+          <li>Path <code>text-green-600 dark:text-green-400</code> for "codex" and "$"</li>
+          <li>Semantic search button <code>bg-violet-600</code> hardcoded</li>
+          <li>Search icon <code>text-violet-500</code> hardcoded</li>
+          <li>Search border <code>border-violet-500/50</code> hardcoded</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Title path stays font-mono (terminal chrome) &mdash; correct</li>
+          <li>"codex" + "$" &rarr; <code>var(--terminal-accent)</code></li>
+          <li>Semantic button &rarr; <code>var(--semantic-violet)</code></li>
+          <li>Search icon &rarr; <code>var(--semantic-violet)</code></li>
+          <li>Search border &rarr; <code>var(--semantic-violet) / 50%</code></li>
+        </ul>
+      </div>
+    </div>
+    <!-- Header demo -->
+    <div class="grid-2 mt-2">
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="border-bottom:1px solid var(--border-default); padding:10px 16px; display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:600;">
+            <span style="color:#16a34a;">codex</span><span style="color:#a3a3a3;">:</span><span style="color:#171717;">~/documents</span><span style="color:#16a34a;"> $</span>
+          </span>
+          <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:#a3a3a3;">light theme</span>
+        </div>
+      </div>
+      <div class="card" style="padding:0; overflow:hidden; background:#0a0a0a; border-color:rgba(255,255,255,0.1);">
+        <div style="border-bottom:1px solid rgba(255,255,255,0.1); padding:10px 16px; display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:600;">
+            <span style="color:#4ade80;">codex</span><span style="color:#71717a;">:</span><span style="color:#fafafa;">~/documents</span><span style="color:#4ade80;"> $</span>
+          </span>
+          <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a;">dark theme</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 9. FOOTER ─── -->
+  <div class="block-section">
+    <div class="block-header">
+      <div class="block-number">9</div>
+      <div class="block-name">Footer</div>
+      <span class="badge badge-critical">CRITICAL</span>
+      <div class="block-file">page.tsx</div>
+    </div>
+    <div class="comparison-wrapper">
+      <div class="before-box">
+        <div class="comp-label">&#10007; Before</div>
+        <ul class="comp-list">
+          <li>Hardcoded <code>bg-zinc-900 text-zinc-400</code> &mdash; black bar on white page</li>
+          <li>Green prompt <code>text-green-500</code> without dark variant</li>
+          <li>NEURO divider uses <code>text-red-500</code> &mdash; should be brand coral</li>
+          <li>Version <code>text-zinc-600</code> &mdash; invisible in dark mode</li>
+          <li>Doc count <code>text-zinc-500</code> &mdash; inconsistent muted color</li>
+        </ul>
+      </div>
+      <div class="after-box">
+        <div class="comp-label">&#10003; After</div>
+        <ul class="comp-list">
+          <li>Footer &rarr; <code>bg-muted/60 border-t</code> (theme-adaptive)</li>
+          <li>Prompt &rarr; <code>var(--terminal-accent)</code></li>
+          <li>NEURO &rarr; <code>var(--neuro-brand)</code></li>
+          <li>Version &rarr; <code>var(--muted-foreground)</code></li>
+          <li>Doc count &rarr; <code>var(--muted-foreground)</code></li>
+        </ul>
+      </div>
+    </div>
+    <!-- Footer demo -->
+    <div class="grid-2 mt-2">
+      <div style="border:1px solid var(--border-default); border-radius:8px; overflow:hidden;">
+        <div style="background:#f5f5f4; border-top:1px solid var(--border-default); padding:6px 16px; display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:11px;">
+          <span><span style="color:#16a34a;">//&gt;</span> Wiki Codex <span style="color:#a3a3a3;">v2.0</span> <span style="color:#FA3913;">|</span> <span style="color:#a3a3a3;">NEURO</span></span>
+          <span style="color:#a3a3a3;">5 docs</span>
+        </div>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,0.1); border-radius:8px; overflow:hidden;">
+        <div style="background:#1a1a1a; border-top:1px solid rgba(255,255,255,0.08); padding:6px 16px; display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:11px; color:#a1a1aa;">
+          <span><span style="color:#4ade80;">//&gt;</span> Wiki Codex <span style="color:#71717a;">v2.0</span> <span style="color:#FA3913;">|</span> <span style="color:#71717a;">NEURO</span></span>
+          <span style="color:#71717a;">5 docs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" style="max-width: 1280px; margin: 0 auto;"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 3: LIGHT / DARK THEME DEMO
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="theme-demo">
+  <div class="section-label">Section 3</div>
+  <h2 class="section-title">Light / Dark Theme Demo</h2>
+  <p class="section-desc">
+    Side-by-side comparison of the unified design system in both themes.
+    Every element uses semantic tokens &mdash; no hardcoded colors.
+  </p>
+
+  <!-- Terminal Card -->
+  <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px;">Terminal Card</h3>
+  <div class="theme-compare mb-2">
+    <div class="theme-light">
+      <div class="theme-tag">Light</div>
+      <div class="theme-content">
+        <div style="border:1px dashed #d4d4d4; border-radius:8px; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:12px; padding:6px 12px; border-bottom:1px dashed #d4d4d4; background:#f5f5f4;">
+            <div style="display:flex; gap:4px;">
+              <span style="width:7px;height:7px;border-radius:50%;background:#f87171;"></span>
+              <span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;"></span>
+              <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;"></span>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a3a3a3;">instructions</span>
+            <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:#a3a3a3; background:#f5f5f4; padding:1px 6px; border-radius:9999px; border:1px solid #e5e5e5;">8</span>
+          </div>
+          <div style="padding:12px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#16a34a; font-weight:600;">$</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#525252;">grep -r ... (search instructions)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#16a34a; font-weight:600;">$</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#525252;">extracted from documents</span>
+            </div>
+            <div style="border:1px solid #e5e5e5; border-radius:6px; padding:10px;">
+              <div style="font-family:'Inter',sans-serif; font-size:14px; font-weight:600; color:#171717; margin-bottom:4px;">Развертывание проекта</div>
+              <div style="font-size:12px; color:#525252;">Настройка окружения и запуск Wiki Codex</div>
+              <div style="margin-top:6px;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; padding:1px 6px; border-radius:9999px; border:1px solid #16a34a; color:#16a34a; background:rgba(22,163,74,0.08);">devops</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="theme-dark">
+      <div class="theme-tag">Dark</div>
+      <div class="theme-content">
+        <div style="border:1px dashed rgba(255,255,255,0.15); border-radius:8px; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:12px; padding:6px 12px; border-bottom:1px dashed rgba(255,255,255,0.15); background:rgba(255,255,255,0.04);">
+            <div style="display:flex; gap:4px;">
+              <span style="width:7px;height:7px;border-radius:50%;background:#f87171;"></span>
+              <span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;"></span>
+              <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;"></span>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#71717a;">instructions</span>
+            <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a; background:rgba(255,255,255,0.06); padding:1px 6px; border-radius:9999px; border:1px solid rgba(255,255,255,0.1);">8</span>
+          </div>
+          <div style="padding:12px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#4ade80; font-weight:600;">$</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#a1a1aa;">grep -r ... (search instructions)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#4ade80; font-weight:600;">$</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#a1a1aa;">extracted from documents</span>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:10px;">
+              <div style="font-family:'Inter',sans-serif; font-size:14px; font-weight:600; color:#fafafa; margin-bottom:4px;">Развертывание проекта</div>
+              <div style="font-size:12px; color:#a1a1aa;">Настройка окружения и запуск Wiki Codex</div>
+              <div style="margin-top:6px;">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; padding:1px 6px; border-radius:9999px; border:1px solid #4ade80; color:#4ade80; background:rgba(74,222,128,0.08);">devops</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code Block -->
+  <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; margin-top:2rem;">Code Block (Theme-Adaptive)</h3>
+  <div class="theme-compare mb-2">
+    <div class="theme-light">
+      <div class="theme-tag">Light</div>
+      <div class="theme-content">
+        <div class="demo-code-block">
+          <div class="demo-code-bar" style="background:#f5f5f4; border-bottom:1px solid #e5e5e4;">
+            <div class="demo-code-bar-dots">
+              <span style="background:#f87171;"></span>
+              <span style="background:#fbbf24;"></span>
+              <span style="background:#4ade80;"></span>
+            </div>
+            <span class="demo-code-bar-label" style="color:#a3a3a3;">Установить зависимости</span>
+          </div>
+          <div class="demo-code-body" style="background:#fafaf9; color:#171717;"><span style="color:#6b7280;">// Открой в браузере</span>
+<span style="color:#16a34a; font-weight:600;">POST</span> <span style="color:#7c3aed;">/api/backup</span>
+<span style="color:#b45309;">"https://example.com"</span>
+<span style="color:#2563eb;">--verbose</span>
+<span style="color:#0d9488;">DATABASE_URL=</span><span style="color:#b45309;">postgres://...</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="theme-dark">
+      <div class="theme-tag">Dark</div>
+      <div class="theme-content">
+        <div class="demo-code-block">
+          <div class="demo-code-bar" style="background:#1c1c1c; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <div class="demo-code-bar-dots">
+              <span style="background:#f87171;"></span>
+              <span style="background:#fbbf24;"></span>
+              <span style="background:#4ade80;"></span>
+            </div>
+            <span class="demo-code-bar-label" style="color:#71717a;">Установить зависимости</span>
+          </div>
+          <div class="demo-code-body" style="background:#0a0a0a; color:#e4e4e7;"><span style="color:#78716c;">// Открой в браузере</span>
+<span style="color:#4ade80; font-weight:600;">POST</span> <span style="color:#c084fc;">/api/backup</span>
+<span style="color:#fbbf24;">"https://example.com"</span>
+<span style="color:#60a5fa;">--verbose</span>
+<span style="color:#2dd4bf;">DATABASE_URL=</span><span style="color:#fbbf24;">postgres://...</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Stats -->
+  <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; margin-top:2rem;">Dashboard Stats</h3>
+  <div class="theme-compare mb-2">
+    <div class="theme-light">
+      <div class="theme-tag">Light</div>
+      <div class="theme-content">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div style="border:1px dashed #d4d4d4; border-radius:6px; padding:10px; display:flex; align-items:center; gap:8px;">
+            <div style="width:28px; height:28px; border-radius:4px; background:#f5f5f4; display:flex; align-items:center; justify-content:center;">
+              <span style="font-size:14px; color:#a3a3a3;">📄</span>
+            </div>
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:#171717; font-variant-numeric:tabular-nums;">42</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#a3a3a3;">документы</div>
+            </div>
+          </div>
+          <div style="border:1px dashed #d4d4d4; border-radius:6px; padding:10px; display:flex; align-items:center; gap:8px;">
+            <div style="width:28px; height:28px; border-radius:4px; background:#f5f5f4; display:flex; align-items:center; justify-content:center;">
+              <span style="font-size:14px; color:#a3a3a3;">⭐</span>
+            </div>
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:#171717; font-variant-numeric:tabular-nums;">7</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#a3a3a3;">избранные</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="theme-dark">
+      <div class="theme-tag">Dark</div>
+      <div class="theme-content">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div style="border:1px dashed rgba(255,255,255,0.15); border-radius:6px; padding:10px; display:flex; align-items:center; gap:8px;">
+            <div style="width:28px; height:28px; border-radius:4px; background:#262626; display:flex; align-items:center; justify-content:center;">
+              <span style="font-size:14px; color:#71717a;">📄</span>
+            </div>
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:#fafafa; font-variant-numeric:tabular-nums;">42</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a;">документы</div>
+            </div>
+          </div>
+          <div style="border:1px dashed rgba(255,255,255,0.15); border-radius:6px; padding:10px; display:flex; align-items:center; gap:8px;">
+            <div style="width:28px; height:28px; border-radius:4px; background:#262626; display:flex; align-items:center; justify-content:center;">
+              <span style="font-size:14px; color:#71717a;">⭐</span>
+            </div>
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700; color:#fafafa; font-variant-numeric:tabular-nums;">7</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#71717a;">избранные</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color Tokens Visual -->
+  <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; margin-top:2rem;">Semantic Color Tokens — Side by Side</h3>
+  <div class="theme-compare">
+    <div class="theme-light">
+      <div class="theme-tag">Light Theme Tokens</div>
+      <div class="theme-content" style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:#16a34a;border:1px solid rgba(0,0,0,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#525252;">--terminal-accent</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#16a34a; font-weight:600;">$ prompt</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:#FA3913;border:1px solid rgba(0,0,0,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#525252;">--neuro-brand</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#FA3913; font-weight:600;">NEURO</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:oklch(0.72 0.16 75);border:1px solid rgba(0,0,0,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#525252;">--star-color</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:oklch(0.72 0.16 75); font-weight:600;">★ starred</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:oklch(0.50 0.25 295);border:1px solid rgba(0,0,0,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#525252;">--semantic-violet</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:oklch(0.50 0.25 295); font-weight:600;">AI search</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:#b45309;border:1px solid rgba(0,0,0,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#525252;">--accent-amber</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#b45309; font-weight:600;">warning</span>
+        </div>
+      </div>
+    </div>
+    <div class="theme-dark">
+      <div class="theme-tag">Dark Theme Tokens</div>
+      <div class="theme-content" style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:#4ade80;border:1px solid rgba(255,255,255,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a1a1aa;">--terminal-accent</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#4ade80; font-weight:600;">$ prompt</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:#FA3913;border:1px solid rgba(255,255,255,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a1a1aa;">--neuro-brand</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#FA3913; font-weight:600;">NEURO</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:oklch(0.82 0.16 75);border:1px solid rgba(255,255,255,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a1a1aa;">--star-color</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:oklch(0.82 0.16 75); font-weight:600;">★ starred</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:oklch(0.65 0.22 295);border:1px solid rgba(255,255,255,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a1a1aa;">--semantic-violet</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:oklch(0.65 0.22 295); font-weight:600;">AI search</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px;height:20px;border-radius:4px;background:#fbbf24;border:1px solid rgba(255,255,255,0.1);"></div>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#a1a1aa;">--accent-amber</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#fbbf24; font-weight:600;">warning</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider" style="max-width: 1280px; margin: 0 auto;"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 4: COMPONENT TOKEN MAP
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="token-map">
+  <div class="section-label">Section 4</div>
+  <h2 class="section-title">Component Token Map</h2>
+  <p class="section-desc">
+    Complete mapping of which token applies to which element in each block.
+    This is the implementation reference.
+  </p>
+
+  <div style="overflow-x: auto;">
+    <table class="token-table">
+      <thead>
+        <tr>
+          <th>Block</th>
+          <th>Element</th>
+          <th>Typography Token</th>
+          <th>Color Token</th>
+          <th>Card Style</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Sidebar -->
+        <tr>
+          <td class="mono-cell" rowspan="5">Sidebar</td>
+          <td>Brand title "Wiki Codex"</td>
+          <td class="dim-cell">--text-h3</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>NEURO label</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">--neuro-brand</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>Nav item label</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>Active arrow &gt;</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">--terminal-accent</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>Count badge</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <!-- Header -->
+        <tr>
+          <td class="mono-cell" rowspan="4">Header</td>
+          <td>Breadcrumb path</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>"codex" + "$" prompt</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">--terminal-accent</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>Semantic button</td>
+          <td class="dim-cell">&mdash;</td>
+          <td class="dim-cell">--semantic-violet</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>Search border (active)</td>
+          <td class="dim-cell">&mdash;</td>
+          <td class="dim-cell">--semantic-violet / 50%</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td class="mono-cell" rowspan="4">Footer</td>
+          <td>Prompt "//&gt;"</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">--terminal-accent</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>App name</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>Version</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <tr>
+          <td>NEURO divider</td>
+          <td class="dim-cell">&mdash;</td>
+          <td class="dim-cell">--neuro-brand</td>
+          <td class="dim-cell">&mdash;</td>
+        </tr>
+        <!-- Dashboard -->
+        <tr>
+          <td class="mono-cell" rowspan="5">Dashboard</td>
+          <td>Stat value</td>
+          <td class="dim-cell">--text-code (mono, tabular)</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Stat label</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Prompt "$"</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">--terminal-accent</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Section header "recent"</td>
+          <td class="dim-cell">--text-section</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Doc title</td>
+          <td class="dim-cell">--text-h3</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <!-- Dictionary -->
+        <tr>
+          <td class="mono-cell" rowspan="4">Dictionary</td>
+          <td>Term name</td>
+          <td class="dim-cell">--text-h3</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Content</td>
+        </tr>
+        <tr>
+          <td>Translation</td>
+          <td class="dim-cell">--text-body</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">Content</td>
+        </tr>
+        <tr>
+          <td>Explanation</td>
+          <td class="dim-cell">--text-body-sm</td>
+          <td class="dim-cell">muted-foreground / 70%</td>
+          <td class="dim-cell">Content</td>
+        </tr>
+        <tr>
+          <td>Category badge</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">category.color</td>
+          <td class="dim-cell">Content</td>
+        </tr>
+        <!-- Documents -->
+        <tr>
+          <td class="mono-cell" rowspan="4">Documents</td>
+          <td>Doc title</td>
+          <td class="dim-cell">--text-h3</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Star icon</td>
+          <td class="dim-cell">&mdash;</td>
+          <td class="dim-cell">--star-color</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Date</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">muted-foreground / 60%</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Category badge</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">category.color</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <!-- Document Viewer -->
+        <tr>
+          <td class="mono-cell" rowspan="4">Doc Viewer</td>
+          <td>Prose headings</td>
+          <td class="dim-cell">--text-h1 / h2 / h3</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Content</td>
+        </tr>
+        <tr>
+          <td>Prose body</td>
+          <td class="dim-cell">--text-body</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Content</td>
+        </tr>
+        <tr>
+          <td>Code blocks</td>
+          <td class="dim-cell">--text-code</td>
+          <td class="dim-cell">syntax-* tokens</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Blockquote</td>
+          <td class="dim-cell">--text-body</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">Content</td>
+        </tr>
+        <!-- Notes -->
+        <tr>
+          <td class="mono-cell" rowspan="4">Notes</td>
+          <td>Note title</td>
+          <td class="dim-cell">--text-h3</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Note preview</td>
+          <td class="dim-cell">--text-body-sm</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>AI badge</td>
+          <td class="dim-cell">--text-badge</td>
+          <td class="dim-cell">--semantic-violet</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Prompt "$"</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">--terminal-accent</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <!-- Instructions -->
+        <tr>
+          <td class="mono-cell" rowspan="4">Instructions</td>
+          <td>Search input</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Prompt "$"</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">--terminal-accent</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Step title</td>
+          <td class="dim-cell">--text-h3</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Step description</td>
+          <td class="dim-cell">--text-body</td>
+          <td class="dim-cell">step-type accent</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <!-- Upload -->
+        <tr>
+          <td class="mono-cell" rowspan="3">Upload</td>
+          <td>Drop zone title</td>
+          <td class="dim-cell">--text-h2</td>
+          <td class="dim-cell">foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Drop zone description</td>
+          <td class="dim-cell">--text-body</td>
+          <td class="dim-cell">muted-foreground</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+        <tr>
+          <td>Status label</td>
+          <td class="dim-cell">--text-label</td>
+          <td class="dim-cell">--terminal-accent</td>
+          <td class="dim-cell">Terminal</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider" style="max-width: 1280px; margin: 0 auto;"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     IMPLEMENTATION PRIORITY
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Implementation</div>
+  <h2 class="section-title">Implementation Priority</h2>
+  <p class="section-desc">
+    Recommended order based on severity and blast radius.
+  </p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+        <span style="width:8px; height:8px; border-radius:50%; background:#dc2626;"></span>
+        Critical &mdash; Do First
+      </h3>
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:12px;">
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#dc2626; font-weight:700; min-width:16px;">01</span>
+          <div>
+            <div style="font-weight:600;">Add semantic tokens to :root / .dark</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">globals.css &mdash; --terminal-accent, --neuro-brand, --star-color, --semantic-violet, --accent-*</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#dc2626; font-weight:700; min-width:16px;">02</span>
+          <div>
+            <div style="font-weight:600;">Replace code block hardcoded colors</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">copyable-code-block, semantic-highlight, step-type-config, step-card</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#dc2626; font-weight:700; min-width:16px;">03</span>
+          <div>
+            <div style="font-weight:600;">Fix footer dark-only styles</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">page.tsx &mdash; bg-muted/60 border-t with semantic tokens</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#dc2626; font-weight:700; min-width:16px;">04</span>
+          <div>
+            <div style="font-weight:600;">Fix globals.css hardcoded hex</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">Prose overrides, scrollbar, Prism &mdash; 14 hex values</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#dc2626; font-weight:700; min-width:16px;">05</span>
+          <div>
+            <div style="font-weight:600;">Fix header semantic search colors</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">header.tsx &mdash; violet-600, violet-500, violet-500/50</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+        <span style="width:8px; height:8px; border-radius:50%; background:#b45309;"></span>
+        High &mdash; Do Next
+      </h3>
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:12px;">
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#b45309; font-weight:700; min-width:16px;">06</span>
+          <div>
+            <div style="font-weight:600;">Replace all text-green-600/dark:text-green-400 pairs</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">12 instances &rarr; var(--terminal-accent)</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#b45309; font-weight:700; min-width:16px;">07</span>
+          <div>
+            <div style="font-weight:600;">Replace all text-amber-500 (star color)</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">8 instances &rarr; var(--star-color)</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#16a34a; font-weight:700; min-width:16px;">08</span>
+          <div>
+            <div style="font-weight:600;">Standardize typography tokens</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">22 instances: text-[9px]/[10px]/[11px]/[13px] &rarr; named tokens</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#16a34a; font-weight:700; min-width:16px;">09</span>
+          <div>
+            <div style="font-weight:600;">Standardize TerminalFrame spacing</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">12 inconsistencies &rarr; m-3 sm:m-4 md:m-6 + p-3 sm:p-4</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#16a34a; font-weight:700; min-width:16px;">10</span>
+          <div>
+            <div style="font-weight:600;">Add font-sans to prose headings</div>
+            <div style="color:var(--text-tertiary); font-size:11px;">markdown-renderer.tsx &mdash; ensure h1-h3 use font-sans</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Files to modify -->
+  <div class="card mt-3">
+    <h3 style="font-family:'Inter',sans-serif; font-size:14px; font-weight:700; margin-bottom:10px;">Files to Modify</h3>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-secondary); line-height:2.2; column-count: 2; column-gap: 24px;">
+      <span style="color:var(--accent-red);">&#9679;</span> globals.css<br>
+      <span style="color:var(--accent-red);">&#9679;</span> layout.tsx<br>
+      <span style="color:var(--accent-red);">&#9679;</span> page.tsx<br>
+      <span style="color:var(--accent-red);">&#9679;</span> header.tsx<br>
+      <span style="color:var(--accent-amber);">&#9679;</span> dashboard-view.tsx<br>
+      <span style="color:var(--accent-amber);">&#9679;</span> instructions/* (5 files)<br>
+      <span style="color:var(--accent-green);">&#9679;</span> doc-viewer/* (4 files)<br>
+      <span style="color:var(--accent-green);">&#9679;</span> documents/* (3 files)<br>
+      <span style="color:var(--accent-green);">&#9679;</span> dictionary/* (6 files)<br>
+      <span style="color:var(--accent-green);">&#9679;</span> sidebar-modules/* (6 files)<br>
+      <span style="color:var(--accent-green);">&#9679;</span> note-editor/* (2 files)<br>
+      <span style="color:var(--accent-green);">&#9679;</span> upload-view.tsx<br>
+      <span style="color:var(--accent-green);">&#9679;</span> terminal-frame.tsx<br>
+      <span style="color:var(--accent-green);">&#9679;</span> neuro-logo.tsx<br>
+      <span style="color:var(--accent-green);">&#9679;</span> tech-logos.tsx
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════════════ -->
+<footer class="pres-footer">
+  <span class="green">$</span> wiki-codex-v2 design-system-proposal
+  <span class="coral">|</span>
+  <span class="bright">Unified Design System v2.0</span>
+  <span class="coral">|</span>
+  <span>9 blocks &middot; 68 hardcoded colors &middot; 22 typo issues</span>
+  <span class="coral">|</span>
+  <span class="bright">NEURO</span>
+</footer>
+
+</body>
+</html>

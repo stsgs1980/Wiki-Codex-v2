@@ -55,7 +55,7 @@ export function DocumentViewMode({
     <TerminalFrame title="document/view" className="m-3 sm:m-4 md:m-6 max-w-4xl mx-auto" headerRight={
       <div className="flex items-center gap-1">
         <Button variant="ghost" size="icon" className="size-6" onClick={onStar} title={doc.isStarred ? 'Убрать из избранного' : 'В избранное'}>
-          <Star className={cn('size-3.5', doc.isStarred ? 'fill-amber-500 text-amber-500' : 'text-muted-foreground')} />
+          <Star className={cn('size-3.5', doc.isStarred ? 'fill-star text-star' : 'text-muted-foreground')} />
         </Button>
         <Button variant="ghost" size="sm" className="gap-1 text-xs h-6" onClick={onEdit}>
           <Edit3 className="size-3" />
@@ -92,7 +92,7 @@ export function DocumentViewMode({
         {/* Title */}
         <div className="flex items-center gap-2 mb-3">
           <FileText className="size-4 text-muted-foreground shrink-0" />
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight break-words truncate leading-tight font-mono">{doc.title}</h1>
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight break-words truncate leading-tight font-sans">{doc.title}</h1>
         </div>
 
         {/* Metadata */}

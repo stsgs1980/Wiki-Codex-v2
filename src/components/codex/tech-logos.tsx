@@ -49,7 +49,7 @@ export function TypeScriptLogo({ className, ...props }: LogoProps) {
         fill="currentColor"
         fontSize="11"
         fontWeight="700"
-        fontFamily="system-ui, sans-serif"
+        fontFamily="Inter, system-ui, sans-serif"
       >
         TS
       </text>
@@ -109,7 +109,7 @@ export function PostgresqlLogo({ className, ...props }: LogoProps) {
         fill="currentColor"
         fontSize="6"
         fontWeight="700"
-        fontFamily="system-ui, sans-serif"
+        fontFamily="Inter, system-ui, sans-serif"
       >
         PG
       </text>
@@ -191,7 +191,7 @@ export function NeuroLogoSmall({ className, ...props }: LogoProps) {
         fill="#FFFFFF"
         fontSize="14"
         fontWeight="700"
-        fontFamily="system-ui, sans-serif"
+        fontFamily="Inter, system-ui, sans-serif"
       >
         R
       </text>

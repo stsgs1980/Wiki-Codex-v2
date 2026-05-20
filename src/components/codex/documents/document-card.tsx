@@ -10,7 +10,7 @@ function getFileIcon(fileType: string) {
     case 'md':
       return <FileText className="size-5 text-muted-foreground" />
     case 'html':
-      return <FileText className="size-5 text-blue-500" />
+      return <FileText className="size-5 text-muted-foreground" />
     default:
       return <File className="size-5 text-muted-foreground" />
   }
@@ -32,17 +32,17 @@ export function DocumentCard({ doc, formatDate, onClick }: DocumentCardProps) {
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
             {getFileIcon(doc.fileType)}
-            <h3 className="font-semibold text-sm text-foreground line-clamp-1 leading-tight group-hover:text-muted-foreground transition-colors">
+            <h3 className="font-semibold text-sm text-foreground line-clamp-1 leading-tight group-hover:text-muted-foreground transition-colors font-sans">
               {doc.title}
             </h3>
           </div>
           {doc.isStarred && (
-            <Star className="size-3.5 text-amber-500 fill-amber-500 shrink-0" />
+            <Star className="size-3.5 text-star fill-star shrink-0" />
           )}
         </div>
 
         {doc.summary && (
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-3 font-sans">
             {doc.summary}
           </p>
         )}

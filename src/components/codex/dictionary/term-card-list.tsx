@@ -52,11 +52,11 @@ export function TermCardList({
         {!selectionMode && (
           expanded
             ? <ChevronDown className="size-3 text-muted-foreground shrink-0" />
-            : <ChevronRight className="size-3 text-green-600 dark:text-green-400 shrink-0" />
+            : <ChevronRight className="size-3 text-terminal-accent shrink-0" />
         )}
 
         {/* Term name */}
-        <span className="font-semibold text-xs sm:text-sm min-w-0 shrink-0 text-foreground">{t.term}</span>
+        <span className="font-semibold text-xs sm:text-sm min-w-0 shrink-0 text-foreground font-sans">{t.term}</span>
 
         <span className="text-muted-foreground/50 text-xs hidden sm:inline">=</span>
 

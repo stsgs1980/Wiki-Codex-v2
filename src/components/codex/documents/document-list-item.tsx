@@ -9,7 +9,7 @@ function getFileIcon(fileType: string) {
     case 'md':
       return <FileText className="size-5 text-muted-foreground" />
     case 'html':
-      return <FileText className="size-5 text-blue-500" />
+      return <FileText className="size-5 text-muted-foreground" />
     default:
       return <File className="size-5 text-muted-foreground" />
   }
@@ -28,15 +28,15 @@ export function DocumentListItem({ doc, formatDate, formatFileSize, onClick }: D
       className="flex items-center gap-3 rounded-md border border-dashed p-3 text-left hover:bg-accent/50 transition-colors w-full font-mono group"
       onClick={onClick}
     >
-      <span className="text-green-600 dark:text-green-400 text-xs shrink-0 select-none">$</span>
+      <span className="text-terminal-accent text-xs shrink-0 select-none">$</span>
       <div className="flex items-center justify-center size-8 rounded-sm bg-muted shrink-0">
         {getFileIcon(doc.fileType)}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm truncate leading-tight">{doc.title}</span>
+          <span className="font-semibold text-sm truncate leading-tight font-sans">{doc.title}</span>
           {doc.isStarred && (
-            <Star className="size-3.5 text-amber-500 fill-amber-500 shrink-0" />
+            <Star className="size-3.5 text-star fill-star shrink-0" />
           )}
         </div>
         {doc.summary && (

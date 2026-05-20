@@ -29,7 +29,7 @@ export function TermCardGrid({
                 onClick={(e) => e.stopPropagation()}
               />
             )}
-            <span className="font-mono font-semibold text-sm sm:text-base truncate">{t.term}</span>
+            <span className="font-semibold text-sm sm:text-base truncate font-sans">{t.term}</span>
           </div>
           {!selectionMode && (
             <Button
@@ -43,7 +43,7 @@ export function TermCardGrid({
             </Button>
           )}
         </div>
-        <p className="text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2 leading-relaxed">{t.translation}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2 leading-relaxed font-sans">{t.translation}</p>
         <p className="text-[10px] sm:text-xs text-muted-foreground/70 line-clamp-2 sm:line-clamp-3">{t.explanation}</p>
         {t.document && (
           <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2">

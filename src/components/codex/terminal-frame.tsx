@@ -51,7 +51,7 @@ export function TerminalHeader({
       'flex items-center gap-2 px-3 py-1.5 border-b bg-muted/40 font-mono text-xs text-muted-foreground',
       className,
     )}>
-      <span className="text-green-600 dark:text-green-400 select-none">$</span>
+      <span className="text-terminal-accent select-none">$</span>
       {children}
     </div>
   )

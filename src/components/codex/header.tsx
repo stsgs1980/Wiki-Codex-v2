@@ -76,10 +76,10 @@ export function Header({ onMenuToggle }: HeaderProps) {
           </Button>
 
           <h2 className="text-sm sm:text-base font-mono font-semibold tracking-tight leading-tight truncate">
-            <span className="text-green-600 dark:text-green-400">codex</span>
+            <span className="text-terminal-accent">codex</span>
             <span className="text-muted-foreground">:</span>
             <span className="text-foreground">{getTitle()}</span>
-            <span className="text-green-600 dark:text-green-400"> $</span>
+            <span className="text-terminal-accent"> $</span>
           </h2>
         </div>
 

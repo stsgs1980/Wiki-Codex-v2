@@ -106,7 +106,7 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
             onClick={() => setStarFilter(!starFilter)}
             className="gap-1.5 sm:gap-2"
           >
-            <Star className={cn('size-4', starFilter && 'fill-amber-500 text-amber-500')} />
+            <Star className={cn('size-4', starFilter && 'fill-star text-star')} />
             <span className="hidden sm:inline">Избранные</span>
           </Button>
         </div>

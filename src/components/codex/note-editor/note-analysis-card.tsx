@@ -24,7 +24,7 @@ export function NoteAnalysisCard({ analysis, onDismiss, onApplyTitle }: NoteAnal
       <CardContent className="p-3 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Lightbulb className="size-3 text-amber-500" />
+            <Lightbulb className="size-3 text-star" />
             <span className="text-xs font-mono font-semibold text-foreground">analysis</span>
           </div>
           <Button

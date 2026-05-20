@@ -73,7 +73,7 @@ export function DashboardView({
 
         {/* Quick Actions */}
         <div className="flex items-center gap-2 px-1">
-          <span className="text-green-600 dark:text-green-400 font-mono text-xs select-none shrink-0">$</span>
+          <span className="text-terminal-accent font-mono text-xs select-none shrink-0">$</span>
           <Button variant="outline" size="sm" onClick={() => { useAppStore.getState().resetFilters(); setView('documents') }} className="gap-2 font-mono text-xs h-7">
             <FileText className="size-3.5" />
             Все документы
@@ -119,15 +119,15 @@ export function DashboardView({
                     setView('document-view')
                   }}
                 >
-                  <span className="text-green-600 dark:text-green-400 text-xs shrink-0 select-none">$</span>
+                  <span className="text-terminal-accent text-xs shrink-0 select-none">$</span>
                   <div className="flex items-center justify-center size-7 rounded-sm bg-muted shrink-0">
                     <FileText className="size-3.5 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-semibold text-sm truncate leading-tight">{doc.title}</span>
+                      <span className="font-semibold text-sm truncate leading-tight font-sans">{doc.title}</span>
                       {doc.isStarred && (
-                        <Star className="size-3 text-amber-500 fill-amber-500 shrink-0" />
+                        <Star className="size-3 text-star fill-star shrink-0" />
                       )}
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">

@@ -49,7 +49,7 @@ export function CategoryDialogForm({ dialog }: { dialog: CategoryDialogState }) 
         {dialog.isSuggesting ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
-          <Sparkles className="size-4 text-amber-500" />
+          <Sparkles className="size-4 text-star" />
         )}
         {dialog.isSuggesting ? 'AI анализирует документы...' : 'Предложить с AI'}
       </Button>

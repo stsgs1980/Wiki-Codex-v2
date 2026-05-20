@@ -97,7 +97,7 @@ export function DictionaryView({
             {d.groupedTerms.map(([letter, group]) => (
               <div key={letter} id={`group-${letter}`} className="mb-4 sm:mb-6 scroll-mt-4">
                 <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                  <span className="text-xs font-mono font-bold text-green-600 dark:text-green-400 min-w-5 sm:min-w-7 leading-tight select-none">[{letter}]</span>
+                  <span className="text-xs font-mono font-bold text-terminal-accent min-w-5 sm:min-w-7 leading-tight select-none">[{letter}]</span>
                   <Separator className="flex-1" />
                   <span className="text-[10px] sm:text-xs font-mono text-muted-foreground/60">{group.length}</span>
                 </div>

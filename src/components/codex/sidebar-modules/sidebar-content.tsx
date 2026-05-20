@@ -44,7 +44,7 @@ export function SidebarContent({
             <h1 className="text-sm font-bold tracking-tight text-foreground leading-tight font-mono">
               Wiki Codex
             </h1>
-            <span className="text-[9px] font-mono text-[#FA3913] tracking-widest uppercase">
+            <span className="text-[9px] font-mono text-neuro-brand tracking-widest uppercase">
               NEURO
             </span>
           </div>
@@ -95,7 +95,7 @@ export function SidebarContent({
               onClick={toggleSidebar}
             >
               {isCollapsed ? (
-                <span className="text-green-600 dark:text-green-400">{'[..]'}</span>
+                <span className="text-terminal-accent">{'[..]'}</span>
               ) : (
                 <span>{'[ - ]'}</span>
               )}

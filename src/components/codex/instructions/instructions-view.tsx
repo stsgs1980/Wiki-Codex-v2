@@ -47,7 +47,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
         <Dialog open={extractDialogOpen} onOpenChange={setExtractDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="ghost" size="sm" className="h-6 gap-1 text-xs" disabled={documents.length === 0}>
-              <Sparkles className="size-3 text-amber-500" />
+              <Sparkles className="size-3 text-star" />
               <span className="hidden sm:inline">extract</span>
             </Button>
           </DialogTrigger>
@@ -100,7 +100,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
       {filteredDb.length > 0 && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
-            <span className="text-green-600 dark:text-green-400 select-none">$</span>
+            <span className="text-terminal-accent select-none">$</span>
             <span>extracted from documents</span>
           </div>
           {filteredDb.map((instr) => (

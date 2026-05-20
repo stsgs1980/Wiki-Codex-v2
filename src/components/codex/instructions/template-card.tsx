@@ -109,7 +109,7 @@ export function TemplateCard({ group, defaultExpanded = false, onHide }: { group
               onClick={(e) => { e.stopPropagation(); handleCopyAll() }}
             >
               {allCopied
-                ? <><Check className="size-3 text-green-600 dark:text-green-400" />ok</>
+                ? <><Check className="size-3 text-terminal-accent" />ok</>
                 : <><Copy className="size-3" />copy all</>
               }
             </Button>

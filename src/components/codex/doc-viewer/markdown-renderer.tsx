@@ -58,8 +58,8 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
                 >
                   {copiedBlockId === blockId ? (
                     <>
-                      <Check className="size-3.5 text-green-600 dark:text-green-400" />
-                      <span className="text-green-600 dark:text-green-400">ok</span>
+                      <Check className="size-3.5 text-terminal-accent" />
+                      <span className="text-terminal-accent">ok</span>
                     </>
                   ) : (
                     <>
