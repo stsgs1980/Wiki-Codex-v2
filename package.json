@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "prisma generate || true",
     "dev": "next dev -p 3000",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "test": "bun test",
@@ -14,11 +14,10 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "vercel-build": "prisma generate && next build",
     "logo": "node scripts-logo/logo-agent.js"
   },
   "engines": {
-    "node": ">=22.x"
+    "node": "22.x"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
