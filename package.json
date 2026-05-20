@@ -18,7 +18,7 @@
     "logo": "node scripts-logo/logo-agent.js"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=22.x"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

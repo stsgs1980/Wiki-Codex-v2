@@ -70,7 +70,7 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
         {note.content && (
           <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-0.5 font-sans">{preview}</p>
         )}
-        <span className="text-[10px] text-muted-foreground/60 mt-1 inline-block">
+        <span className="text-[10px] text-muted-foreground/80 mt-1 inline-block">
           {formatDate(note.updatedAt)}
         </span>
       </div>
@@ -109,7 +109,7 @@ export function NotesView({ notes, onNoteSelect, onCreateNote, onDeleteNote, isL
         </div>
       ) : notes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-14 text-center px-6">
-          <StickyNote className="size-10 text-muted-foreground/40 mb-3" />
+          <StickyNote className="size-10 text-muted-foreground/50 mb-3" />
           <p className="text-xs font-mono text-muted-foreground mb-1">~ no notes found</p>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">Заметок пока нет</p>
           <Button onClick={onCreateNote} size="sm" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">

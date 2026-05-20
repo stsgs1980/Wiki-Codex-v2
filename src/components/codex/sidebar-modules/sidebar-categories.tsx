@@ -48,7 +48,7 @@ export function SidebarCategories({
     <div className="flex flex-col gap-1 px-2 py-3 flex-1 min-h-0">
       <div className={cn('flex items-center gap-2 px-2 py-1', isCollapsed && 'justify-center')}>
         {!isCollapsed && (
-          <span className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wider flex-1">
+          <span className="text-[10px] font-mono text-muted-foreground/80 uppercase tracking-wider flex-1">
             {'[ '}категории{' ]'}
           </span>
         )}
@@ -129,7 +129,7 @@ export function SidebarCategories({
           </div>
         ))}
         {!isCollapsed && categories.length === 0 && (
-          <p className="text-[10px] text-muted-foreground/50 font-mono px-2">- пусто -</p>
+          <p className="text-[10px] text-muted-foreground/70 font-mono px-2">- пусто -</p>
         )}
       </ScrollArea>
     </div>

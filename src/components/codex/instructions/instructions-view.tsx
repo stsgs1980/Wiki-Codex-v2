@@ -113,7 +113,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
       {filteredDb.length > 0 && filteredTemplates.length > 0 && (
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-border border-dashed" />
-          <span className="text-[10px] font-mono text-muted-foreground/60">built-in</span>
+          <span className="text-[10px] font-mono text-muted-foreground/80">built-in</span>
           <div className="flex-1 h-px bg-border border-dashed" />
         </div>
       )}

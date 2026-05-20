@@ -194,7 +194,7 @@ export function DashboardView({
                       <Badge variant="secondary" className="font-mono text-xs gap-1.5">
                         <span className="text-terminal-accent">.</span>
                         {type}
-                        <span className="text-muted-foreground/60">{count}</span>
+                        <span className="text-muted-foreground/80">{count}</span>
                       </Badge>
                     </motion.div>
                   ))}

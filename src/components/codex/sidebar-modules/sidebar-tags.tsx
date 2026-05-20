@@ -62,7 +62,7 @@ export function SidebarTags({
     <div className="flex flex-col gap-1 px-2 py-3">
       <div className={cn('flex items-center gap-2 px-2 py-1', isCollapsed && 'justify-center')}>
         {!isCollapsed && (
-          <span className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wider flex-1">
+          <span className="text-[10px] font-mono text-muted-foreground/80 uppercase tracking-wider flex-1">
             {'[ '}теги{' ]'}
           </span>
         )}
@@ -171,7 +171,7 @@ export function SidebarTags({
               )
             })}
             {tags.length === 0 && (
-              <span className="text-[10px] text-muted-foreground/50 font-mono">- пусто -</span>
+              <span className="text-[10px] text-muted-foreground/70 font-mono">- пусто -</span>
             )}
           </div>
         ) : (

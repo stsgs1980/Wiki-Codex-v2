@@ -118,7 +118,7 @@ export default function WikiCodex() {
         if (!docs.selectedDocument) {
           return (
             <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-              <FileText className="size-10 text-muted-foreground/40" />
+              <FileText className="size-10 text-muted-foreground/50" />
               <p className="text-muted-foreground">Документ не найден</p>
               <Button variant="outline" className="gap-2" onClick={() => setView('documents')}>
                 <ArrowLeft className="size-4" />
@@ -228,16 +228,16 @@ export default function WikiCodex() {
         <footer className="mt-auto border-t bg-card px-4 py-1.5 md:px-6 flex items-center justify-between gap-2 font-mono text-[11px]">
           <span className="text-muted-foreground whitespace-nowrap flex items-center gap-2">
             <NeuroLogoSmall className="size-4 shrink-0" />
-            <span className="text-terminal-accent">{'//>'}</span> Wiki Codex <span className="text-muted-foreground/50">v2.0</span>
+            <span className="text-terminal-accent">{'//>'}</span> Wiki Codex <span className="text-muted-foreground/70">v2.0</span>
             <span className="text-neuro-brand mx-1">|</span>
-            <span className="text-muted-foreground/70">NEURO</span>
+            <span className="text-muted-foreground/80">NEURO</span>
             <span className="hidden md:flex items-center gap-1.5 ml-2">
               {TECH_ITEMS.map(({ name, Logo }) => (
-                <Logo key={name} className="size-3.5 text-muted-foreground/70" />
+                <Logo key={name} className="size-3.5 text-muted-foreground/80" />
               ))}
             </span>
           </span>
-          <span className="text-muted-foreground/70 text-right tabular-nums">
+          <span className="text-muted-foreground/80 text-right tabular-nums">
             {counters.allDocumentsCount} {pluralize(counters.allDocumentsCount, ['doc', 'docs', 'docs'])}
           </span>
         </footer>

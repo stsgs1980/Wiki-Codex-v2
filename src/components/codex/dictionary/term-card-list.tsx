@@ -57,7 +57,7 @@ export function TermCardList({
         {/* Term name */}
         <span className="font-semibold text-xs sm:text-sm min-w-0 shrink-0 text-foreground font-sans">{t.term}</span>
 
-        <span className="text-muted-foreground/50 text-xs hidden sm:inline">=</span>
+        <span className="text-muted-foreground/70 text-xs hidden sm:inline">=</span>
 
         {/* Translation */}
         <span className="text-xs sm:text-sm text-muted-foreground truncate hidden sm:inline">

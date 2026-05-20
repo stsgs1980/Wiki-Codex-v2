@@ -28,19 +28,19 @@ export function RecentlyViewedSection({ items, onClear }: RecentlyViewedSectionP
         {items.length > 0 && (
           <button
             onClick={onClear}
-            className="text-muted-foreground/40 hover:text-muted-foreground transition-colors p-0.5"
+            className="text-muted-foreground/60 hover:text-muted-foreground transition-colors p-0.5"
             aria-label="Очистить историю"
           >
             <X className="size-3" />
           </button>
         )}
-        <span className="text-[10px] font-mono text-muted-foreground/60">{items.length}</span>
+        <span className="text-[10px] font-mono text-muted-foreground/80">{items.length}</span>
       </div>
 
       {items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-6 text-center">
-          <Eye className="size-6 text-muted-foreground/30 mb-2" />
-          <p className="font-mono text-xs text-muted-foreground/60">~ no history yet</p>
+          <Eye className="size-6 text-muted-foreground/50 mb-2" />
+          <p className="font-mono text-xs text-muted-foreground/80">~ no history yet</p>
         </div>
       ) : (
         <motion.div
@@ -66,7 +66,7 @@ export function RecentlyViewedSection({ items, onClear }: RecentlyViewedSectionP
               </div>
               <div className="flex-1 min-w-0">
                 <span className="font-semibold text-sm truncate leading-tight font-sans block">{item.title}</span>
-                <span className="text-[10px] text-muted-foreground/60">{formatRelativeTime(item.viewedAt)}</span>
+                <span className="text-[10px] text-muted-foreground/80">{formatRelativeTime(item.viewedAt)}</span>
               </div>
               <ArrowRight className="size-3.5 text-muted-foreground shrink-0 hidden sm:block" />
             </motion.button>

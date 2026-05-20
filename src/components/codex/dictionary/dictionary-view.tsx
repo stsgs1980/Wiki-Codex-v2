@@ -99,7 +99,7 @@ export function DictionaryView({
                 <div className="flex items-center gap-2 mb-2 sm:mb-3">
                   <span className="text-xs font-mono font-bold text-terminal-accent min-w-5 sm:min-w-7 leading-tight select-none">[{letter}]</span>
                   <Separator className="flex-1" />
-                  <span className="text-[10px] sm:text-xs font-mono text-muted-foreground/60">{group.length}</span>
+                  <span className="text-[10px] sm:text-xs font-mono text-muted-foreground/80">{group.length}</span>
                 </div>
                 {d.viewMode === 'grid' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">

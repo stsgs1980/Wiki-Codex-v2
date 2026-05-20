@@ -27,12 +27,12 @@ export function LatestDocumentsSection({ documents }: LatestDocumentsSectionProp
         <FileText className="size-3.5 text-muted-foreground" />
         <span className="text-xs font-mono text-muted-foreground">latest</span>
         <div className="flex-1 h-px border-t border-dashed" />
-        <span className="text-[10px] font-mono text-muted-foreground/60">{latestDocs.length}</span>
+        <span className="text-[10px] font-mono text-muted-foreground/80">{latestDocs.length}</span>
       </div>
 
       {latestDocs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <FileText className="size-8 text-muted-foreground/40 mb-2" />
+          <FileText className="size-8 text-muted-foreground/50 mb-2" />
           <p className="font-mono text-xs text-muted-foreground mb-1">~ no documents yet</p>
           <p className="text-sm text-muted-foreground mb-3">Документов пока нет</p>
           <Button
@@ -84,7 +84,7 @@ export function LatestDocumentsSection({ documents }: LatestDocumentsSectionProp
                       {doc.category.name}
                     </Badge>
                   )}
-                  <span className="text-[10px] text-muted-foreground/60">
+                  <span className="text-[10px] text-muted-foreground/80">
                     {formatDate(doc.updatedAt)}
                   </span>
                 </div>

@@ -69,7 +69,7 @@ export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNum
           )}
           {/* Regular description for default type */}
           {stepType === 'step' && step.description && (
-            <p className="text-sm text-zinc-300 leading-relaxed font-sans">{step.description}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed font-sans">{step.description}</p>
           )}
           {step.codeBlocks.map((block, idx) => (
             <CopyableCodeBlock key={`${block.label}-${idx}`} label={block.label} code={block.code} accentColor={activeColor} />

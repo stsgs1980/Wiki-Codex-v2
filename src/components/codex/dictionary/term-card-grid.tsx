@@ -47,7 +47,7 @@ export function TermCardGrid({
             )}
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2 leading-relaxed font-sans">{t.translation}</p>
-          <p className="text-[10px] sm:text-xs text-muted-foreground/70 line-clamp-2 sm:line-clamp-3">{t.explanation}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground/80 line-clamp-2 sm:line-clamp-3">{t.explanation}</p>
           {t.document && (
             <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2">
               <FileText className="size-2.5 sm:size-3" />

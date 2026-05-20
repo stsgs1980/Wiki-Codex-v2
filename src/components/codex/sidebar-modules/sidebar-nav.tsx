@@ -66,7 +66,7 @@ export function SidebarNav({
             >
               <span className={cn(
                 'text-[10px] select-none shrink-0',
-                isActive ? 'text-terminal-accent' : 'text-muted-foreground/50'
+                isActive ? 'text-terminal-accent' : 'text-muted-foreground/70'
               )}>
                 {isActive ? '>' : '-'}
               </span>
