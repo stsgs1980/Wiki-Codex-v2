@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import {
-  ClipboardList,
   Copy,
   Check,
   ChevronDown,
@@ -19,6 +18,9 @@ import {
   Loader2,
   FileText,
   ShieldCheck,
+  AlertTriangle,
+  Info,
+  Lightbulb,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -55,6 +57,8 @@ import { TerminalFrame } from '@/components/codex/terminal-frame'
 
 // --- Types ---
 
+type StepType = 'step' | 'warning' | 'info' | 'tip'
+
 interface CodeBlock {
   label: string
   code: string
@@ -64,6 +68,7 @@ interface Step {
   title: string
   description: string
   codeBlocks: CodeBlock[]
+  type?: StepType
 }
 
 interface InstructionItem {
@@ -78,7 +83,154 @@ interface InstructionItem {
   updatedAt: string
 }
 
-// --- Built-in Template Data (ASCII only) ---
+// --- Step Type Config ---
+
+const STEP_TYPE_CONFIG: Record<StepType, {
+  icon: React.ReactNode
+  label: string
+  color: string
+  bgClass: string
+  borderClass: string
+  textClass: string
+  badgeClass: string
+}> = {
+  step: {
+    icon: <ChevronRight className="size-4" />,
+    label: 'step',
+    color: '#71717a',
+    bgClass: 'bg-zinc-500/5',
+    borderClass: 'border-zinc-500/20',
+    textClass: 'text-zinc-400',
+    badgeClass: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
+  },
+  warning: {
+    icon: <AlertTriangle className="size-4" />,
+    label: 'warning',
+    color: '#d97706',
+    bgClass: 'bg-amber-500/5',
+    borderClass: 'border-amber-500/20',
+    textClass: 'text-amber-400',
+    badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  },
+  info: {
+    icon: <Info className="size-4" />,
+    label: 'info',
+    color: '#3b82f6',
+    bgClass: 'bg-blue-500/5',
+    borderClass: 'border-blue-500/20',
+    textClass: 'text-blue-400',
+    badgeClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  },
+  tip: {
+    icon: <Lightbulb className="size-4" />,
+    label: 'tip',
+    color: '#22c55e',
+    bgClass: 'bg-green-500/5',
+    borderClass: 'border-green-500/20',
+    textClass: 'text-green-400',
+    badgeClass: 'bg-green-500/10 text-green-400 border-green-500/20',
+  },
+}
+
+// --- Semantic Code Highlighting ---
+
+function highlightCode(code: string): React.ReactNode[] {
+  const lines = code.split('\n')
+  return lines.map((line, lineIdx) => {
+    const nodes: React.ReactNode[] = []
+    let remaining = line
+    let keyIdx = 0
+
+    // Process each line for semantic tokens
+    while (remaining.length > 0) {
+      // Comment: starts with // or #
+      const commentMatch = remaining.match(/^(\/\/|#)(.*)/)
+      if (commentMatch) {
+        nodes.push(<span key={keyIdx++} className="text-zinc-500">{commentMatch[0]}</span>)
+        remaining = ''
+        break
+      }
+
+      // HTTP method: POST, GET, PUT, DELETE, PATCH at start
+      const methodMatch = remaining.match(/^(POST|GET|PUT|DELETE|PATCH)\b(.*)/)
+      if (methodMatch) {
+        nodes.push(<span key={keyIdx++} className="text-lime-400 font-semibold">{methodMatch[1]}</span>)
+        remaining = methodMatch[2]
+        continue
+      }
+
+      // API path: /api/...
+      const pathMatch = remaining.match(/^(\/api\/[^\s]*)/)
+      if (pathMatch) {
+        nodes.push(<span key={keyIdx++} className="text-purple-400">{pathMatch[1]}</span>)
+        remaining = remaining.slice(pathMatch[1].length)
+        continue
+      }
+
+      // URL: https://...
+      const urlMatch = remaining.match(/^(https?:\/\/[^\s]*)/)
+      if (urlMatch) {
+        nodes.push(<span key={keyIdx++} className="text-purple-400 underline decoration-purple-400/30">{urlMatch[1]}</span>)
+        remaining = remaining.slice(urlMatch[1].length)
+        continue
+      }
+
+      // Quoted string
+      const quoteMatch = remaining.match(/^("([^"]*)"|'([^']*)')(.*)/)
+      if (quoteMatch) {
+        nodes.push(<span key={keyIdx++} className="text-amber-400">{quoteMatch[1]}</span>)
+        remaining = quoteMatch[4] || ''
+        continue
+      }
+
+      // Numbered list item: 1. 2. etc
+      const numMatch = remaining.match(/^(\d+\.\s)(.*)/)
+      if (numMatch) {
+        nodes.push(<span key={keyIdx++} className="text-green-400 font-semibold">{numMatch[1]}</span>)
+        remaining = numMatch[2]
+        continue
+      }
+
+      // Flag: --something
+      const flagMatch = remaining.match(/^(--[\w-]+)(.*)/)
+      if (flagMatch) {
+        nodes.push(<span key={keyIdx++} className="text-blue-400">{flagMatch[1]}</span>)
+        remaining = flagMatch[2]
+        continue
+      }
+
+      // Environment var: KEY=value or KEY=value
+      const envMatch = remaining.match(/^([A-Z_][A-Z0-9_]*=)([^\s]*)(.*)/)
+      if (envMatch) {
+        nodes.push(<span key={keyIdx++} className="text-cyan-400">{envMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-amber-300">{envMatch[2]}</span>)
+        remaining = envMatch[3]
+        continue
+      }
+
+      // File path: .ext files, ~/. paths
+      const fileMatch = remaining.match(/^(\.?\/?[~./][\w./-]+\.[\w]+)(.*)/)
+      if (fileMatch) {
+        nodes.push(<span key={keyIdx++} className="text-cyan-300">{fileMatch[1]}</span>)
+        remaining = fileMatch[2]
+        continue
+      }
+
+      // No match: take one character as plain text
+      nodes.push(<span key={keyIdx++}>{remaining[0]}</span>)
+      remaining = remaining.slice(1)
+    }
+
+    return (
+      <span key={lineIdx}>
+        {nodes}
+        {lineIdx < lines.length - 1 ? '\n' : ''}
+      </span>
+    )
+  })
+}
+
+// --- Built-in Template Data ---
 
 interface TemplateGroup {
   id: string
@@ -100,31 +252,34 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
       {
         title: 'Экспорт данных (JSON)',
         description: 'Все данные хранятся в облачной PostgreSQL базе. Экспортируй данные в JSON для резервной копии:',
+        type: 'important' as StepType,
         codeBlocks: [
-          { label: 'Скачать данные', code: 'Открой в браузере: /api/download-db\nФайл wiki-codex-backup-YYYY-MM-DD.json скачается автоматически\nСодержит: все документы, заметки, инструкции, термины, категории, теги' },
+          { label: 'Скачать данные', code: '// Открой в браузере\n/api/download-db\n\n// Файл скачается автоматически\nwiki-codex-backup-YYYY-MM-DD.json\n\n// Содержит:\n  - документы\n  - заметки\n  - инструкции\n  - термины, категории, теги' },
         ],
       },
       {
         title: 'Создать бэкап',
         description: 'Создай моментальный снимок данных через API:',
         codeBlocks: [
-          { label: 'API бэкапа', code: 'POST /api/backup\nВернёт статистику экспортированных данных' },
-          { label: 'Скачать JSON', code: 'GET /api/download-db\nСкачает полный JSON-экспорт всех данных' },
+          { label: 'API бэкапа', code: 'POST /api/backup\n// Вернёт статистику экспортированных данных' },
+          { label: 'Скачать JSON', code: 'GET /api/download-db\n// Скачает полный JSON-экспорт всех данных' },
         ],
       },
       {
         title: 'Восстановление на Vercel',
         description: 'Данные защищены управляемой PostgreSQL базой. Для восстановления:',
+        type: 'warning',
         codeBlocks: [
-          { label: 'Vercel Postgres', code: 'Данные автоматически сохраняются в Vercel Postgres\nБэкапы управляются провайдером (Neon/Supabase)' },
-          { label: 'Миграция', code: 'Импортируй JSON-экспорт через API\nPOST /api/documents — для каждого документа\nPOST /api/notes — для каждой заметки' },
+          { label: 'Vercel Postgres', code: '// Данные автоматически сохраняются\n// Бэкапы управляются провайдером\nNeon/Supabase' },
+          { label: 'Миграция', code: '// Импортируй JSON-экспорт через API\nPOST /api/documents -- для каждого документа\nPOST /api/notes -- для каждой заметки' },
         ],
       },
       {
         title: 'Проверь что всё работает',
         description: 'После развертывания открой приложение и проверь:',
+        type: 'tip',
         codeBlocks: [
-          { label: 'Что проверить', code: '1. Sidebar -- счётчики не нули (документы, заметки, термины)\n2. Документы -- открой любой документ\n3. Заметки -- есть ли твои заметки\n4. Инструкции -- встроенные шаблоны видны\n5. Footer внизу -- "Built with: Next.js 16 + TypeScript + Tailwind CSS"' },
+          { label: 'Что проверить', code: '1. Sidebar -- счётчики не нули\n2. Документы -- открой любой документ\n3. Заметки -- есть ли твои заметки\n4. Инструкции -- встроенные шаблоны видны\n5. Footer -- "Built with: Next.js 16 + TypeScript + Tailwind CSS"' },
         ],
       },
       {
@@ -165,6 +320,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
       {
         title: 'Проверить bundle',
         description: 'Убедись, что bundle создан корректно:',
+        type: 'tip',
         codeBlocks: [
           { label: 'Проверка', code: 'git bundle verify repo.bundle' },
           { label: 'Содержимое', code: 'git bundle list-heads repo.bundle' },
@@ -206,6 +362,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
       {
         title: 'Базовый рабочий цикл',
         description: 'Стандартная последовательность: изменить -> добавить -> закоммитить:',
+        type: 'info',
         codeBlocks: [
           { label: 'Статус', code: 'git status' },
           { label: 'Добавить всё', code: 'git add .' },
@@ -217,7 +374,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
         description: 'Работа с ветками:',
         codeBlocks: [
           { label: 'Создать ветку', code: 'git branch feature-name' },
-          { label: 'Переключиться', code: 'git checkout feature-name\n# или\n git switch feature-name' },
+          { label: 'Переключиться', code: 'git checkout feature-name\n# или\ngit switch feature-name' },
           { label: 'Создать и переключиться', code: 'git checkout -b feature-name' },
         ],
       },
@@ -241,6 +398,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
       {
         title: 'Настроить .env',
         description: 'Создать файл .env на основе шаблона:',
+        type: 'warning',
         codeBlocks: [
           { label: 'Копировать шаблон', code: 'cp .env.example .env' },
         ],
@@ -256,6 +414,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
       {
         title: 'Запустить проект',
         description: 'Запустить dev сервер:',
+        type: 'tip',
         codeBlocks: [
           { label: 'bun', code: 'bun run dev' },
           { label: 'npm', code: 'npm run dev' },
@@ -326,6 +485,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
       {
         title: 'SSH ключи',
         description: 'Генерация и управление:',
+        type: 'warning',
         codeBlocks: [
           { label: 'Создать ключ', code: 'ssh-keygen -t ed25519 -C "email@example.com"' },
           { label: 'Публичный ключ', code: 'cat ~/.ssh/id_ed25519.pub' },
@@ -344,8 +504,6 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
 ]
 
 // --- Helpers ---
-
-// --- Hidden templates persistence (localStorage) ---
 
 const HIDDEN_KEY = 'wiki-codex:hidden-templates'
 
@@ -371,8 +529,6 @@ function removeHiddenId(id: string) {
   localStorage.setItem(HIDDEN_KEY, JSON.stringify([...hidden]))
 }
 
-// --- Dynamic count (accounts for hidden) ---
-
 export function useBuiltinVisibleCount(hiddenIds: Set<string>): number {
   return BUILTIN_TEMPLATES.filter((t) => !hiddenIds.has(t.id)).length
 }
@@ -387,9 +543,17 @@ function parseSteps(stepsJson: string): Step[] {
   }
 }
 
-// --- Code Block with Copy ---
+// Resolve step type - normalize unknown types to 'step'
+function resolveStepType(type?: string): StepType {
+  if (type && type in STEP_TYPE_CONFIG) return type as StepType
+  // Map 'important' to 'info' as a reasonable default
+  if (type === 'important') return 'info'
+  return 'step'
+}
 
-function CopyableCodeBlock({ label, code }: { label: string; code: string }) {
+// --- Code Block with Semantic Highlighting ---
+
+function CopyableCodeBlock({ label, code, accentColor }: { label: string; code: string; accentColor?: string }) {
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
 
@@ -404,66 +568,119 @@ function CopyableCodeBlock({ label, code }: { label: string; code: string }) {
     }
   }, [code, toast])
 
+  const highlighted = useMemo(() => highlightCode(code), [code])
+
   return (
-    <div className="group relative rounded-md border border-dashed bg-muted/30 overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-1 border-b border-dashed bg-muted/60">
-        <span className="text-[10px] font-mono font-medium text-muted-foreground">{label}</span>
+    <div className="group/code rounded-lg border border-border overflow-hidden bg-zinc-950 dark:bg-zinc-950">
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border">
+        <div className="flex items-center gap-2">
+          <span
+            className="size-2 rounded-full shrink-0"
+            style={{ backgroundColor: accentColor ? accentColor + '99' : undefined }}
+          />
+          <span className="text-[11px] font-mono font-medium text-muted-foreground">{label}</span>
+        </div>
         <Button
           variant="ghost"
           size="sm"
-          className="h-5 gap-1 px-1.5 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity font-mono"
+          className="h-6 gap-1.5 px-2 text-[11px] opacity-0 group-hover/code:opacity-100 transition-opacity font-mono"
           onClick={handleCopy}
         >
           {copied ? (
-            <><Check className="size-2.5 text-green-600 dark:text-green-400" /><span className="text-green-600 dark:text-green-400">ok</span></>
+            <><Check className="size-3 text-green-600 dark:text-green-400" /><span className="text-green-600 dark:text-green-400">ok</span></>
           ) : (
-            <><Copy className="size-2.5" /><span>copy</span></>
+            <><Copy className="size-3" /><span>copy</span></>
           )}
         </Button>
       </div>
-      <pre className="px-3 py-2 overflow-x-auto text-[12px] leading-relaxed">
-        <code className="font-mono text-foreground/85 whitespace-pre">{code}</code>
+      <pre className="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed">
+        <code className="font-mono whitespace-pre text-foreground/90">{highlighted}</code>
       </pre>
     </div>
   )
 }
 
-// --- Step Card ---
+// --- Step Callout Box (for warning/info/tip) ---
 
-function StepCard({ step, stepNumber }: { step: Step; stepNumber: number }) {
-  const [expanded, setExpanded] = useState(true)
+function StepCallout({ type, description }: { type: StepType; description: string }) {
+  const config = STEP_TYPE_CONFIG[type]
+  if (type === 'step') return null
 
   return (
-    <div className="relative pl-8">
-      <div className="absolute left-3 top-6 bottom-0 w-px border-l border-dashed" />
-      <div className="absolute left-1 top-1.5 size-[22px] rounded-sm bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-mono font-bold ring-4 ring-background">
+    <div className={cn('flex items-start gap-3 p-3 rounded-lg border', config.bgClass, config.borderClass)}>
+      <div className={cn('shrink-0 mt-0.5', config.textClass)}>
+        {config.icon}
+      </div>
+      <p className={cn('text-sm leading-relaxed', type === 'warning' ? 'text-amber-200/80' : type === 'info' ? 'text-blue-200/80' : 'text-green-200/80')}>
+        {description}
+      </p>
+    </div>
+  )
+}
+
+// --- Step Card (Redesigned) ---
+
+function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNumber: number; groupColor: string }) {
+  const [expanded, setExpanded] = useState(true)
+  const stepType = resolveStepType(step.type)
+  const typeConfig = STEP_TYPE_CONFIG[stepType]
+  const activeColor = stepType === 'step' ? groupColor : typeConfig.color
+
+  return (
+    <div className="relative pl-10 pb-8 last:pb-0">
+      {/* Colored gradient timeline line */}
+      <div
+        className="absolute left-[15px] top-9 bottom-0 w-[2px] rounded-full"
+        style={{
+          background: `linear-gradient(to bottom, ${activeColor}60, ${activeColor}10)`,
+        }}
+      />
+      {/* Number badge with glow */}
+      <div
+        className="absolute left-0.5 top-0 size-7 rounded-lg flex items-center justify-center text-[11px] font-mono font-bold text-white"
+        style={{
+          backgroundColor: activeColor,
+          boxShadow: `0 0 12px ${activeColor}40`,
+        }}
+      >
         {stepNumber}
       </div>
-      <div className="pb-6 last:pb-0">
+
+      <div>
         <button
-          className="flex items-center gap-2 text-left w-full group/step"
+          className="flex items-center gap-2.5 text-left w-full group/step"
           onClick={() => setExpanded(!expanded)}
         >
           {expanded
-            ? <ChevronDown className="size-3 text-muted-foreground shrink-0 transition-transform" />
-            : <ChevronRight className="size-3 text-green-600 dark:text-green-400 shrink-0 transition-transform" />
+            ? <ChevronDown className="size-4 text-muted-foreground shrink-0 transition-transform group-hover/step:text-primary" />
+            : <ChevronRight className="size-4 text-green-600 dark:text-green-400 shrink-0 transition-transform" />
           }
-          <h3 className="text-xs font-mono font-semibold text-foreground leading-tight group-hover/step:text-primary transition-colors">
+          <h3 className="text-sm font-semibold text-foreground leading-snug group-hover/step:text-primary transition-colors font-sans">
             {step.title}
           </h3>
+          {stepType !== 'step' && (
+            <span className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full border', typeConfig.badgeClass)}>
+              {typeConfig.label}
+            </span>
+          )}
         </button>
-
-        {expanded && (
-          <div className="mt-3 flex flex-col gap-3">
-            {step.description && (
-              <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-            )}
-            {step.codeBlocks.map((block, idx) => (
-              <CopyableCodeBlock key={`${block.label}-${idx}`} label={block.label} code={block.code} />
-            ))}
-          </div>
-        )}
       </div>
+
+      {expanded && (
+        <div className="mt-4 space-y-4 pl-6">
+          {/* Callout box for non-default types */}
+          {stepType !== 'step' && step.description && (
+            <StepCallout type={stepType} description={step.description} />
+          )}
+          {/* Regular description for default type */}
+          {stepType === 'step' && step.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed font-sans">{step.description}</p>
+          )}
+          {step.codeBlocks.map((block, idx) => (
+            <CopyableCodeBlock key={`${block.label}-${idx}`} label={block.label} code={block.code} accentColor={activeColor} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -491,25 +708,42 @@ function TemplateCard({ group, defaultExpanded = false, onHide }: { group: Templ
   }, [group, toast])
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md">
-      <CardHeader className="cursor-pointer select-none pb-3" onClick={() => setExpanded(!expanded)}>
-        <div className="flex items-start gap-3">
+    <Card className="overflow-hidden transition-shadow hover:shadow-md hover:shadow-primary/5">
+      {/* Header with color accent */}
+      <CardHeader
+        className="cursor-pointer select-none pb-4 border-b border-border"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-start gap-4">
           <div
-            className="flex items-center justify-center size-10 rounded-lg shrink-0"
-            style={{ backgroundColor: group.color + '15', color: group.color }}
+            className="flex items-center justify-center size-11 rounded-xl shrink-0"
+            style={{
+              background: `linear-gradient(135deg, ${group.color}20, ${group.color}05)`,
+              color: group.color,
+            }}
           >
             {group.icon}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-base">{group.title}</CardTitle>
-              <Badge variant="secondary" className="text-[10px] px-1.5 shrink-0">
-                {group.steps.length} {group.steps.length === 1 ? 'шаг' : 'шагов'}
-              </Badge>
+            <div className="flex items-center gap-3 mb-1">
+              <CardTitle className="text-lg font-sans font-bold">{group.title}</CardTitle>
+              <span
+                className="text-[10px] font-mono px-2 py-0.5 rounded-full border"
+                style={{
+                  backgroundColor: group.color + '15',
+                  color: group.color,
+                  borderColor: group.color + '30',
+                }}
+              >
+                {group.steps.length} {group.steps.length === 1 ? 'step' : 'steps'}
+              </span>
             </div>
-            <CardDescription className="mt-1">{group.description}</CardDescription>
+            <CardDescription className="font-sans">{group.description}</CardDescription>
           </div>
-          <div className="flex items-center gap-1 shrink-0 mt-0.5">
+          <div className="flex items-center gap-2 shrink-0 mt-1">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+              template
+            </span>
             {onHide && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -536,6 +770,17 @@ function TemplateCard({ group, defaultExpanded = false, onHide }: { group: Templ
                 </AlertDialogContent>
               </AlertDialog>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs h-7 font-mono"
+              onClick={(e) => { e.stopPropagation(); handleCopyAll() }}
+            >
+              {allCopied
+                ? <><Check className="size-3 text-green-600 dark:text-green-400" />ok</>
+                : <><Copy className="size-3" />copy all</>
+              }
+            </Button>
             {expanded
               ? <ChevronDown className="size-4 text-muted-foreground" />
               : <ChevronRight className="size-4 text-muted-foreground" />
@@ -545,21 +790,10 @@ function TemplateCard({ group, defaultExpanded = false, onHide }: { group: Templ
       </CardHeader>
 
       {expanded && (
-        <CardContent className="pt-0">
-          <div className="flex items-center gap-2 mb-5">
-            <Badge variant="outline" className="text-[10px]">Шаблон</Badge>
-            <Button variant="outline" size="sm" className="gap-2 text-xs h-7" onClick={(e) => { e.stopPropagation(); handleCopyAll() }}>
-              {allCopied
-                ? <><Check className="size-3 text-green-600 dark:text-green-400" />Скопировано</>
-                : <><Copy className="size-3" />Копировать всё</>
-              }
-            </Button>
-          </div>
-          <div className="flex flex-col">
-            {group.steps.map((step, idx) => (
-              <StepCard key={group.id + '-' + idx} step={step} stepNumber={idx + 1} />
-            ))}
-          </div>
+        <CardContent className="pt-6 pb-6 px-6">
+          {group.steps.map((step, idx) => (
+            <StepCard key={group.id + '-' + idx} step={step} stepNumber={idx + 1} groupColor={group.color} />
+          ))}
         </CardContent>
       )}
     </Card>
@@ -579,30 +813,36 @@ function DbInstructionCard({
   const steps = parseSteps(instruction.steps)
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md">
-      <CardHeader className="cursor-pointer select-none pb-3" onClick={() => setExpanded(!expanded)}>
-        <div className="flex items-start gap-3">
-          <div className="flex items-center justify-center size-10 rounded-lg shrink-0 bg-emerald-100 dark:bg-emerald-950">
+    <Card className="overflow-hidden transition-shadow hover:shadow-md hover:shadow-emerald-500/5">
+      <CardHeader
+        className="cursor-pointer select-none pb-4 border-b border-border"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex items-center justify-center size-11 rounded-xl shrink-0 bg-emerald-100 dark:bg-emerald-950">
             <Sparkles className="size-5 text-emerald-700 dark:text-emerald-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <CardTitle className="text-base">{instruction.title}</CardTitle>
-              <Badge variant="secondary" className="text-[10px] px-1.5 shrink-0">
-                {steps.length} {steps.length === 1 ? 'шаг' : 'шагов'}
-              </Badge>
+            <div className="flex items-center gap-3 flex-wrap mb-1">
+              <CardTitle className="text-lg font-sans font-bold">{instruction.title}</CardTitle>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                {steps.length} {steps.length === 1 ? 'step' : 'steps'}
+              </span>
               {instruction.sourceDoc && (
-                <Badge variant="outline" className="text-[10px] px-1.5 shrink-0 gap-1">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border gap-1 inline-flex items-center">
                   <FileText className="size-3" />
                   {instruction.sourceDoc.title}
-                </Badge>
+                </span>
               )}
             </div>
             {instruction.description && (
-              <CardDescription className="mt-1">{instruction.description}</CardDescription>
+              <CardDescription className="font-sans">{instruction.description}</CardDescription>
             )}
           </div>
-          <div className="flex items-center gap-1 shrink-0 mt-0.5">
+          <div className="flex items-center gap-2 shrink-0 mt-1">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+              AI
+            </span>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -636,12 +876,10 @@ function DbInstructionCard({
       </CardHeader>
 
       {expanded && steps.length > 0 && (
-        <CardContent className="pt-0">
-          <div className="flex flex-col">
-            {steps.map((step, idx) => (
-              <StepCard key={instruction.id + '-' + idx} step={step} stepNumber={idx + 1} />
-            ))}
-          </div>
+        <CardContent className="pt-6 pb-6 px-6">
+          {steps.map((step, idx) => (
+            <StepCard key={instruction.id + '-' + idx} step={step} stepNumber={idx + 1} groupColor="#10b981" />
+          ))}
         </CardContent>
       )}
     </Card>
@@ -765,7 +1003,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
       i.description.toLowerCase().includes(q) ||
       steps.some((s) =>
         s.title.toLowerCase().includes(q) ||
-        s.codeBlocks.some((c) => c.code.toLowerCase().includes(q))
+        s.codeBlocks.some((c) => c.code.toLowerCase().includes(c.code.toLowerCase()))
       )
     )
   })
