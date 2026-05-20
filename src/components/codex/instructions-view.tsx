@@ -57,7 +57,7 @@ import { TerminalFrame } from '@/components/codex/terminal-frame'
 
 // --- Types ---
 
-type StepType = 'step' | 'warning' | 'info' | 'tip'
+type StepType = 'step' | 'warning' | 'info' | 'tip' | 'important'
 
 interface CodeBlock {
   label: string
@@ -69,6 +69,7 @@ interface Step {
   description: string
   codeBlocks: CodeBlock[]
   type?: StepType
+  tags?: string[]
 }
 
 interface InstructionItem {
@@ -93,6 +94,7 @@ const STEP_TYPE_CONFIG: Record<StepType, {
   borderClass: string
   textClass: string
   badgeClass: string
+  descriptionClass: string
 }> = {
   step: {
     icon: <ChevronRight className="size-4" />,
@@ -102,6 +104,7 @@ const STEP_TYPE_CONFIG: Record<StepType, {
     borderClass: 'border-zinc-500/20',
     textClass: 'text-zinc-400',
     badgeClass: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
+    descriptionClass: 'text-zinc-300/80',
   },
   warning: {
     icon: <AlertTriangle className="size-4" />,
@@ -111,6 +114,7 @@ const STEP_TYPE_CONFIG: Record<StepType, {
     borderClass: 'border-amber-500/20',
     textClass: 'text-amber-400',
     badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    descriptionClass: 'text-amber-200/80',
   },
   info: {
     icon: <Info className="size-4" />,
@@ -120,6 +124,7 @@ const STEP_TYPE_CONFIG: Record<StepType, {
     borderClass: 'border-blue-500/20',
     textClass: 'text-blue-400',
     badgeClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    descriptionClass: 'text-blue-200/80',
   },
   tip: {
     icon: <Lightbulb className="size-4" />,
@@ -129,6 +134,17 @@ const STEP_TYPE_CONFIG: Record<StepType, {
     borderClass: 'border-green-500/20',
     textClass: 'text-green-400',
     badgeClass: 'bg-green-500/10 text-green-400 border-green-500/20',
+    descriptionClass: 'text-green-200/80',
+  },
+  important: {
+    icon: <AlertTriangle className="size-4" />,
+    label: 'important',
+    color: '#f59e0b',
+    bgClass: 'bg-amber-500/5',
+    borderClass: 'border-amber-500/20',
+    textClass: 'text-amber-400',
+    badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    descriptionClass: 'text-amber-200/80',
   },
 }
 
@@ -252,7 +268,8 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
       {
         title: 'Экспорт данных (JSON)',
         description: 'Все данные хранятся в облачной PostgreSQL базе. Экспортируй данные в JSON для резервной копии:',
-        type: 'important' as StepType,
+        type: 'important',
+        tags: ['backup', 'data'],
         codeBlocks: [
           { label: 'Скачать данные', code: '// Открой в браузере\n/api/download-db\n\n// Файл скачается автоматически\nwiki-codex-backup-YYYY-MM-DD.json\n\n// Содержит:\n  - документы\n  - заметки\n  - инструкции\n  - термины, категории, теги' },
         ],
@@ -269,6 +286,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
         title: 'Восстановление на Vercel',
         description: 'Данные защищены управляемой PostgreSQL базой. Для восстановления:',
         type: 'warning',
+        tags: ['vercel', 'production'],
         codeBlocks: [
           { label: 'Vercel Postgres', code: '// Данные автоматически сохраняются\n// Бэкапы управляются провайдером\nNeon/Supabase' },
           { label: 'Миграция', code: '// Импортируй JSON-экспорт через API\nPOST /api/documents -- для каждого документа\nPOST /api/notes -- для каждой заметки' },
@@ -278,6 +296,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
         title: 'Проверь что всё работает',
         description: 'После развертывания открой приложение и проверь:',
         type: 'tip',
+        tags: ['qa'],
         codeBlocks: [
           { label: 'Что проверить', code: '1. Sidebar -- счётчики не нули\n2. Документы -- открой любой документ\n3. Заметки -- есть ли твои заметки\n4. Инструкции -- встроенные шаблоны видны\n5. Footer -- "Built with: Next.js 16 + TypeScript + Tailwind CSS"' },
         ],
@@ -399,6 +418,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
         title: 'Настроить .env',
         description: 'Создать файл .env на основе шаблона:',
         type: 'warning',
+        tags: ['config', 'secrets'],
         codeBlocks: [
           { label: 'Копировать шаблон', code: 'cp .env.example .env' },
         ],
@@ -486,6 +506,7 @@ const BUILTIN_TEMPLATES: TemplateGroup[] = [
         title: 'SSH ключи',
         description: 'Генерация и управление:',
         type: 'warning',
+        tags: ['ssh', 'security'],
         codeBlocks: [
           { label: 'Создать ключ', code: 'ssh-keygen -t ed25519 -C "email@example.com"' },
           { label: 'Публичный ключ', code: 'cat ~/.ssh/id_ed25519.pub' },
@@ -546,8 +567,6 @@ function parseSteps(stepsJson: string): Step[] {
 // Resolve step type - normalize unknown types to 'step'
 function resolveStepType(type?: string): StepType {
   if (type && type in STEP_TYPE_CONFIG) return type as StepType
-  // Map 'important' to 'info' as a reasonable default
-  if (type === 'important') return 'info'
   return 'step'
 }
 
@@ -571,30 +590,31 @@ function CopyableCodeBlock({ label, code, accentColor }: { label: string; code: 
   const highlighted = useMemo(() => highlightCode(code), [code])
 
   return (
-    <div className="group/code rounded-lg border border-border overflow-hidden bg-zinc-950 dark:bg-zinc-950">
-      <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border">
+    <div className="group/code rounded-lg border border-zinc-800 overflow-hidden bg-zinc-950">
+      {/* Dark terminal-style header */}
+      <div className="flex items-center justify-between px-4 py-2 bg-zinc-900 border-b border-zinc-800">
         <div className="flex items-center gap-2">
           <span
             className="size-2 rounded-full shrink-0"
-            style={{ backgroundColor: accentColor ? accentColor + '99' : undefined }}
+            style={{ backgroundColor: accentColor ? accentColor + '99' : '#71717a99' }}
           />
-          <span className="text-[11px] font-mono font-medium text-muted-foreground">{label}</span>
+          <span className="text-[11px] font-mono font-medium text-zinc-400">{label}</span>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 gap-1.5 px-2 text-[11px] opacity-0 group-hover/code:opacity-100 transition-opacity font-mono"
+          className="h-6 gap-1.5 px-2 text-[11px] opacity-0 group-hover/code:opacity-100 transition-opacity font-mono text-zinc-400 hover:text-zinc-200"
           onClick={handleCopy}
         >
           {copied ? (
-            <><Check className="size-3 text-green-600 dark:text-green-400" /><span className="text-green-600 dark:text-green-400">ok</span></>
+            <><Check className="size-3 text-green-400" /><span className="text-green-400">ok</span></>
           ) : (
             <><Copy className="size-3" /><span>copy</span></>
           )}
         </Button>
       </div>
       <pre className="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed">
-        <code className="font-mono whitespace-pre text-foreground/90">{highlighted}</code>
+        <code className="font-mono whitespace-pre text-zinc-200/90">{highlighted}</code>
       </pre>
     </div>
   )
@@ -611,7 +631,7 @@ function StepCallout({ type, description }: { type: StepType; description: strin
       <div className={cn('shrink-0 mt-0.5', config.textClass)}>
         {config.icon}
       </div>
-      <p className={cn('text-sm leading-relaxed', type === 'warning' ? 'text-amber-200/80' : type === 'info' ? 'text-blue-200/80' : 'text-green-200/80')}>
+      <p className={cn('text-sm leading-relaxed font-sans', config.descriptionClass)}>
         {description}
       </p>
     </div>
@@ -625,6 +645,7 @@ function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNumber: nu
   const stepType = resolveStepType(step.type)
   const typeConfig = STEP_TYPE_CONFIG[stepType]
   const activeColor = stepType === 'step' ? groupColor : typeConfig.color
+  const isNonStepType = stepType !== 'step'
 
   return (
     <div className="relative pl-10 pb-8 last:pb-0">
@@ -653,28 +674,34 @@ function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNumber: nu
         >
           {expanded
             ? <ChevronDown className="size-4 text-muted-foreground shrink-0 transition-transform group-hover/step:text-primary" />
-            : <ChevronRight className="size-4 text-green-600 dark:text-green-400 shrink-0 transition-transform" />
+            : <ChevronRight className="size-4 shrink-0 transition-transform" style={{ color: activeColor }} />
           }
           <h3 className="text-sm font-semibold text-foreground leading-snug group-hover/step:text-primary transition-colors font-sans">
             {step.title}
           </h3>
-          {stepType !== 'step' && (
+          {isNonStepType && (
             <span className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full border', typeConfig.badgeClass)}>
               {typeConfig.label}
             </span>
           )}
+          {/* Tags */}
+          {step.tags && step.tags.map((tag) => (
+            <span key={tag} className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-muted/50 text-muted-foreground border-border">
+              {tag}
+            </span>
+          ))}
         </button>
       </div>
 
       {expanded && (
         <div className="mt-4 space-y-4 pl-6">
           {/* Callout box for non-default types */}
-          {stepType !== 'step' && step.description && (
+          {isNonStepType && step.description && (
             <StepCallout type={stepType} description={step.description} />
           )}
           {/* Regular description for default type */}
           {stepType === 'step' && step.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed font-sans">{step.description}</p>
+            <p className="text-sm text-zinc-300 leading-relaxed font-sans">{step.description}</p>
           )}
           {step.codeBlocks.map((block, idx) => (
             <CopyableCodeBlock key={`${block.label}-${idx}`} label={block.label} code={block.code} accentColor={activeColor} />
@@ -708,7 +735,7 @@ function TemplateCard({ group, defaultExpanded = false, onHide }: { group: Templ
   }, [group, toast])
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md hover:shadow-primary/5">
+    <Card className="overflow-hidden transition-shadow hover:shadow-lg">
       {/* Header with color accent */}
       <CardHeader
         className="cursor-pointer select-none pb-4 border-b border-border"
@@ -1003,7 +1030,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
       i.description.toLowerCase().includes(q) ||
       steps.some((s) =>
         s.title.toLowerCase().includes(q) ||
-        s.codeBlocks.some((c) => c.code.toLowerCase().includes(c.code.toLowerCase()))
+        s.codeBlocks.some((c) => c.code.toLowerCase().includes(q))
       )
     )
   })
