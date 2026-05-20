@@ -10,6 +10,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { navItemHover } from '@/lib/motion'
 import type { NavItem } from './types'
 
 interface SidebarNavProps {
@@ -51,32 +53,33 @@ export function SidebarNav({
       {navItems.map((item) => {
         const isActive = currentView === item.view
         return (
-          <Button
-            key={item.view}
-            variant="ghost"
-            className={cn(
-              'justify-start gap-2 font-mono text-xs h-8',
-              isCollapsed && 'justify-center px-2',
-              isActive && 'bg-muted/80 text-foreground'
-            )}
-            onClick={() => { setView(item.view); onNavigate?.() }}
-            title={item.label}
-          >
-            <span className={cn(
-              'text-[10px] select-none shrink-0',
-              isActive ? 'text-terminal-accent' : 'text-muted-foreground/50'
-            )}>
-              {isActive ? '>' : '-'}
-            </span>
-            {!isCollapsed && (
-              <>
-                <span className={cn('truncate', isActive && 'text-foreground font-semibold')}>{item.label}</span>
-                {item.count !== undefined && item.count > 0 && (
-                  <span className="ml-auto text-[10px] text-muted-foreground tabular-nums shrink-0">{item.count}</span>
-                )}
-              </>
-            )}
-          </Button>
+          <motion.div key={item.view} {...navItemHover}>
+            <Button
+              variant="ghost"
+              className={cn(
+                'justify-start gap-2 font-mono text-xs h-8 w-full',
+                isCollapsed && 'justify-center px-2',
+                isActive && 'bg-muted/80 text-foreground'
+              )}
+              onClick={() => { setView(item.view); onNavigate?.() }}
+              title={item.label}
+            >
+              <span className={cn(
+                'text-[10px] select-none shrink-0',
+                isActive ? 'text-terminal-accent' : 'text-muted-foreground/50'
+              )}>
+                {isActive ? '>' : '-'}
+              </span>
+              {!isCollapsed && (
+                <>
+                  <span className={cn('truncate', isActive && 'text-foreground font-semibold')}>{item.label}</span>
+                  {item.count !== undefined && item.count > 0 && (
+                    <span className="ml-auto text-[10px] text-muted-foreground tabular-nums shrink-0">{item.count}</span>
+                  )}
+                </>
+              )}
+            </Button>
+          </motion.div>
         )
       })}
     </nav>

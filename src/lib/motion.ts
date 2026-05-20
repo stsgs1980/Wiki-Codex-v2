@@ -61,3 +61,33 @@ export const sectionEntrance: Variants = {
     transition: { type: 'spring', stiffness: 400, damping: 30 },
   },
 }
+
+/** Sidebar nav item hover — subtle slide right */
+export const navItemHover = {
+  whileHover: { x: 3, transition: { type: 'spring', stiffness: 500, damping: 30 } },
+  whileTap: { scale: 0.98 },
+}
+
+/** Terminal dot pulse — for status indicator */
+export const dotPulse: Variants = {
+  initial: { scale: 1 },
+  animate: {
+    scale: [1, 1.2, 1],
+    transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
+  },
+}
+
+/** Fade in — generic entrance */
+export const fadeIn: Variants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { duration: 0.3, ease: 'easeOut' },
+  },
+}
+
+/** Scale pop — for badges, counters */
+export const scalePop = {
+  whileHover: { scale: 1.05, transition: { type: 'spring', stiffness: 400, damping: 20 } },
+  whileTap: { scale: 0.95 },
+}

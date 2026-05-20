@@ -1,0 +1,12 @@
+# Wireframe HTML files — dev-only, not needed in production
+public/wireframe-*.html
+
+# Logo generation scripts
+scripts-logo/
+
+# Skills directory (local-only)
+skills/
+
+# Dev database
+prisma/dev.db
+prisma/dev.db-journal

@@ -11,6 +11,7 @@ import {
   useTerms,
 } from '@/hooks/use-codex-data'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
 
 export function useWikiCodex() {
   const {
@@ -37,6 +38,9 @@ export function useWikiCodex() {
   const docs = useDocuments()
   const notesHook = useNotes()
   const termsHook = useTerms()
+
+  // --- Recently viewed tracking ---
+  const { addViewed } = useRecentlyViewed()
 
   // --- Master refresh ---
   const refreshAll = useCallback(() => {
@@ -77,6 +81,13 @@ export function useWikiCodex() {
       docs.fetchDocument(selectedDocumentId)
     }
   }, [selectedDocumentId, currentView, docs.fetchDocument])
+
+  // --- Track recently viewed ---
+  useEffect(() => {
+    if (currentView === 'document-view' && docs.selectedDocument) {
+      addViewed({ id: docs.selectedDocument.id, title: docs.selectedDocument.title })
+    }
+  }, [currentView, docs.selectedDocument, addViewed])
 
   useEffect(() => {
     if (selectedNoteId && currentView === 'note-view') {

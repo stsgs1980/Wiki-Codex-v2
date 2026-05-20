@@ -29,3 +29,29 @@ export function pluralDocs(n: number): string {
 export function pluralTerms(n: number): string {
   return pluralize(n, ['термин', 'термина', 'терминов'])
 }
+
+export function formatRelativeTime(dateStr: string): string {
+  const now = Date.now()
+  const then = new Date(dateStr).getTime()
+  const diffMs = now - then
+
+  if (diffMs < 0) return 'только что'
+
+  const seconds = Math.floor(diffMs / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+
+  if (seconds < 60) return 'только что'
+  if (minutes < 60) {
+    return `${minutes} ${pluralize(minutes, ['мин назад', 'мин назад', 'мин назад'])}`
+  }
+  if (hours < 24) {
+    return `${hours} ${pluralize(hours, ['час назад', 'часа назад', 'часов назад'])}`
+  }
+  if (days === 1) return 'вчера'
+  if (days < 7) {
+    return `${days} ${pluralize(days, ['день назад', 'дня назад', 'дней назад'])}`
+  }
+  return formatDate(dateStr)
+}

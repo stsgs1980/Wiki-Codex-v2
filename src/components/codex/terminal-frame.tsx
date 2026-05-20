@@ -1,6 +1,8 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { dotPulse } from '@/lib/motion'
 
 /**
  * TerminalFrame - wraps content in a terminal-style window with 3-dot title bar.
@@ -22,7 +24,7 @@ export function TerminalFrame({
       {/* Title bar */}
       <div className="flex items-center gap-3 px-3 py-1.5 border-b bg-muted/60">
         <div className="flex items-center gap-1.5 shrink-0">
-          <div className="size-2 rounded-full bg-red-400 dark:bg-red-500" />
+          <motion.div className="size-2 rounded-full bg-red-400 dark:bg-red-500" variants={dotPulse} initial="initial" animate="animate" />
           <div className="size-2 rounded-full bg-yellow-400 dark:bg-yellow-500" />
           <div className="size-2 rounded-full bg-green-400 dark:bg-green-500" />
         </div>
