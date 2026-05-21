@@ -10,9 +10,10 @@ interface UploadStatusBarProps {
   status: UploadStatus
   autoCategoryName: string | null
   errorMsg: string
+  isUpdate?: boolean
 }
 
-export function UploadStatusBar({ status, autoCategoryName, errorMsg }: UploadStatusBarProps) {
+export function UploadStatusBar({ status, autoCategoryName, errorMsg, isUpdate }: UploadStatusBarProps) {
   // Dedup info badge
   if (status === 'idle') {
     return (
@@ -32,9 +33,11 @@ export function UploadStatusBar({ status, autoCategoryName, errorMsg }: UploadSt
       case 'success':
         return {
           icon: <CheckCircle2 className="size-4" />,
-          text: autoCategoryName
-            ? `Загружено! AI категория: ${autoCategoryName}`
-            : 'Документ загружен успешно!',
+          text: isUpdate
+            ? (autoCategoryName ? `Обновлено! AI категория: ${autoCategoryName}` : 'Документ обновлён!')
+            : (autoCategoryName
+                ? `Загружено! AI категория: ${autoCategoryName}`
+                : 'Документ загружен успешно!'),
           color: 'text-emerald-600',
           bg: 'bg-emerald-500/10',
         }

@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { title, content, fileName, fileType, fileSize, categoryId, tagIds } = parsed.data
+  const normalizedCategoryId = categoryId && categoryId !== 'none' && categoryId !== 'all' ? categoryId : null
 
   // ── 2. Sanitize ─────────────────────────────────────────────────────
   const cleanTitle = sanitizeField(title, 'document.title')
@@ -130,14 +131,39 @@ export async function POST(request: NextRequest) {
   }
 
   if (dupResult.severity === 'exact') {
-    return NextResponse.json(
-      {
-        error: dupResult.message,
-        existingId: dupResult.existingId,
-        severity: 'exact',
-      },
-      { status: 409 }
-    )
+    if (!body.forceCreate) {
+      return NextResponse.json(
+        {
+          error: dupResult.message,
+          existingId: dupResult.existingId,
+          severity: 'exact',
+        },
+        { status: 409 }
+      )
+    }
+    // forceCreate=true → update existing document instead of creating duplicate
+    try {
+      const updated = await db.document.update({
+        where: { id: dupResult.existingId! },
+        data: {
+          title: cleanTitle,
+          content: cleanContent,
+          contentHash,
+          fileName: fileName || title,
+          fileType,
+          fileSize,
+          categoryId: normalizedCategoryId,
+        },
+        include: {
+          category: true,
+          tags: { include: { tag: true } },
+        },
+      })
+      return NextResponse.json({ ...updated, _updated: true }, { status: 200 })
+    } catch (updateError) {
+      console.error('[documents] Update existing failed:', updateError instanceof Error ? updateError.message : updateError)
+      return handleDbError(updateError)
+    }
   }
 
   if (dupResult.severity === 'similar') {
@@ -155,7 +181,6 @@ export async function POST(request: NextRequest) {
   }
 
   // ── 5. Create document ──────────────────────────────────────────────
-  const normalizedCategoryId = categoryId && categoryId !== 'none' && categoryId !== 'all' ? categoryId : null
 
   const baseData = {
     title: cleanTitle,

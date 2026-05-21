@@ -33,6 +33,7 @@ function extractErrorMessage(data: { error?: string | Record<string, string[]> }
 export interface SubmitResult {
   success: boolean
   docId?: string
+  updated?: boolean
   duplicate?: DuplicateInfo
   error?: string
 }
@@ -113,9 +114,9 @@ export async function submitDocument(
         return { success: false, error: lastError }
       }
 
-      // Success
+      // Success (200 = updated, 201 = created)
       const doc = await res.json()
-      return { success: true, docId: doc.id }
+      return { success: true, docId: doc.id, updated: !!doc._updated }
 
     } catch (err) {
       // Network error (server down/restarting) — retry

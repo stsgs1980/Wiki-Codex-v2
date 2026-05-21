@@ -3,7 +3,7 @@
  */
 'use client'
 
-import { AlertCircle, Shield } from 'lucide-react'
+import { AlertCircle, Shield, RefreshCw } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +55,7 @@ export function DuplicateDialogs({ status, duplicateInfo, onCancel, onForceCreat
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Exact duplicate — blocked */}
+      {/* Exact duplicate — allow update or force create */}
       <AlertDialog open={status === 'duplicate-exact'}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -67,14 +67,18 @@ export function DuplicateDialogs({ status, duplicateInfo, onCancel, onForceCreat
               <div className="space-y-2">
                 <p>{duplicateInfo?.message}</p>
                 <p className="text-sm text-muted-foreground">
-                  Точное совпадение по заголовку или содержанию. Загрузка невозможна.
+                  Можно обновить существующий документ или создать копию.
                 </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={onCancel}>
-              Понятно
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel onClick={onCancel}>
+              Отмена
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={onForceCreate} className="bg-primary hover:bg-primary/90 gap-1.5">
+              <RefreshCw className="size-3.5" />
+              Обновить
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

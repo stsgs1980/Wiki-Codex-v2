@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useState } from 'react'
 import { Upload, FileText, X, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,6 +47,8 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
     reader.readAsText(file)
   }, [state.title, setFileName, setTitle, setContent])
 
+  const [isDocUpdate, setIsDocUpdate] = useState(false)
+
   const handlePostCreate = async (docId: string) => {
     if (state.categoryId === 'auto') {
       setStatus('auto-categorizing')
@@ -68,14 +70,14 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
     const result = await submitDocument(state)
     if (result.duplicate) { setDuplicate(result.duplicate); return }
     if (!result.success) { setError(result.error || 'Ошибка загрузки'); return }
-    if (result.docId) { setCreatedDoc(result.docId); await handlePostCreate(result.docId) }
+    if (result.docId) { setIsDocUpdate(!!result.updated); setCreatedDoc(result.docId); await handlePostCreate(result.docId) }
   }
 
   const handleForceCreate = async () => {
     setStatus('uploading')
     const result = await submitDocument(state, true)
     if (!result.success) { setError(result.error || 'Ошибка загрузки'); return }
-    if (result.docId) { setCreatedDoc(result.docId); await handlePostCreate(result.docId) }
+    if (result.docId) { setIsDocUpdate(!!result.updated); setCreatedDoc(result.docId); await handlePostCreate(result.docId) }
   }
 
   const handleClear = () => {
@@ -168,6 +170,7 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
             status={state.status}
             autoCategoryName={state.autoCategoryName}
             errorMsg={state.errorMsg}
+            isUpdate={isDocUpdate}
           />
 
           {/* Actions */}
