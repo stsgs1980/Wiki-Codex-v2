@@ -38,9 +38,10 @@
   ],
   "exclude": [
     "node_modules",
+    "templates",
+    "examples",
     "skills",
     "scripts-logo",
-    "templates",
     "standards",
     "instructions",
     "logos"

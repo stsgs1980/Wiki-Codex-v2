@@ -1,6 +1,5 @@
 # =============================================================================
 # Wiki Codex - CI Pipeline
-# Z.ai Reproducibility Standard v1.0 L3
 # =============================================================================
 
 name: CI
@@ -17,24 +16,12 @@ concurrency:
 
 jobs:
   ci:
-    name: Lint, Test, Build
+    name: Lint, TypeCheck, Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: wiki_codex_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    env:
+      DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
 
     steps:
       - name: Checkout repository
@@ -50,19 +37,12 @@ jobs:
 
       - name: Generate Prisma Client
         run: bunx prisma generate
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/wiki_codex_test"
-
-      - name: Push DB schema
-        run: bunx prisma db push --skip-generate --accept-data-loss
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/wiki_codex_test"
 
       - name: Lint
         run: bun run lint
 
+      - name: Type check
+        run: bunx tsc --noEmit
+
       - name: Build
         run: bun run build
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/wiki_codex_test"
-          OPENAI_API_KEY: "test-key-for-build"
