@@ -52,9 +52,9 @@ export function RelatedDocsSection({
                 className={cn(
                   'shrink-0 text-[10px]',
                   relDoc.similarityScore >= 0.8
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                    ? 'bg-terminal-accent/10 text-terminal-accent border border-terminal-accent/20'
                     : relDoc.similarityScore >= 0.6
-                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+                      ? 'bg-star/10 text-star border border-star/20'
                       : 'bg-muted text-muted-foreground'
                 )}
               >

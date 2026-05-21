@@ -91,7 +91,7 @@ export default function WikiCodex() {
           <div className="flex flex-col gap-3">
             {semanticMode && searchQuery && (
               <div className="flex items-center gap-2 px-1">
-                <Badge variant="secondary" className="gap-1.5 bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300">
+                <Badge variant="secondary" className="gap-1.5 bg-terminal-accent/10 text-terminal-accent border border-terminal-accent/20">
                   <Brain className="size-3" />
                   Семантический режим
                 </Badge>

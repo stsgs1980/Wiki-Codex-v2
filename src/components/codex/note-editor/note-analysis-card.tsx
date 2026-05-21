@@ -43,7 +43,7 @@ export function NoteAnalysisCard({ analysis, onDismiss, onApplyTitle }: NoteAnal
             <span className="font-medium">{analysis.suggestedTitle}</span>
             <Button
               size="sm"
-              className="h-5 px-2 text-[10px] gap-0.5 bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 font-mono"
+              className="h-5 px-2 text-[10px] gap-0.5 bg-star/10 text-star border border-star/20 hover:bg-star/20 font-mono"
               onClick={onApplyTitle}
             >
               apply

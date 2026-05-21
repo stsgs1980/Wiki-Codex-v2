@@ -93,7 +93,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
                     <Button
                       variant={semanticMode ? 'default' : 'outline'}
                       size="icon"
-                      className={cn('size-8 shrink-0', semanticMode && 'bg-violet-600 hover:bg-violet-700 text-white')}
+                      className={cn('size-8 shrink-0', semanticMode && 'bg-primary hover:bg-primary/90 text-primary-foreground')}
                       onClick={toggleSemanticMode}
                     >
                       <Brain className="size-4" />
@@ -105,7 +105,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
                 </Tooltip>
               </TooltipProvider>
               <div className="relative flex-1 min-w-0">
-                <Search className={cn('absolute left-3 top-1/2 -translate-y-1/2 size-4', semanticMode ? 'text-violet-500' : 'text-muted-foreground')} />
+                <Search className={cn('absolute left-3 top-1/2 -translate-y-1/2 size-4', semanticMode ? 'text-terminal-accent' : 'text-muted-foreground')} />
                 <Input
                   ref={inputRef}
                   placeholder={semanticMode ? 'AI поиск...' : 'Поиск...'}
@@ -113,7 +113,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={cn(
                     'w-full pl-9 pr-8',
-                    semanticMode && 'border-violet-500/50 focus-visible:ring-violet-500/30'
+                    semanticMode && 'border-terminal-accent/50 focus-visible:ring-terminal-accent/30'
                   )}
                 />
                 {searchQuery && (

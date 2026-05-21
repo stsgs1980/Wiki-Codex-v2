@@ -24,9 +24,9 @@ export function TerminalFrame({
       {/* Title bar */}
       <div className="flex items-center gap-3 px-3 py-1.5 border-b bg-muted/60">
         <div className="flex items-center gap-1.5 shrink-0">
-          <motion.div className="size-2 rounded-full bg-red-400 dark:bg-red-500" variants={dotPulse} initial="initial" animate="animate" />
-          <div className="size-2 rounded-full bg-yellow-400 dark:bg-yellow-500" />
-          <div className="size-2 rounded-full bg-green-400 dark:bg-green-500" />
+          <motion.div className="size-2 rounded-full bg-destructive/60" variants={dotPulse} initial="initial" animate="animate" />
+          <div className="size-2 rounded-full bg-star/50" />
+          <div className="size-2 rounded-full bg-terminal-accent/50" />
         </div>
         <span className="text-[11px] font-mono text-muted-foreground truncate">{title}</span>
         {headerRight && <div className="ml-auto shrink-0">{headerRight}</div>}

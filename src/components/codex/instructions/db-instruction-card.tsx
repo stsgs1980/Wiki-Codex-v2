@@ -30,19 +30,19 @@ export function DbInstructionCard({
   const steps = parseSteps(instruction.steps)
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md hover:shadow-emerald-500/5">
+    <Card className="overflow-hidden transition-shadow hover:shadow-md hover:shadow-terminal-accent/5">
       <CardHeader
         className="cursor-pointer select-none pb-4 border-b border-border"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex items-start gap-4">
-          <div className="flex items-center justify-center size-11 rounded-xl shrink-0 bg-emerald-100 dark:bg-emerald-950">
-            <Sparkles className="size-5 text-emerald-700 dark:text-emerald-400" />
+          <div className="flex items-center justify-center size-11 rounded-xl shrink-0 bg-terminal-accent/10">
+            <Sparkles className="size-5 text-terminal-accent" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap mb-1">
               <CardTitle className="text-lg font-sans font-bold">{instruction.title}</CardTitle>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-terminal-accent/10 text-terminal-accent border-terminal-accent/20">
                 {steps.length} {steps.length === 1 ? 'step' : 'steps'}
               </span>
               {instruction.sourceDoc && (

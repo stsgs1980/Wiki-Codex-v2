@@ -204,7 +204,7 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
 
           {/* Status message */}
           {status === 'success' && (
-            <div className="flex items-center gap-2 p-3 rounded-md bg-green-500/10 text-green-600 dark:text-green-400">
+            <div className="flex items-center gap-2 p-3 rounded-md bg-terminal-accent/10 text-terminal-accent">
               <CheckCircle2 className="size-4" />
               <span className="text-sm">Документ загружен успешно!</span>
             </div>

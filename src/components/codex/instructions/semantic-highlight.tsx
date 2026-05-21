@@ -12,7 +12,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // Comment: starts with // or #
       const commentMatch = remaining.match(/^(\/\/|#)(.*)/)
       if (commentMatch) {
-        nodes.push(<span key={keyIdx++} className="text-zinc-500">{commentMatch[0]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-muted-foreground/60">{commentMatch[0]}</span>)
         remaining = ''
         break
       }
@@ -20,7 +20,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // HTTP method: POST, GET, PUT, DELETE, PATCH at start
       const methodMatch = remaining.match(/^(POST|GET|PUT|DELETE|PATCH)\b(.*)/)
       if (methodMatch) {
-        nodes.push(<span key={keyIdx++} className="text-lime-400 font-semibold">{methodMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-terminal-accent font-semibold">{methodMatch[1]}</span>)
         remaining = methodMatch[2]
         continue
       }
@@ -28,7 +28,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // API path: /api/...
       const pathMatch = remaining.match(/^(\/api\/[^\s]*)/)
       if (pathMatch) {
-        nodes.push(<span key={keyIdx++} className="text-purple-400">{pathMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-neuro-brand">{pathMatch[1]}</span>)
         remaining = remaining.slice(pathMatch[1].length)
         continue
       }
@@ -36,7 +36,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // URL: https://...
       const urlMatch = remaining.match(/^(https?:\/\/[^\s]*)/)
       if (urlMatch) {
-        nodes.push(<span key={keyIdx++} className="text-purple-400 underline decoration-purple-400/30">{urlMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-neuro-brand underline decoration-neuro-brand/30">{urlMatch[1]}</span>)
         remaining = remaining.slice(urlMatch[1].length)
         continue
       }
@@ -44,7 +44,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // Quoted string
       const quoteMatch = remaining.match(/^("([^"]*)"|'([^']*)')(.*)/)
       if (quoteMatch) {
-        nodes.push(<span key={keyIdx++} className="text-amber-400">{quoteMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-star">{quoteMatch[1]}</span>)
         remaining = quoteMatch[4] || ''
         continue
       }
@@ -52,7 +52,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // Numbered list item: 1. 2. etc
       const numMatch = remaining.match(/^(\d+\.\s)(.*)/)
       if (numMatch) {
-        nodes.push(<span key={keyIdx++} className="text-green-400 font-semibold">{numMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-terminal-accent font-semibold">{numMatch[1]}</span>)
         remaining = numMatch[2]
         continue
       }
@@ -60,7 +60,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // Flag: --something
       const flagMatch = remaining.match(/^(--[\w-]+)(.*)/)
       if (flagMatch) {
-        nodes.push(<span key={keyIdx++} className="text-blue-400">{flagMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-foreground/70">{flagMatch[1]}</span>)
         remaining = flagMatch[2]
         continue
       }
@@ -68,8 +68,8 @@ export function highlightCode(code: string): React.ReactNode[] {
       // Environment var: KEY=value or KEY=value
       const envMatch = remaining.match(/^([A-Z_][A-Z0-9_]*=)([^\s]*)(.*)/)
       if (envMatch) {
-        nodes.push(<span key={keyIdx++} className="text-cyan-400">{envMatch[1]}</span>)
-        nodes.push(<span key={keyIdx++} className="text-amber-300">{envMatch[2]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-terminal-accent">{envMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-star">{envMatch[2]}</span>)
         remaining = envMatch[3]
         continue
       }
@@ -77,7 +77,7 @@ export function highlightCode(code: string): React.ReactNode[] {
       // File path: .ext files, ~/. paths
       const fileMatch = remaining.match(/^(\.?\/?[~./][\w./-]+\.[\w]+)(.*)/)
       if (fileMatch) {
-        nodes.push(<span key={keyIdx++} className="text-cyan-300">{fileMatch[1]}</span>)
+        nodes.push(<span key={keyIdx++} className="text-foreground/70">{fileMatch[1]}</span>)
         remaining = fileMatch[2]
         continue
       }

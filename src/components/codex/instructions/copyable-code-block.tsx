@@ -41,7 +41,7 @@ export function CopyableCodeBlock({ label, code, accentColor }: { label: string;
           onClick={handleCopy}
         >
           {copied ? (
-            <><Check className="size-3 text-green-400" /><span className="text-green-400">ok</span></>
+            <><Check className="size-3 text-terminal-accent" /><span className="text-terminal-accent">ok</span></>
           ) : (
             <><Copy className="size-3" /><span>copy</span></>
           )}
