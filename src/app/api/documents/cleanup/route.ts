@@ -62,15 +62,34 @@ export async function POST(request: NextRequest) {
 async function handleScan(): Promise<NextResponse> {
   try {
     // Fetch all documents with the fields we need
-    const documents = await db.document.findMany({
-      select: {
-        id: true,
-        title: true,
-        contentHash: true,
-        updatedAt: true,
-      },
-      orderBy: { updatedAt: 'desc' },
-    })
+    // contentHash column may not exist in production DB — try with, fallback without
+    let documents: Array<{ id: string; title: string; contentHash: string | null; updatedAt: Date }>
+    try {
+      documents = await db.document.findMany({
+        select: {
+          id: true,
+          title: true,
+          contentHash: true,
+          updatedAt: true,
+        },
+        orderBy: { updatedAt: 'desc' },
+      })
+    } catch (selectError) {
+      const errMsg = selectError instanceof Error ? selectError.message : String(selectError)
+      if (errMsg.includes('contentHash') || errMsg.includes('does not exist') || errMsg.includes('column')) {
+        console.warn('[cleanup] contentHash column not found, fetching without it')
+        documents = (await db.document.findMany({
+          select: {
+            id: true,
+            title: true,
+            updatedAt: true,
+          },
+          orderBy: { updatedAt: 'desc' },
+        })).map((d) => ({ ...d, contentHash: null }))
+      } else {
+        throw selectError
+      }
+    }
 
     const groups: DuplicateGroup[] = []
     const titleDuplicateIds = new Set<string>()

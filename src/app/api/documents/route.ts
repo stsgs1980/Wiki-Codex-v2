@@ -142,26 +142,43 @@ export async function POST(request: NextRequest) {
       )
     }
     // forceCreate=true → update existing document instead of creating duplicate
+    // Try with contentHash first, then without (column may not exist on prod)
+    const updateData = {
+      title: cleanTitle,
+      content: cleanContent,
+      fileName: fileName || title,
+      fileType,
+      fileSize,
+      categoryId: normalizedCategoryId,
+    }
+    const updateInclude = {
+      category: true,
+      tags: { include: { tag: true } },
+    }
     try {
       const updated = await db.document.update({
         where: { id: dupResult.existingId! },
-        data: {
-          title: cleanTitle,
-          content: cleanContent,
-          contentHash,
-          fileName: fileName || title,
-          fileType,
-          fileSize,
-          categoryId: normalizedCategoryId,
-        },
-        include: {
-          category: true,
-          tags: { include: { tag: true } },
-        },
+        data: { ...updateData, contentHash },
+        include: updateInclude,
       })
       return NextResponse.json({ ...updated, _updated: true }, { status: 200 })
     } catch (updateError) {
-      console.error('[documents] Update existing failed:', updateError instanceof Error ? updateError.message : updateError)
+      const errMsg = updateError instanceof Error ? updateError.message : String(updateError)
+      if (errMsg.includes('contentHash') || errMsg.includes('does not exist') || errMsg.includes('column')) {
+        console.warn('[documents] Retrying update without contentHash (column may not exist)')
+        try {
+          const updated = await db.document.update({
+            where: { id: dupResult.existingId! },
+            data: updateData,
+            include: updateInclude,
+          })
+          return NextResponse.json({ ...updated, _updated: true }, { status: 200 })
+        } catch (retryError) {
+          console.error('[documents] Update without contentHash also failed:', retryError instanceof Error ? retryError.message : retryError)
+          return handleDbError(retryError)
+        }
+      }
+      console.error('[documents] Update existing failed:', errMsg)
       return handleDbError(updateError)
     }
   }
