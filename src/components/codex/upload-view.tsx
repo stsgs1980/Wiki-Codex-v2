@@ -1,1 +1,1 @@
-export { UploadView } from './upload'
+export { UploadView } from './upload/upload'
