@@ -8,14 +8,21 @@
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
-const DEFAULT_CONFIG = {
+const DEFAULT_CONFIG: {
+  maxRetries: number
+  baseDelay: number
+  maxDelay: number
+  backoffMultiplier: number
+  retryableStatuses: number[]
+  timeout: number
+} = {
   maxRetries: 3,
   baseDelay: 1000,       // 1s
   maxDelay: 10000,       // 10s
   backoffMultiplier: 2,
   retryableStatuses: [408, 429, 500, 502, 503, 504],
   timeout: 30000,        // 30s
-} as const
+}
 
 type RetryConfig = typeof DEFAULT_CONFIG & Partial<{
   maxRetries: number

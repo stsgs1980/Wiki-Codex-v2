@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { Prisma } from '@prisma/client'
 import { createDocumentSchema, paginationSchema } from '@/lib/validations'
 import { sanitizeField, ensureStackSignature } from '@/lib/sanitize'
-import { contains, equals } from '@/lib/db-filter'
+import { contains } from '@/lib/db-filter'
 import { computeContentHash, contentFingerprint, type DuplicateCheckResult } from '@/lib/content-hash'
 
 export async function GET(request: NextRequest) {
