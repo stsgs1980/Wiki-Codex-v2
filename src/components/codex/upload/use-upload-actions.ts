@@ -1,9 +1,10 @@
 /**
- * Upload actions — API calls and orchestration.
+ * Upload actions — API calls with retry and error handling.
  * Separated from UI to keep upload.tsx under 200 lines.
  */
 import type { UploadState } from './use-upload-state'
 import type { DuplicateInfo } from './use-upload-state'
+import { fetchWithRetry } from '@/lib/api-retry'
 
 /**
  * Normalizes file extension to a valid fileType.
@@ -36,8 +37,15 @@ export interface SubmitResult {
   error?: string
 }
 
+/** Max retries for upload — server may restart in sandbox */
+const UPLOAD_RETRIES = 2
+
+/** Delay between retries (ms) — give server time to restart */
+const RETRY_DELAY = 3000
+
 /**
- * Submit a document to the API with duplicate detection.
+ * Submit a document to the API with duplicate detection and retry.
+ * Retries on network errors (server may be restarting in sandbox).
  */
 export async function submitDocument(
   state: UploadState,
@@ -60,33 +68,62 @@ export async function submitDocument(
     body.forceCreate = true
   }
 
-  const res = await fetch('/api/documents', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+  let lastError = ''
 
-  // Duplicate detected
-  if (res.status === 409) {
-    const data = await res.json()
-    return {
-      success: false,
-      duplicate: {
-        existingId: data.existingId,
-        existingTitle: data.existingTitle,
-        message: data.error,
-        severity: data.severity,
-      },
+  for (let attempt = 0; attempt <= UPLOAD_RETRIES; attempt++) {
+    try {
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      // Duplicate detected — not an error, don't retry
+      if (res.status === 409) {
+        const data = await res.json()
+        return {
+          success: false,
+          duplicate: {
+            existingId: data.existingId,
+            existingTitle: data.existingTitle,
+            message: data.error,
+            severity: data.severity,
+          },
+        }
+      }
+
+      // Client error (400, 422) — not retryable
+      if (res.status >= 400 && res.status < 500) {
+        const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+        return { success: false, error: extractErrorMessage(data) }
+      }
+
+      // Server error (500+) — retry
+      if (!res.ok) {
+        lastError = `Сервер вернул ошибку (${res.status}). Попытка ${attempt + 1}/${UPLOAD_RETRIES + 1}...`
+        if (attempt < UPLOAD_RETRIES) {
+          await new Promise((r) => setTimeout(r, RETRY_DELAY))
+          continue
+        }
+        return { success: false, error: lastError }
+      }
+
+      // Success
+      const doc = await res.json()
+      return { success: true, docId: doc.id }
+
+    } catch (err) {
+      // Network error (server down/restarting) — retry
+      lastError = `Сервер недоступен. Попытка ${attempt + 1}/${UPLOAD_RETRIES + 1}...`
+      if (attempt < UPLOAD_RETRIES) {
+        await new Promise((r) => setTimeout(r, RETRY_DELAY))
+        continue
+      }
+      return { success: false, error: 'Сервер недоступен. Попробуйте ещё раз через несколько секунд.' }
     }
   }
 
-  if (!res.ok) {
-    const data = await res.json()
-    return { success: false, error: extractErrorMessage(data) }
-  }
-
-  const doc = await res.json()
-  return { success: true, docId: doc.id }
+  return { success: false, error: lastError || 'Неизвестная ошибка' }
 }
 
 /**
@@ -95,15 +132,15 @@ export async function submitDocument(
  */
 export async function autoCategorizeDocument(docId: string): Promise<string | null> {
   try {
-    const res = await fetch('/api/documents/auto-categorize', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ documentId: docId }),
-    })
-
-    if (!res.ok) return null
-
-    const data = await res.json()
+    const data = await fetchWithRetry<{ autoAssigned?: boolean; category?: { name: string } }>(
+      '/api/documents/auto-categorize',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ documentId: docId }),
+        retryConfig: { maxRetries: 1, baseDelay: 2000 },
+      }
+    )
     return data.autoAssigned && data.category ? data.category.name : null
   } catch {
     return null
@@ -115,12 +152,13 @@ export async function autoCategorizeDocument(docId: string): Promise<string | nu
  */
 export async function extractTerms(docId: string): Promise<boolean> {
   try {
-    const res = await fetch('/api/terms/extract', {
+    await fetchWithRetry('/api/terms/extract', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ documentId: docId }),
+      retryConfig: { maxRetries: 1, baseDelay: 2000 },
     })
-    return res.ok
+    return true
   } catch {
     return false
   }
