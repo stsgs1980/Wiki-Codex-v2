@@ -83,6 +83,7 @@ export default function WikiCodex() {
             tags={tags}
             totalDocuments={counters.allDocumentsCount}
             totalStarred={counters.allStarredCount}
+            onCleanupComplete={refreshAll}
           />
         )
 
