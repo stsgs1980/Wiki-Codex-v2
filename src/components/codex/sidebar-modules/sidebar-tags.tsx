@@ -125,14 +125,10 @@ export function SidebarTags({
                     className={cn(
                       'text-xs cursor-pointer transition-colors',
                       isActive
-                        ? 'font-medium'
-                        : 'hover:bg-accent tag-color-text',
-                      !isActive && 'tag-color-border'
+                        ? 'font-medium tag-color-bg tag-color-border tag-color-text'
+                        : 'hover:bg-accent tag-color-text tag-color-border'
                     )}
-                    style={isActive
-                      ? { '--tag-color': tag.color, backgroundColor: 'var(--tag-color)', borderColor: tag.color, color: 'var(--primary-foreground)' } as React.CSSProperties
-                      : { '--tag-color': tag.color } as React.CSSProperties
-                    }
+                    style={{ '--tag-color': tag.color } as React.CSSProperties}
                     onClick={() => {
                       if (isActive) {
                         setSelectedTag(null)
