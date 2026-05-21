@@ -60,6 +60,6 @@ worklog.md
 db/*.db
 db/backups/
 download/
-upload/
+/upload/
 .zscripts/dev.out.log
 .zscripts/dev.pid
