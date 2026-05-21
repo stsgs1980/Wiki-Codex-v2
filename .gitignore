@@ -50,16 +50,23 @@ next-env.d.ts
 # Internal agent files
 .claude
 .z-ai-config
+agent-ctx/
 test
 prompt
 server.log
 dev.log
+dev-startup.log
 worklog.md
+CLAUDE.md
+AGENT_RULES.md
+PROJECT_CONFIG.md
 
 # Runtime / generated
 db/*.db
 db/backups/
 download/
 /upload/
-.zscripts/dev.out.log
-.zscripts/dev.pid
+.zscripts/
+*.bak
+*.tmp
+*.old
