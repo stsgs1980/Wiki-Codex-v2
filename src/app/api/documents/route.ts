@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client'
 import { createDocumentSchema, paginationSchema } from '@/lib/validations'
 import { sanitizeField, ensureStackSignature } from '@/lib/sanitize'
 import { contains } from '@/lib/db-filter'
-import { computeContentHash, contentFingerprint, type DuplicateCheckResult } from '@/lib/content-hash'
+import { contentFingerprint, type DuplicateCheckResult } from '@/lib/content-hash'
 
 export async function GET(request: NextRequest) {
   try {
@@ -103,28 +103,11 @@ export async function POST(request: NextRequest) {
     cleanContent = ensureStackSignature(content)
   }
 
-  // ── 3. Compute content hash (non-blocking: fallback on failure) ────
-  let contentHash: string | null = null
-  try {
-    contentHash = await computeContentHash(cleanContent)
-  } catch (hashError) {
-    // crypto.subtle may be unavailable in some edge runtimes
-    console.warn('[documents] computeContentHash failed, using fallback:', hashError instanceof Error ? hashError.message : hashError)
-    // Fallback: simple hash from content length + first 100 chars
-    const stub = cleanContent.substring(0, 100) + cleanContent.length
-    const encoder = new TextEncoder()
-    let h = 0
-    for (const byte of encoder.encode(stub)) {
-      h = ((h << 5) - h + byte) | 0
-    }
-    contentHash = 'fb-' + Math.abs(h).toString(16).padStart(16, '0')
-  }
-
-  // ── 4. Duplicate detection (non-blocking: skip on failure) ──────────
+  // ── 3. Duplicate detection (non-blocking: skip on failure) ──────────
   let dupResult: DuplicateCheckResult = { severity: 'none', existingId: null, existingTitle: null, message: null }
   try {
     const fp = contentFingerprint(cleanContent)
-    dupResult = await checkDuplicates(cleanTitle, contentHash, cleanContent, fp)
+    dupResult = await checkDuplicates(cleanTitle, cleanContent, fp)
   } catch (dupError) {
     // Dedup check failing should NOT block document creation
     console.warn('[documents] Duplicate check failed, proceeding anyway:', dupError instanceof Error ? dupError.message : dupError)
@@ -142,43 +125,25 @@ export async function POST(request: NextRequest) {
       )
     }
     // forceCreate=true → update existing document instead of creating duplicate
-    // Try with contentHash first, then without (column may not exist on prod)
-    const updateData = {
-      title: cleanTitle,
-      content: cleanContent,
-      fileName: fileName || title,
-      fileType,
-      fileSize,
-      categoryId: normalizedCategoryId,
-    }
-    const updateInclude = {
-      category: true,
-      tags: { include: { tag: true } },
-    }
     try {
       const updated = await db.document.update({
         where: { id: dupResult.existingId! },
-        data: { ...updateData, contentHash },
-        include: updateInclude,
+        data: {
+          title: cleanTitle,
+          content: cleanContent,
+          fileName: fileName || title,
+          fileType,
+          fileSize,
+          categoryId: normalizedCategoryId,
+        },
+        include: {
+          category: true,
+          tags: { include: { tag: true } },
+        },
       })
       return NextResponse.json({ ...updated, _updated: true }, { status: 200 })
     } catch (updateError) {
-      const errMsg = updateError instanceof Error ? updateError.message : String(updateError)
-      if (errMsg.includes('contentHash') || errMsg.includes('does not exist') || errMsg.includes('column')) {
-        console.warn('[documents] Retrying update without contentHash (column may not exist)')
-        try {
-          const updated = await db.document.update({
-            where: { id: dupResult.existingId! },
-            data: updateData,
-            include: updateInclude,
-          })
-          return NextResponse.json({ ...updated, _updated: true }, { status: 200 })
-        } catch (retryError) {
-          console.error('[documents] Update without contentHash also failed:', retryError instanceof Error ? retryError.message : retryError)
-          return handleDbError(retryError)
-        }
-      }
-      console.error('[documents] Update existing failed:', errMsg)
+      console.error('[documents] Update existing failed:', updateError instanceof Error ? updateError.message : updateError)
       return handleDbError(updateError)
     }
   }
@@ -197,59 +162,35 @@ export async function POST(request: NextRequest) {
     // forceCreate=true → user confirmed they want to create anyway
   }
 
-  // ── 5. Create document ──────────────────────────────────────────────
-
-  const baseData = {
+  // ── 4. Create document ──────────────────────────────────────────────
+  const data: Prisma.DocumentCreateInput = {
     title: cleanTitle,
     content: cleanContent,
     fileName: fileName || title,
     fileType,
     fileSize,
-    categoryId: normalizedCategoryId,
+    category: normalizedCategoryId ? { connect: { id: normalizedCategoryId } } : undefined,
+    tags: tagIds?.length
+      ? {
+          create: tagIds.map((tagId: string) => ({
+            tag: { connect: { id: tagId } },
+          })),
+        }
+      : undefined,
   }
 
-  const tagsData = tagIds?.length
-    ? {
-        create: tagIds.map((tagId: string) => ({
-          tag: { connect: { id: tagId } },
-        })),
-      }
-    : undefined
-
-  const includeData = {
-    category: true,
-    tags: { include: { tag: true } },
-  }
-
-  // Try with contentHash first, then without (column may not exist on prod)
-  let document
   try {
-    document = await db.document.create({
-      data: { ...baseData, contentHash, tags: tagsData },
-      include: includeData,
+    const document = await db.document.create({
+      data,
+      include: {
+        category: true,
+        tags: { include: { tag: true } },
+      },
     })
-  } catch (firstError) {
-    console.error('[documents] DB create with contentHash failed:', firstError instanceof Error ? firstError.message : firstError)
-
-    // If contentHash column doesn't exist in DB (migration not run), retry without it
-    const errMsg = firstError instanceof Error ? firstError.message : String(firstError)
-    if (errMsg.includes('contentHash') || errMsg.includes('column') || errMsg.includes('does not exist')) {
-      console.warn('[documents] Retrying without contentHash (column may not exist)')
-      try {
-        document = await db.document.create({
-          data: { ...baseData, tags: tagsData },
-          include: includeData,
-        })
-      } catch (secondError) {
-        console.error('[documents] DB create without contentHash also failed:', secondError instanceof Error ? secondError.message : secondError)
-        return handleDbError(secondError)
-      }
-    } else {
-      return handleDbError(firstError)
-    }
+    return NextResponse.json(document, { status: 201 })
+  } catch (createError) {
+    return handleDbError(createError)
   }
-
-  return NextResponse.json(document, { status: 201 })
 }
 
 /** Handle DB errors with specific Prisma error detection */
@@ -288,14 +229,12 @@ function handleDbError(error: unknown): NextResponse {
 }
 
 /**
- * Three-level duplicate check:
+ * Two-level duplicate check:
  * 1. Exact title match (case-insensitive)
- * 2. Exact content hash match (identical content)
- * 3. Content similarity (near-duplicates with minor edits)
+ * 2. Content similarity (near-duplicates with Jaccard ≥ 70%)
  */
 async function checkDuplicates(
   title: string,
-  contentHash: string | null,
   content: string,
   fp: { head: string; tail: string; length: number }
 ): Promise<DuplicateCheckResult> {
@@ -316,27 +255,7 @@ async function checkDuplicates(
     }
   }
 
-  // Level 2: Exact content hash match (only if hash is available & column exists)
-  if (contentHash && !contentHash.startsWith('fb-')) {
-    try {
-      const byHash = await db.document.findFirst({
-        where: { contentHash },
-        select: { id: true, title: true },
-      })
-      if (byHash) {
-        return {
-          severity: 'exact',
-          existingId: byHash.id,
-          existingTitle: byHash.title,
-          message: `Документ с идентичным содержанием уже существует: "${byHash.title}"`,
-        }
-      }
-    } catch {
-      // contentHash column may not exist — skip this level
-    }
-  }
-
-  // Level 3: Similar content (near-duplicate check)
+  // Level 2: Similar content (near-duplicate check via Jaccard similarity)
   const lengthMin = Math.floor(fp.length * 0.8)
   const lengthMax = Math.ceil(fp.length * 1.2)
 

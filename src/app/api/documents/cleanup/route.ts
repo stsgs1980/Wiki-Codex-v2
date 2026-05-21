@@ -21,7 +21,7 @@ interface DuplicateEntry {
 }
 
 interface DuplicateGroup {
-  reason: 'title' | 'contentHash'
+  reason: 'title'
   keep: DuplicateEntry
   duplicates: DuplicateEntry[]
 }
@@ -51,50 +51,23 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Scan mode: Find all duplicate documents grouped by reason.
- *
- * Group 1: Identical titles (case-insensitive) — keep the newest (most recent updatedAt)
- * Group 2: Identical contentHash values — same logic
- *
- * A document flagged as a title duplicate is excluded from the contentHash check
- * to avoid double-counting.
+ * Scan mode: Find all duplicate documents by title (case-insensitive).
+ * Keeps the newest document in each group.
  */
 async function handleScan(): Promise<NextResponse> {
   try {
-    // Fetch all documents with the fields we need
-    // contentHash column may not exist in production DB — try with, fallback without
-    let documents: Array<{ id: string; title: string; contentHash: string | null; updatedAt: Date }>
-    try {
-      documents = await db.document.findMany({
-        select: {
-          id: true,
-          title: true,
-          contentHash: true,
-          updatedAt: true,
-        },
-        orderBy: { updatedAt: 'desc' },
-      })
-    } catch (selectError) {
-      const errMsg = selectError instanceof Error ? selectError.message : String(selectError)
-      if (errMsg.includes('contentHash') || errMsg.includes('does not exist') || errMsg.includes('column')) {
-        console.warn('[cleanup] contentHash column not found, fetching without it')
-        documents = (await db.document.findMany({
-          select: {
-            id: true,
-            title: true,
-            updatedAt: true,
-          },
-          orderBy: { updatedAt: 'desc' },
-        })).map((d) => ({ ...d, contentHash: null }))
-      } else {
-        throw selectError
-      }
-    }
+    const documents = await db.document.findMany({
+      select: {
+        id: true,
+        title: true,
+        updatedAt: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+    })
 
     const groups: DuplicateGroup[] = []
-    const titleDuplicateIds = new Set<string>()
 
-    // ── Group 1: Title duplicates (case-insensitive) ──────────────────
+    // Group by title (case-insensitive)
     const titleMap = new Map<string, typeof documents>()
 
     for (const doc of documents) {
@@ -116,11 +89,6 @@ async function handleScan(): Promise<NextResponse> {
       const keep = docs[0]
       const duplicates = docs.slice(1)
 
-      // Track all IDs flagged as title duplicates
-      for (const dup of duplicates) {
-        titleDuplicateIds.add(dup.id)
-      }
-
       groups.push({
         reason: 'title',
         keep: { id: keep.id, title: keep.title, updatedAt: keep.updatedAt },
@@ -132,53 +100,6 @@ async function handleScan(): Promise<NextResponse> {
       })
     }
 
-    // ── Group 2: contentHash duplicates ───────────────────────────────
-    try {
-      const hashMap = new Map<string, typeof documents>()
-
-      for (const doc of documents) {
-        // Skip documents already flagged as title duplicates (avoid double-counting)
-        if (titleDuplicateIds.has(doc.id)) continue
-        // Only consider documents with a non-null contentHash
-        if (!doc.contentHash) continue
-
-        const key = doc.contentHash
-        const existing = hashMap.get(key)
-        if (existing) {
-          existing.push(doc)
-        } else {
-          hashMap.set(key, [doc])
-        }
-      }
-
-      for (const [, docs] of hashMap) {
-        if (docs.length < 2) continue
-
-        // Sort by updatedAt descending — most recent first
-        docs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-
-        const keep = docs[0]
-        const duplicates = docs.slice(1)
-
-        groups.push({
-          reason: 'contentHash',
-          keep: { id: keep.id, title: keep.title, updatedAt: keep.updatedAt },
-          duplicates: duplicates.map((d) => ({
-            id: d.id,
-            title: d.title,
-            updatedAt: d.updatedAt,
-          })),
-        })
-      }
-    } catch (hashError) {
-      // contentHash column might not exist — skip this group gracefully
-      console.warn(
-        '[cleanup] contentHash scan failed (column may not exist):',
-        hashError instanceof Error ? hashError.message : hashError
-      )
-    }
-
-    // ── Compute totals ────────────────────────────────────────────────
     const totalDuplicates = groups.reduce((sum, g) => sum + g.duplicates.length, 0)
     const totalGroups = groups.length
 
@@ -238,7 +159,6 @@ async function handleDelete(ids: string[] | undefined): Promise<NextResponse> {
   } catch (error) {
     console.error('[cleanup] Delete failed:', error)
 
-    // Handle Prisma-specific errors
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
         return NextResponse.json(

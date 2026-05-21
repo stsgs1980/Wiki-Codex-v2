@@ -31,7 +31,6 @@ model Document {
   id          String        @id @default(cuid())
   title       String
   content     String
-  contentHash String?
   summary     String?
   fileType    String        @default("md")
   fileSize    Int           @default(0)

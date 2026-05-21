@@ -33,7 +33,7 @@ interface DuplicateEntry {
 }
 
 interface DuplicateGroup {
-  reason: 'title' | 'contentHash'
+  reason: 'title'
   keep: DuplicateEntry
   duplicates: DuplicateEntry[]
 }
@@ -350,7 +350,7 @@ export function DashboardView({
                   >
                     <div className="flex items-center gap-2 mb-1.5">
                       <Badge variant="secondary" className="text-[10px] font-mono gap-1">
-                        {group.reason === 'title' ? 'заголовок' : 'хеш содержимого'}
+                        заголовок
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         → оставить: <span className="text-foreground">{group.keep.title}</span>
