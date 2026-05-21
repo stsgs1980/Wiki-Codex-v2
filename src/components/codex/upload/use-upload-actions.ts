@@ -11,7 +11,7 @@ import type { DuplicateInfo } from './use-upload-state'
  */
 function normalizeFileType(fileName: string): string {
   const ext = fileName.split('.').pop()?.toLowerCase() || 'md'
-  const validTypes = new Set(['md', 'txt', 'html', 'pdf', 'json', 'js', 'ts', 'py', 'yaml', 'yml', 'toml', 'xml', 'css'])
+  const validTypes = new Set(['md', 'txt', 'html', 'pdf', 'json', 'js', 'ts', 'py', 'yaml', 'yml', 'toml', 'xml', 'css', 'sql', 'sh', 'jsx', 'tsx', 'csv'])
   return validTypes.has(ext) ? ext : 'md'
 }
 

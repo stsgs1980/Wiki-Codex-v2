@@ -4,7 +4,7 @@ export const createDocumentSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500),
   content: z.string().min(1, 'Content is required'),
   fileName: z.string().max(500).optional(),
-  fileType: z.enum(['md', 'txt', 'html', 'pdf', 'json', 'js', 'ts', 'py', 'yaml', 'yml', 'toml', 'xml', 'css']).default('md'),
+  fileType: z.enum(['md', 'txt', 'html', 'pdf', 'json', 'js', 'ts', 'py', 'yaml', 'yml', 'toml', 'xml', 'css', 'sql', 'sh', 'jsx', 'tsx', 'csv']).default('md'),
   fileSize: z.number().int().min(0).default(0),
   categoryId: z.string().nullable().optional(),
   tagIds: z.array(z.string()).optional(),
