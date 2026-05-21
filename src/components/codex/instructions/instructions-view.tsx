@@ -39,7 +39,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
   } = useInstructionsData(onCountChange)
 
   return (
-    <TerminalFrame title="instructions" className="m-4 md:m-6" headerRight={
+    <TerminalFrame title="instructions" className="m-3 sm:m-4 md:m-6" headerRight={
       <div className="flex items-center gap-2">
         <Badge variant="secondary" className="text-[10px] font-mono px-1.5 py-0">
           {totalCount}
@@ -74,7 +74,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
               <Button
                 onClick={handleExtract}
                 disabled={!selectedDocId || isExtracting}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+                className="gap-2"
               >
                 {isExtracting ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
                 {isExtracting ? 'AI анализирует...' : 'Извлечь инструкции'}

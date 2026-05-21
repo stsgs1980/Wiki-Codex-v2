@@ -62,7 +62,7 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
           )}
           <Button
             onClick={() => setView('upload')}
-            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="gap-2"
           >
             <FileText className="size-4" />
             Загрузить документ
@@ -73,14 +73,14 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
   }
 
   return (
-    <TerminalFrame title="documents" className="m-4 md:m-6">
+    <TerminalFrame title="documents" className="m-3 sm:m-4 md:m-6">
       <div className="flex flex-col gap-3 p-4">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           {selectedTagId && (
             <Badge variant="secondary" className="gap-1.5">
-              <span className="size-2 rounded-full tag-color-bg" style={{ '--tag-color': tags.find((t) => t.id === selectedTagId)?.color || '#78716c', backgroundColor: tags.find((t) => t.id === selectedTagId)?.color || '#78716c' } as React.CSSProperties} />
+              <span className="size-2 rounded-full tag-color-bg" style={{ '--tag-color': tags.find((t) => t.id === selectedTagId)?.color || 'var(--muted-foreground)', backgroundColor: tags.find((t) => t.id === selectedTagId)?.color || 'var(--muted-foreground)' } as React.CSSProperties} />
               {tags.find((t) => t.id === selectedTagId)?.name || 'Тег'}
             </Badge>
           )}

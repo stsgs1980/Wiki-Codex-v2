@@ -9,7 +9,7 @@ export const TEMPLATES_B: TemplateGroup[] = [
     icon: <Server className="size-5" />,
     title: 'Серверные команды',
     description: 'Полезные команды: порты, процессы, диагностика',
-    color: '#0891b2',
+    color: 'var(--terminal-accent)',
     steps: [
       {
         title: 'Работа с портами',
@@ -35,7 +35,7 @@ export const TEMPLATES_B: TemplateGroup[] = [
     icon: <Terminal className="size-5" />,
     title: 'Docker',
     description: 'Контейнеры, образы, Docker Compose',
-    color: '#0891b2',
+    color: 'var(--terminal-accent)',
     steps: [
       {
         title: 'Контейнеры',
@@ -62,7 +62,7 @@ export const TEMPLATES_B: TemplateGroup[] = [
     icon: <FileCode className="size-5" />,
     title: 'Полезные утилиты',
     description: 'SSH, поиск, архивация',
-    color: '#c026d3',
+    color: 'var(--star)',
     steps: [
       {
         title: 'SSH ключи',

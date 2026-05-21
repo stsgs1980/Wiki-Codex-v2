@@ -72,7 +72,7 @@ export function DashboardView({
   ]
 
   return (
-    <TerminalFrame title="dashboard" className="m-4 md:m-6">
+    <TerminalFrame title="dashboard" className="m-3 sm:m-4 md:m-6">
       <div className="flex flex-col gap-4 p-3 sm:p-4">
         {/* Stats Grid */}
         <motion.div
@@ -132,7 +132,7 @@ export function DashboardView({
               animate="animate"
               className="rounded-md border border-dashed p-3"
             >
-              <div className="flex items-center gap-2 px-1 mb-3">
+              <div className="flex items-center gap-2 px-1 mb-2">
                 <TrendingUp className="size-3.5 text-muted-foreground" />
                 <span className="text-xs font-mono text-muted-foreground">categories</span>
                 <div className="flex-1 h-px border-t border-dashed" />
@@ -176,7 +176,7 @@ export function DashboardView({
               animate="animate"
               className="rounded-md border border-dashed p-3"
             >
-              <div className="flex items-center gap-2 px-1 mb-3">
+              <div className="flex items-center gap-2 px-1 mb-2">
                 <FileText className="size-3.5 text-muted-foreground" />
                 <span className="text-xs font-mono text-muted-foreground">file-types</span>
                 <div className="flex-1 h-px border-t border-dashed" />

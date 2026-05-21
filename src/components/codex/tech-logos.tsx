@@ -184,11 +184,11 @@ export function ZustandLogo({ className, ...props }: LogoProps) {
 export function NeuroLogoSmall({ className, ...props }: LogoProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
-      <rect x="3" y="3" width="18" height="18" rx="3" fill="#FA3913" />
+      <rect x="3" y="3" width="18" height="18" rx="3" fill="var(--neuro-brand)" />
       <text
         x="12" y="16.5"
         textAnchor="middle"
-        fill="#FFFFFF"
+        fill="var(--primary-foreground)"
         fontSize="14"
         fontWeight="700"
         fontFamily="Inter, system-ui, sans-serif"

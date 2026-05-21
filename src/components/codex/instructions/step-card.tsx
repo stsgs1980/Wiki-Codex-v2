@@ -8,6 +8,11 @@ import { StepCallout } from './step-callout'
 import { CopyableCodeBlock } from './copyable-code-block'
 import type { Step } from './types'
 
+/** Build a CSS color with alpha from a var() color token using color-mix */
+function withAlpha(color: string, alpha: number): string {
+  return `color-mix(in srgb, ${color} ${alpha}%, transparent)`
+}
+
 export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNumber: number; groupColor: string }) {
   const [expanded, setExpanded] = useState(true)
   const stepType = resolveStepType(step.type)
@@ -21,15 +26,15 @@ export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNum
       <div
         className="absolute left-[15px] top-9 bottom-0 w-[2px] rounded-full"
         style={{
-          background: `linear-gradient(to bottom, ${activeColor}60, ${activeColor}10)`,
+          background: `linear-gradient(to bottom, ${withAlpha(activeColor, 60)}, ${withAlpha(activeColor, 10)})`,
         }}
       />
       {/* Number badge with glow */}
       <div
-        className="absolute left-0.5 top-0 size-7 rounded-lg flex items-center justify-center text-[11px] font-mono font-bold text-white"
+        className="absolute left-0.5 top-0 size-7 rounded-lg flex items-center justify-center text-[11px] font-mono font-bold text-primary-foreground"
         style={{
           backgroundColor: activeColor,
-          boxShadow: `0 0 12px ${activeColor}40`,
+          boxShadow: `0 0 12px ${withAlpha(activeColor, 40)}`,
         }}
       >
         {stepNumber}

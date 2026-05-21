@@ -85,7 +85,7 @@ export function DuplicatesDialog({
                           'flex items-center gap-2 sm:gap-3 rounded-md border px-2.5 sm:px-3 py-2 cursor-pointer transition-colors',
                           t.id === keepId
                             ? 'border-primary/50 bg-primary/5'
-                            : 'border-transparent bg-muted/50 hover:bg-muted'
+                            : 'border-border bg-muted/50 hover:bg-muted'
                         )}
                       >
                         <input

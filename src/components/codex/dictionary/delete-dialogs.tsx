@@ -54,7 +54,7 @@ export function DeleteDialogs({
             <AlertDialogAction
               onClick={handleDeleteTerm}
               disabled={isDeleting}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? (
                 <>
@@ -83,7 +83,7 @@ export function DeleteDialogs({
             <AlertDialogAction
               onClick={handleBatchDelete}
               disabled={isBatchDeleting}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isBatchDeleting ? (
                 <>

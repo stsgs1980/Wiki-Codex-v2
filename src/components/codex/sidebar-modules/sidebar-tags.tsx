@@ -105,7 +105,6 @@ export function SidebarTags({
                 <Button
                   onClick={dialog.handleCreateTag}
                   disabled={!dialog.tagName.trim() || dialog.isTagCreating}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {dialog.isTagCreating ? 'Создание...' : 'Создать'}
                 </Button>

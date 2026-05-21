@@ -9,7 +9,7 @@ export const TEMPLATES_A: TemplateGroup[] = [
     icon: <ShieldCheck className="size-5" />,
     title: 'Survival Guide',
     description: 'Как экспортировать данные и восстановить информацию',
-    color: '#dc2626',
+    color: 'var(--destructive)',
     steps: [
       {
         title: 'Экспорт данных (JSON)',
@@ -63,7 +63,7 @@ export const TEMPLATES_A: TemplateGroup[] = [
     icon: <FolderGit2 className="size-5" />,
     title: 'Создание Bundle',
     description: 'Как упаковать Git репозиторий в bundle файл для передачи без доступа к серверу',
-    color: '#ea580c',
+    color: 'var(--neuro-brand)',
     steps: [
       {
         title: 'Найти Git репозиторий',
@@ -114,7 +114,7 @@ export const TEMPLATES_A: TemplateGroup[] = [
     icon: <GitBranch className="size-5" />,
     title: 'Основы Git',
     description: 'Базовые команды Git для повседневной работы',
-    color: '#16a34a',
+    color: 'var(--terminal-accent)',
     steps: [
       {
         title: 'Инициализация репозитория',
@@ -150,7 +150,7 @@ export const TEMPLATES_A: TemplateGroup[] = [
     icon: <Package className="size-5" />,
     title: 'Настройка проекта',
     description: 'Начальная настройка: зависимости, .env, база данных',
-    color: '#9333ea',
+    color: 'var(--brand-purple)',
     steps: [
       {
         title: 'Установить зависимости',

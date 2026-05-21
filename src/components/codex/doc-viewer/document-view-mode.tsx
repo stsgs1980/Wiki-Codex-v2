@@ -147,7 +147,7 @@ export function DocumentViewMode({
 
         {/* AI Analysis Result */}
         {analysis && (
-          <div className="border border-dashed rounded-md p-3 mb-3 flex flex-col gap-2 text-xs font-mono">
+          <div className="bg-muted border border-dashed rounded-md p-3 mb-3 flex flex-col gap-2 text-xs font-mono">
             <div>
               <span className="text-muted-foreground">summary: </span>
               <span className="text-foreground">{analysis.summary}</span>
@@ -214,7 +214,7 @@ export function DocumentViewMode({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Отмена</AlertDialogCancel>
-            <AlertDialogAction onClick={onDelete} className="bg-destructive text-white hover:bg-destructive/90">
+            <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Удалить
             </AlertDialogAction>
           </AlertDialogFooter>

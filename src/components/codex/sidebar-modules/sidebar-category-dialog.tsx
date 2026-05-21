@@ -104,7 +104,7 @@ export function CategoryDialogForm({ dialog }: { dialog: CategoryDialogState }) 
           <Button
             onClick={dialog.handleCreateSelected}
             disabled={dialog.selectedSuggestions.size === 0 || dialog.isCreatingBulk}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+            className="gap-2"
           >
             {dialog.isCreatingBulk ? (
               <Loader2 className="size-4 animate-spin" />
@@ -157,7 +157,6 @@ export function CategoryDialogForm({ dialog }: { dialog: CategoryDialogState }) 
         <Button
           onClick={dialog.handleCreateCategory}
           disabled={!dialog.catName.trim() || dialog.isCatCreating}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           {dialog.isCatCreating ? 'Создание...' : 'Создать вручную'}
         </Button>

@@ -43,7 +43,7 @@ export function RelatedDocsSection({
           {relatedDocs.map((relDoc) => (
             <div
               key={relDoc.id}
-              className="flex items-center justify-between gap-2 rounded-md border border-dashed px-2.5 py-1.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono"
+              className="flex items-center justify-between gap-2 rounded-md border border-dashed px-3 py-2 hover:bg-accent/50 transition-colors cursor-pointer font-mono"
               onClick={() => onRelatedClick(relDoc)}
             >
               <span className="text-xs text-foreground truncate min-w-0">{relDoc.title}</span>

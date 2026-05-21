@@ -97,8 +97,8 @@ function LoadingSkeleton() {
 
 export function NotesView({ notes, onNoteSelect, onCreateNote, onDeleteNote, isLoading }: NotesViewProps) {
   return (
-    <TerminalFrame title="notes" className="m-4 md:m-6" headerRight={
-      <Button onClick={onCreateNote} size="sm" className="gap-1.5 h-6 text-xs bg-primary hover:bg-primary/90 text-primary-foreground">
+    <TerminalFrame title="notes" className="m-3 sm:m-4 md:m-6" headerRight={
+      <Button onClick={onCreateNote} size="sm" className="gap-1.5 h-6 text-xs">
         <Plus className="size-3" />
         <span className="hidden sm:inline">new</span>
       </Button>
@@ -112,7 +112,7 @@ export function NotesView({ notes, onNoteSelect, onCreateNote, onDeleteNote, isL
           <StickyNote className="size-10 text-muted-foreground/50 mb-3" />
           <p className="text-xs font-mono text-muted-foreground mb-1">~ no notes found</p>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">Заметок пока нет</p>
-          <Button onClick={onCreateNote} size="sm" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button onClick={onCreateNote} size="sm" className="gap-2">
             <Plus className="size-4" />
             Создать заметку
           </Button>

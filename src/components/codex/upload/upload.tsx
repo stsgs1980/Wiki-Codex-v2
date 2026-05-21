@@ -122,7 +122,7 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
   }
 
   return (
-    <TerminalFrame title="upload" className="m-4 md:m-6">
+    <TerminalFrame title="upload" className="m-3 sm:m-4 md:m-6">
       <div className="p-4 max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -221,7 +221,7 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
             <Button
               type="submit"
               disabled={status === 'uploading' || !title.trim() || !content.trim()}
-              className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="gap-2"
             >
               {status === 'uploading' ? (
                 <Loader2 className="size-4 animate-spin" />

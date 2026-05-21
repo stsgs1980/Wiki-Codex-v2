@@ -117,7 +117,7 @@ export function NoteEditor({ note, onSave, onCancel, onDelete, isSaving }: NoteE
   const charCount = state.content.length
 
   return (
-    <TerminalFrame title={note ? 'note/edit' : 'note/new'} className="m-4 md:m-6 max-w-3xl mx-auto" headerRight={
+    <TerminalFrame title={note ? 'note/edit' : 'note/new'} className="m-3 sm:m-4 md:m-6 max-w-3xl mx-auto" headerRight={
       <div className="flex items-center gap-1.5">
         {note && (
           <AlertDialog>
@@ -151,7 +151,7 @@ export function NoteEditor({ note, onSave, onCancel, onDelete, isSaving }: NoteE
         <Button
           onClick={handleSave}
           disabled={isSaveDisabled}
-          className="gap-1 bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-6"
+          className="gap-1 text-xs h-6"
         >
           {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
           {isSaving ? '...' : 'save'}

@@ -20,7 +20,7 @@ export function TermCardGrid({
     <motion.div variants={staggerItem} {...cardHover}>
       <Card className={cn(
         'overflow-hidden group hover:shadow-md transition-shadow border-dashed',
-        selected && 'ring-2 ring-primary border-solid'
+        selected && 'ring-2 ring-primary bg-primary/5 border-solid'
       )}>
         <CardContent className="p-3 sm:p-4">
           <div className="flex items-start justify-between gap-2 mb-1 sm:mb-1.5">

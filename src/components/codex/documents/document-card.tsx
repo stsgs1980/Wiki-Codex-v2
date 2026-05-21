@@ -74,16 +74,13 @@ export function DocumentCard({ doc, formatDate, onClick }: DocumentCardProps) {
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               {doc.category && (
-                <span
-                  className="inline-flex items-center gap-1 tag-color-text"
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] px-1.5 py-0 font-mono tag-color-text tag-color-bg"
                   style={{ '--tag-color': doc.category.color } as React.CSSProperties}
                 >
-                  <span
-                    className="size-1.5 rounded-full inline-block"
-                    style={{ backgroundColor: doc.category.color }}
-                  />
                   {doc.category.name}
-                </span>
+                </Badge>
               )}
             </div>
             <span>{formatDate(doc.updatedAt)}</span>

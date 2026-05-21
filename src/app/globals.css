@@ -11,6 +11,7 @@
   --color-terminal-accent: var(--terminal-accent);
   --color-neuro-brand: var(--neuro-brand);
   --color-star: var(--star);
+  --color-brand-purple: var(--brand-purple);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -91,6 +92,12 @@
   --terminal-accent: hsl(160 35% 28%);
   --neuro-brand: hsl(15 50% 35%);
   --star: hsl(40 55% 38%);
+  --brand-purple: hsl(270 45% 40%);
+
+  /* Raw channel tokens — for alpha compositing in inline styles */
+  --terminal-accent-raw: 160 35% 28%;
+  --neuro-brand-raw: 15 50% 35%;
+  --star-raw: 40 55% 38%;
 }
 
 /* ─── Dark theme — full redesign with HSL ─── */
@@ -135,6 +142,12 @@
   --terminal-accent: hsl(160 60% 55%);
   --neuro-brand: hsl(15 80% 58%);
   --star: hsl(40 65% 60%);
+  --brand-purple: hsl(270 55% 60%);
+
+  /* Raw channel tokens — for alpha compositing in inline styles */
+  --terminal-accent-raw: 160 60% 55%;
+  --neuro-brand-raw: 15 80% 58%;
+  --star-raw: 40 65% 60%;
 }
 
 @layer base {

@@ -95,7 +95,7 @@ export function DbInstructionCard({
       {expanded && steps.length > 0 && (
         <CardContent className="pt-6 pb-6 px-6">
           {steps.map((step, idx) => (
-            <StepCard key={instruction.id + '-' + idx} step={step} stepNumber={idx + 1} groupColor="#10b981" />
+            <StepCard key={instruction.id + '-' + idx} step={step} stepNumber={idx + 1} groupColor="var(--terminal-accent)" />
           ))}
         </CardContent>
       )}

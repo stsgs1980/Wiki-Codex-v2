@@ -16,7 +16,7 @@ export const STEP_TYPE_CONFIG: Record<StepType, {
   step: {
     icon: <ChevronRight className="size-4" />,
     label: 'step',
-    color: '#71717a',
+    color: 'var(--muted-foreground)',
     bgClass: 'bg-muted/50',
     borderClass: 'border-border',
     textClass: 'text-muted-foreground',
@@ -26,7 +26,7 @@ export const STEP_TYPE_CONFIG: Record<StepType, {
   warning: {
     icon: <AlertTriangle className="size-4" />,
     label: 'warning',
-    color: '#d97706',
+    color: 'var(--star)',
     bgClass: 'bg-star/5',
     borderClass: 'border-star/20',
     textClass: 'text-star',
@@ -36,7 +36,7 @@ export const STEP_TYPE_CONFIG: Record<StepType, {
   info: {
     icon: <Info className="size-4" />,
     label: 'info',
-    color: '#3b82f6',
+    color: 'var(--terminal-accent)',
     bgClass: 'bg-terminal-accent/5',
     borderClass: 'border-terminal-accent/20',
     textClass: 'text-terminal-accent',
@@ -46,7 +46,7 @@ export const STEP_TYPE_CONFIG: Record<StepType, {
   tip: {
     icon: <Lightbulb className="size-4" />,
     label: 'tip',
-    color: '#22c55e',
+    color: 'var(--terminal-accent)',
     bgClass: 'bg-terminal-accent/5',
     borderClass: 'border-terminal-accent/20',
     textClass: 'text-terminal-accent',
@@ -56,7 +56,7 @@ export const STEP_TYPE_CONFIG: Record<StepType, {
   important: {
     icon: <AlertTriangle className="size-4" />,
     label: 'important',
-    color: '#f59e0b',
+    color: 'var(--star)',
     bgClass: 'bg-star/5',
     borderClass: 'border-star/20',
     textClass: 'text-star',

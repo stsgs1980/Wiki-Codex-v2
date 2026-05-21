@@ -49,7 +49,7 @@ export function SidebarNav({
   const navItems = buildNavItems({ documentsCount, termsCount, notesCount, instructionsCount })
 
   return (
-    <nav className="flex flex-col gap-0.5 px-2 py-2">
+    <nav className="flex flex-col gap-0.5 px-2 py-3">
       {navItems.map((item) => {
         const isActive = currentView === item.view
         return (

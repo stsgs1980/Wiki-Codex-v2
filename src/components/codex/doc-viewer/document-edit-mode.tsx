@@ -46,7 +46,7 @@ export function DocumentEditMode({
           <X className="size-3" />
           <span className="hidden sm:inline">Отмена</span>
         </Button>
-        <Button onClick={onSave} disabled={isSaving} className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs h-6">
+        <Button onClick={onSave} disabled={isSaving} className="gap-1.5 text-xs h-6">
           {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
           {isSaving ? '...' : 'save'}
         </Button>

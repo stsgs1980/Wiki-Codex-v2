@@ -65,7 +65,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
   }, [toast])
 
   return (
-    <div className="prose prose-stone dark:prose-invert prose-sm md:prose-base max-w-none break-words [&_pre]:overflow-x-auto [&_code]:break-all [&_a]:break-all mt-3">
+    <div className="prose dark:prose-invert prose-sm md:prose-base max-w-none break-words [&_pre]:overflow-x-auto [&_code]:break-all [&_a]:break-all mt-3">
       <ReactMarkdown
         components={{
           code({ className, children, ...props }) {

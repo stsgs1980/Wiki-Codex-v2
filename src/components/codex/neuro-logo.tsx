@@ -14,7 +14,7 @@ const sizeMap: Record<'sm' | 'md' | 'lg', number> = {
   lg: 56,
 };
 
-const CORAL = '#FA3913';
+const CORAL = 'var(--neuro-brand)';
 const FONT_STACK =
   'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
@@ -36,7 +36,7 @@ export function NeuroLogo({
       aria-label="NEURO"
     >
       {/* R coral box – shadow for subtle depth */}
-      <rect x="232" y="4" width="144" height="144" fill="#d42f0e" rx="2" />
+      <rect x="232" y="4" width="144" height="144" fill="var(--neuro-brand)" opacity="0.7" rx="2" />
       {/* R coral box – main */}
       <rect x="226" y="0" width="144" height="144" fill={CORAL} rx="2" />
 
@@ -88,7 +88,7 @@ export function NeuroLogo({
         fontFamily={FONT_STACK}
         fontSize="96"
         fontWeight="700"
-        fill="#FFFFFF"
+        fill="var(--primary-foreground)"
       >
         R
       </text>

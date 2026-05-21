@@ -19,6 +19,11 @@ import { useToast } from '@/hooks/use-toast'
 import { StepCard } from './step-card'
 import type { TemplateGroup } from './types'
 
+/** Build a CSS color with alpha from a var() color token using color-mix */
+function withAlpha(color: string, alpha: number): string {
+  return `color-mix(in srgb, ${color} ${alpha}%, transparent)`
+}
+
 export function TemplateCard({ group, defaultExpanded = false, onHide }: { group: TemplateGroup; defaultExpanded?: boolean; onHide?: (id: string) => void }) {
   const [expanded, setExpanded] = useState(defaultExpanded)
   const [allCopied, setAllCopied] = useState(false)
@@ -40,7 +45,7 @@ export function TemplateCard({ group, defaultExpanded = false, onHide }: { group
   }, [group, toast])
 
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-lg">
+    <Card className="overflow-hidden transition-shadow hover:shadow-md hover:shadow-terminal-accent/5">
       {/* Header with color accent */}
       <CardHeader
         className="cursor-pointer select-none pb-4 border-b border-border"
@@ -50,7 +55,7 @@ export function TemplateCard({ group, defaultExpanded = false, onHide }: { group
           <div
             className="flex items-center justify-center size-11 rounded-xl shrink-0"
             style={{
-              background: `linear-gradient(135deg, ${group.color}20, ${group.color}05)`,
+              background: `linear-gradient(135deg, ${withAlpha(group.color, 20)}, ${withAlpha(group.color, 5)})`,
               color: group.color,
             }}
           >
@@ -62,9 +67,9 @@ export function TemplateCard({ group, defaultExpanded = false, onHide }: { group
               <span
                 className="text-[10px] font-mono px-2 py-0.5 rounded-full border"
                 style={{
-                  backgroundColor: group.color + '15',
+                  backgroundColor: withAlpha(group.color, 10),
                   color: group.color,
-                  borderColor: group.color + '30',
+                  borderColor: withAlpha(group.color, 20),
                 }}
               >
                 {group.steps.length} {group.steps.length === 1 ? 'step' : 'steps'}
