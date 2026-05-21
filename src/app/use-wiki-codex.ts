@@ -200,11 +200,23 @@ export function useWikiCodex() {
         })
         notesHook.fetchNotes()
         setView('notes')
+      } else {
+        // Extract error message from server response
+        let errorMsg = `HTTP ${res.status}`
+        try {
+          const errData = await res.json()
+          if (errData.error) errorMsg = typeof errData.error === 'string' ? errData.error : JSON.stringify(errData.error)
+        } catch { /* ignore */ }
+        toast({
+          title: 'Ошибка сохранения',
+          description: errorMsg,
+          variant: 'destructive',
+        })
       }
     } catch {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось сохранить заметку',
+        description: 'Не удалось сохранить заметку. Сервер недоступен.',
         variant: 'destructive',
       })
     } finally {

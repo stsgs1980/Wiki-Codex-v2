@@ -74,59 +74,90 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // ── 1. Parse & validate body ────────────────────────────────────────
+  let body: Record<string, unknown>
   try {
-    const body = await request.json()
-    const parsed = createDocumentSchema.safeParse(body)
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors
-      const message = Object.entries(fieldErrors)
-        .map(([field, errs]) => `${field}: ${(errs as string[]).join(', ')}`)
-        .join('; ')
-      return NextResponse.json({ error: message }, { status: 400 })
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const parsed = createDocumentSchema.safeParse(body)
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors
+    const message = Object.entries(fieldErrors)
+      .map(([field, errs]) => `${field}: ${(errs as string[]).join(', ')}`)
+      .join('; ')
+    return NextResponse.json({ error: message }, { status: 400 })
+  }
+
+  const { title, content, fileName, fileType, fileSize, categoryId, tagIds } = parsed.data
+
+  // ── 2. Sanitize ─────────────────────────────────────────────────────
+  const cleanTitle = sanitizeField(title, 'document.title')
+  let cleanContent = ensureStackSignature(sanitizeField(content, 'document.content'))
+
+  // Safety: ensure content is never empty after sanitize (signature alone is ~60 chars)
+  if (!cleanContent.trim()) {
+    cleanContent = ensureStackSignature(content)
+  }
+
+  // ── 3. Compute content hash (non-blocking: fallback on failure) ────
+  let contentHash: string | null = null
+  try {
+    contentHash = await computeContentHash(cleanContent)
+  } catch (hashError) {
+    // crypto.subtle may be unavailable in some edge runtimes
+    console.warn('[documents] computeContentHash failed, using fallback:', hashError instanceof Error ? hashError.message : hashError)
+    // Fallback: simple hash from content length + first 100 chars
+    const stub = cleanContent.substring(0, 100) + cleanContent.length
+    const encoder = new TextEncoder()
+    let h = 0
+    for (const byte of encoder.encode(stub)) {
+      h = ((h << 5) - h + byte) | 0
     }
+    contentHash = 'fb-' + Math.abs(h).toString(16).padStart(16, '0')
+  }
 
-    const { title, content, fileName, fileType, fileSize, categoryId, tagIds } = parsed.data
-
-    const cleanTitle = sanitizeField(title, 'document.title')
-    const cleanContent = ensureStackSignature(sanitizeField(content, 'document.content'))
-
-    // ── 1. Compute content hash for dedup ──────────────────────────
-    const contentHash = await computeContentHash(cleanContent)
+  // ── 4. Duplicate detection (non-blocking: skip on failure) ──────────
+  let dupResult: DuplicateCheckResult = { severity: 'none', existingId: null, existingTitle: null, message: null }
+  try {
     const fp = contentFingerprint(cleanContent)
+    dupResult = await checkDuplicates(cleanTitle, contentHash, cleanContent, fp)
+  } catch (dupError) {
+    // Dedup check failing should NOT block document creation
+    console.warn('[documents] Duplicate check failed, proceeding anyway:', dupError instanceof Error ? dupError.message : dupError)
+  }
 
-    // ── 2. Duplicate detection: three levels ───────────────────────
-    const dupResult = await checkDuplicates(cleanTitle, contentHash, cleanContent, fp)
+  if (dupResult.severity === 'exact') {
+    return NextResponse.json(
+      {
+        error: dupResult.message,
+        existingId: dupResult.existingId,
+        severity: 'exact',
+      },
+      { status: 409 }
+    )
+  }
 
-    if (dupResult.severity === 'exact') {
-      // Exact duplicate — block
+  if (dupResult.severity === 'similar') {
+    if (!body.forceCreate) {
       return NextResponse.json(
         {
           error: dupResult.message,
           existingId: dupResult.existingId,
-          severity: 'exact',
+          severity: 'similar',
         },
         { status: 409 }
       )
     }
+    // forceCreate=true → user confirmed they want to create anyway
+  }
 
-    if (dupResult.severity === 'similar') {
-      // Similar content — return warning but allow with flag
-      if (!body.forceCreate) {
-        return NextResponse.json(
-          {
-            error: dupResult.message,
-            existingId: dupResult.existingId,
-            severity: 'similar',
-          },
-          { status: 409 }
-        )
-      }
-      // forceCreate=true → user confirmed they want to create anyway
-    }
+  // ── 5. Create document ──────────────────────────────────────────────
+  const normalizedCategoryId = categoryId && categoryId !== 'none' && categoryId !== 'all' ? categoryId : null
 
-    // ── 3. Create document ─────────────────────────────────────────
-    const normalizedCategoryId = categoryId && categoryId !== 'none' && categoryId !== 'all' ? categoryId : null
-
+  try {
     const document = await db.document.create({
       data: {
         title: cleanTitle,
@@ -151,10 +182,31 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(document, { status: 201 })
-  } catch (error) {
-    console.error('Error creating document:', error)
+  } catch (dbError) {
+    // Detailed error logging for DB failures
+    console.error('[documents] DB create failed:', dbError)
+    const errMsg = dbError instanceof Error ? dbError.message : String(dbError)
+
+    // Detect specific Prisma errors
+    if (dbError instanceof Prisma.PrismaClientKnownRequestError) {
+      // P2003: Foreign key constraint failed (e.g. categoryId or tagId doesn't exist)
+      if (dbError.code === 'P2003') {
+        return NextResponse.json(
+          { error: `Указанная категория или тег не существует (${dbError.meta?.field_name ?? 'unknown field'})` },
+          { status: 400 }
+        )
+      }
+      // P2002: Unique constraint failed
+      if (dbError.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'Документ с такими данными уже существует' },
+          { status: 409 }
+        )
+      }
+    }
+
     return NextResponse.json(
-      { error: 'Failed to create document' },
+      { error: `Ошибка создания документа: ${errMsg.substring(0, 200)}` },
       { status: 500 }
     )
   }
@@ -168,12 +220,11 @@ export async function POST(request: NextRequest) {
  */
 async function checkDuplicates(
   title: string,
-  contentHash: string,
+  contentHash: string | null,
   content: string,
   fp: { head: string; tail: string; length: number }
 ): Promise<DuplicateCheckResult> {
   // Level 1: Title match (case-insensitive at application level)
-  // SQLite COLLATE NOCASE handles ASCII, but we also check manually
   const byTitleCandidates = await db.document.findMany({
     where: { title: contains(title) },
     select: { id: true, title: true, content: true },
@@ -190,39 +241,37 @@ async function checkDuplicates(
     }
   }
 
-  // Level 2: Exact content hash match
-  const byHash = await db.document.findFirst({
-    where: { contentHash },
-    select: { id: true, title: true },
-  })
-  if (byHash) {
-    return {
-      severity: 'exact',
-      existingId: byHash.id,
-      existingTitle: byHash.title,
-      message: `Документ с идентичным содержанием уже существует: "${byHash.title}"`,
+  // Level 2: Exact content hash match (only if hash is available)
+  if (contentHash && !contentHash.startsWith('fb-')) {
+    const byHash = await db.document.findFirst({
+      where: { contentHash },
+      select: { id: true, title: true },
+    })
+    if (byHash) {
+      return {
+        severity: 'exact',
+        existingId: byHash.id,
+        existingTitle: byHash.title,
+        message: `Документ с идентичным содержанием уже существует: "${byHash.title}"`,
+      }
     }
   }
 
   // Level 3: Similar content (near-duplicate check)
-  // Find documents with similar length (±20%) and check head/tail overlap
   const lengthMin = Math.floor(fp.length * 0.8)
   const lengthMax = Math.ceil(fp.length * 1.2)
 
-  // Get recent documents to check for similarity
   const candidates = await db.document.findMany({
     select: { id: true, title: true, content: true },
     orderBy: { createdAt: 'desc' },
-    take: 100, // check last 100 documents
+    take: 100,
   })
 
   for (const candidate of candidates) {
     const candidateFp = contentFingerprint(candidate.content)
 
-    // Length filter
     if (candidateFp.length < lengthMin || candidateFp.length > lengthMax) continue
 
-    // Head word overlap (Jaccard similarity)
     const wordsA = new Set(fp.head.split(/\s+/).filter(Boolean))
     const wordsB = new Set(candidateFp.head.split(/\s+/).filter(Boolean))
     const intersection = [...wordsA].filter((w) => wordsB.has(w))

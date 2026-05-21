@@ -1,17 +1,42 @@
 /**
  * Content hashing and similarity utilities for duplicate detection.
+ *
+ * Supports environments where crypto.subtle may be unavailable
+ * (some edge runtimes, older Node.js) via fallback hashing.
  */
 
 /**
+ * Simple non-cryptographic hash (djb2 variant).
+ * Used as fallback when crypto.subtle is unavailable.
+ */
+function djb2Hash(str: string): string {
+  let h = 5381
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) + h + str.charCodeAt(i)) | 0
+  }
+  return 'fb-' + Math.abs(h).toString(16).padStart(16, '0')
+}
+
+/**
  * Compute a SHA-256 hash of the content.
- * Returns hex string.
+ * Returns hex string, or a fallback hash if crypto.subtle is unavailable.
  */
 export async function computeContentHash(content: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(content)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  // Try crypto.subtle first (Node.js 18+, browsers, Vercel)
+  try {
+    if (typeof crypto !== 'undefined' && crypto.subtle?.digest) {
+      const encoder = new TextEncoder()
+      const data = encoder.encode(content)
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+    }
+  } catch {
+    // Fall through to fallback
+  }
+
+  // Fallback: djb2 hash on content fingerprint
+  return djb2Hash(content.substring(0, 500) + content.length)
 }
 
 /**
@@ -45,11 +70,9 @@ export function isContentSimilar(
   const fpA = contentFingerprint(a)
   const fpB = contentFingerprint(b)
 
-  // Length must be within tolerance
   const lengthRatio = Math.min(fpA.length, fpB.length) / Math.max(fpA.length, fpB.length)
   if (lengthRatio < 1 - lengthTolerance) return false
 
-  // Check head overlap (Jaccard-like on words)
   const wordsA = new Set(fpA.head.split(/\s+/).filter(Boolean))
   const wordsB = new Set(fpB.head.split(/\s+/).filter(Boolean))
   const intersection = [...wordsA].filter((w) => wordsB.has(w))

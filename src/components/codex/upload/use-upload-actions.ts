@@ -98,9 +98,14 @@ export async function submitDocument(
         return { success: false, error: extractErrorMessage(data) }
       }
 
-      // Server error (500+) — retry
+      // Server error (500+) — retry, but capture error message
       if (!res.ok) {
-        lastError = `Сервер вернул ошибку (${res.status}). Попытка ${attempt + 1}/${UPLOAD_RETRIES + 1}...`
+        let serverMsg = `HTTP ${res.status}`
+        try {
+          const errData = await res.json()
+          if (errData.error) serverMsg = typeof errData.error === 'string' ? errData.error : JSON.stringify(errData.error)
+        } catch { /* ignore parse error */ }
+        lastError = `${serverMsg}. Попытка ${attempt + 1}/${UPLOAD_RETRIES + 1}...`
         if (attempt < UPLOAD_RETRIES) {
           await new Promise((r) => setTimeout(r, RETRY_DELAY))
           continue
