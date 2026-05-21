@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const parsed = paginationSchema.safeParse(Object.fromEntries(searchParams))
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
+      const fe = parsed.error.flatten().fieldErrors
+      const msg = Object.entries(fe).map(([f, e]) => `${f}: ${(e as string[]).join(', ')}`).join('; ')
+      return NextResponse.json({ error: msg }, { status: 400 })
     }
     const { search, categoryId, tagId, starred, page, limit } = parsed.data
 
@@ -76,7 +78,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const parsed = createDocumentSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
+      const fieldErrors = parsed.error.flatten().fieldErrors
+      const message = Object.entries(fieldErrors)
+        .map(([field, errs]) => `${field}: ${(errs as string[]).join(', ')}`)
+        .join('; ')
+      return NextResponse.json({ error: message }, { status: 400 })
     }
 
     const { title, content, fileName, fileType, fileSize, categoryId, tagIds } = parsed.data

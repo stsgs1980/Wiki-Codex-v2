@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const parsed = createCategorySchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 })
+      const fe = parsed.error.flatten().fieldErrors
+      const msg = Object.entries(fe).map(([f, e]) => `${f}: ${(e as string[]).join(', ')}`).join('; ')
+      return NextResponse.json({ error: msg }, { status: 400 })
     }
 
     const { name, description, color, sortOrder } = parsed.data

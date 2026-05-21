@@ -1,1 +1,5 @@
 export { UploadView } from './upload'
+export { useUploadState } from './use-upload-state'
+export { submitDocument, autoCategorizeDocument, extractTerms } from './use-upload-actions'
+export { DuplicateDialogs } from './duplicate-dialogs'
+export { UploadStatusBar } from './upload-status-bar'
