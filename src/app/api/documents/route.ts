@@ -157,59 +157,92 @@ export async function POST(request: NextRequest) {
   // ── 5. Create document ──────────────────────────────────────────────
   const normalizedCategoryId = categoryId && categoryId !== 'none' && categoryId !== 'all' ? categoryId : null
 
-  try {
-    const document = await db.document.create({
-      data: {
-        title: cleanTitle,
-        content: cleanContent,
-        contentHash,
-        fileName: fileName || title,
-        fileType,
-        fileSize,
-        categoryId: normalizedCategoryId,
-        tags: tagIds?.length
-          ? {
-              create: tagIds.map((tagId: string) => ({
-                tag: { connect: { id: tagId } },
-              })),
-            }
-          : undefined,
-      },
-      include: {
-        category: true,
-        tags: { include: { tag: true } },
-      },
-    })
-
-    return NextResponse.json(document, { status: 201 })
-  } catch (dbError) {
-    // Detailed error logging for DB failures
-    console.error('[documents] DB create failed:', dbError)
-    const errMsg = dbError instanceof Error ? dbError.message : String(dbError)
-
-    // Detect specific Prisma errors
-    if (dbError instanceof Prisma.PrismaClientKnownRequestError) {
-      // P2003: Foreign key constraint failed (e.g. categoryId or tagId doesn't exist)
-      if (dbError.code === 'P2003') {
-        return NextResponse.json(
-          { error: `Указанная категория или тег не существует (${dbError.meta?.field_name ?? 'unknown field'})` },
-          { status: 400 }
-        )
-      }
-      // P2002: Unique constraint failed
-      if (dbError.code === 'P2002') {
-        return NextResponse.json(
-          { error: 'Документ с такими данными уже существует' },
-          { status: 409 }
-        )
-      }
-    }
-
-    return NextResponse.json(
-      { error: `Ошибка создания документа: ${errMsg.substring(0, 200)}` },
-      { status: 500 }
-    )
+  const baseData = {
+    title: cleanTitle,
+    content: cleanContent,
+    fileName: fileName || title,
+    fileType,
+    fileSize,
+    categoryId: normalizedCategoryId,
   }
+
+  const tagsData = tagIds?.length
+    ? {
+        create: tagIds.map((tagId: string) => ({
+          tag: { connect: { id: tagId } },
+        })),
+      }
+    : undefined
+
+  const includeData = {
+    category: true,
+    tags: { include: { tag: true } },
+  }
+
+  // Try with contentHash first, then without (column may not exist on prod)
+  let document
+  try {
+    document = await db.document.create({
+      data: { ...baseData, contentHash, tags: tagsData },
+      include: includeData,
+    })
+  } catch (firstError) {
+    console.error('[documents] DB create with contentHash failed:', firstError instanceof Error ? firstError.message : firstError)
+
+    // If contentHash column doesn't exist in DB (migration not run), retry without it
+    const errMsg = firstError instanceof Error ? firstError.message : String(firstError)
+    if (errMsg.includes('contentHash') || errMsg.includes('column') || errMsg.includes('does not exist')) {
+      console.warn('[documents] Retrying without contentHash (column may not exist)')
+      try {
+        document = await db.document.create({
+          data: { ...baseData, tags: tagsData },
+          include: includeData,
+        })
+      } catch (secondError) {
+        console.error('[documents] DB create without contentHash also failed:', secondError instanceof Error ? secondError.message : secondError)
+        return handleDbError(secondError)
+      }
+    } else {
+      return handleDbError(firstError)
+    }
+  }
+
+  return NextResponse.json(document, { status: 201 })
+}
+
+/** Handle DB errors with specific Prisma error detection */
+function handleDbError(error: unknown): NextResponse {
+  console.error('[documents] DB error:', error)
+  const errMsg = error instanceof Error ? error.message : String(error)
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    // P2003: Foreign key constraint failed
+    if (error.code === 'P2003') {
+      return NextResponse.json(
+        { error: `Указанная категория или тег не существует (${error.meta?.field_name ?? 'unknown'})` },
+        { status: 400 }
+      )
+    }
+    // P2002: Unique constraint failed
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'Документ с такими данными уже существует' },
+        { status: 409 }
+      )
+    }
+    // P2021: Table doesn't exist
+    if (error.code === 'P2021') {
+      return NextResponse.json(
+        { error: 'Таблица документов не найдена. Необходима миграция БД.' },
+        { status: 500 }
+      )
+    }
+  }
+
+  return NextResponse.json(
+    { error: `Ошибка создания документа: ${errMsg.substring(0, 200)}` },
+    { status: 500 }
+  )
 }
 
 /**
@@ -241,19 +274,23 @@ async function checkDuplicates(
     }
   }
 
-  // Level 2: Exact content hash match (only if hash is available)
+  // Level 2: Exact content hash match (only if hash is available & column exists)
   if (contentHash && !contentHash.startsWith('fb-')) {
-    const byHash = await db.document.findFirst({
-      where: { contentHash },
-      select: { id: true, title: true },
-    })
-    if (byHash) {
-      return {
-        severity: 'exact',
-        existingId: byHash.id,
-        existingTitle: byHash.title,
-        message: `Документ с идентичным содержанием уже существует: "${byHash.title}"`,
+    try {
+      const byHash = await db.document.findFirst({
+        where: { contentHash },
+        select: { id: true, title: true },
+      })
+      if (byHash) {
+        return {
+          severity: 'exact',
+          existingId: byHash.id,
+          existingTitle: byHash.title,
+          message: `Документ с идентичным содержанием уже существует: "${byHash.title}"`,
+        }
       }
+    } catch {
+      // contentHash column may not exist — skip this level
     }
   }
 
