@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { Upload, FileText, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Upload, FileText, X, Loader2, CheckCircle2, AlertCircle, Sparkles, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,6 +13,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { TerminalFrame } from '@/components/codex/terminal-frame'
 import { useAppStore } from '@/lib/store'
 import type { Category } from '@/lib/types'
@@ -23,16 +33,26 @@ interface UploadViewProps {
   onTermsExtracted: () => void
 }
 
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error'
+type UploadStatus = 'idle' | 'uploading' | 'dedup-check' | 'auto-categorizing' | 'extracting-terms' | 'success' | 'error' | 'duplicate-exact' | 'duplicate-similar'
+
+interface DuplicateInfo {
+  existingId: string
+  existingTitle: string
+  message: string
+  severity: 'exact' | 'similar'
+}
 
 export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: UploadViewProps) {
   const { setView } = useAppStore()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [fileName, setFileName] = useState('')
-  const [categoryId, setCategoryId] = useState<string>('none')
+  const [categoryId, setCategoryId] = useState<string>('auto')
   const [status, setStatus] = useState<UploadStatus>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const [autoCategoryName, setAutoCategoryName] = useState<string | null>(null)
+  const [duplicateInfo, setDuplicateInfo] = useState<DuplicateInfo | null>(null)
+  const [createdDocId, setCreatedDocId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +78,8 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
 
     setStatus('uploading')
     setErrorMsg('')
+    setAutoCategoryName(null)
+    setDuplicateInfo(null)
 
     try {
       const res = await fetch('/api/documents', {
@@ -69,21 +91,66 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
           fileName: fileName || title.trim(),
           fileType: fileName.split('.').pop() || 'md',
           fileSize: new Blob([content]).size,
-          categoryId: categoryId !== 'none' ? categoryId : undefined,
+          categoryId: categoryId !== 'auto' && categoryId !== 'none' ? categoryId : undefined,
         }),
       })
+
+      if (res.status === 409) {
+        const data = await res.json()
+        if (data.severity === 'exact') {
+          setStatus('duplicate-exact')
+          setDuplicateInfo({
+            existingId: data.existingId,
+            existingTitle: data.existingTitle,
+            message: data.error,
+            severity: 'exact',
+          })
+          return
+        }
+        if (data.severity === 'similar') {
+          setStatus('duplicate-similar')
+          setDuplicateInfo({
+            existingId: data.existingId,
+            existingTitle: data.existingTitle,
+            message: data.error,
+            severity: 'similar',
+          })
+          return
+        }
+      }
 
       if (!res.ok) {
         const data = await res.json()
         throw new Error(data.error || 'Upload failed')
       }
 
-      setStatus('success')
-      onUploadSuccess()
+      const doc = await res.json()
+      setCreatedDocId(doc.id)
 
-      // Auto-extract terms
+      // Step 2: Auto-categorize if "auto" selected
+      if (categoryId === 'auto') {
+        setStatus('auto-categorizing')
+        try {
+          const catRes = await fetch('/api/documents/auto-categorize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ documentId: doc.id }),
+          })
+
+          if (catRes.ok) {
+            const catData = await catRes.json()
+            if (catData.autoAssigned && catData.category) {
+              setAutoCategoryName(catData.category.name)
+            }
+          }
+        } catch {
+          // Auto-categorization is optional, continue
+        }
+      }
+
+      // Step 3: Auto-extract terms
+      setStatus('extracting-terms')
       try {
-        const doc = await res.json()
         if (doc.id) {
           await fetch('/api/terms/extract', {
             method: 'POST',
@@ -96,15 +163,104 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
         // Term extraction is optional
       }
 
-      // Reset after brief success display
+      setStatus('success')
+      onUploadSuccess()
+
+      // Reset after success display
       setTimeout(() => {
         setTitle('')
         setContent('')
         setFileName('')
-        setCategoryId('none')
+        setCategoryId('auto')
         setStatus('idle')
+        setAutoCategoryName(null)
+        setDuplicateInfo(null)
+        setCreatedDocId(null)
         setView('documents')
-      }, 1500)
+      }, 2500)
+    } catch (err) {
+      setStatus('error')
+      setErrorMsg(err instanceof Error ? err.message : 'Upload failed')
+    }
+  }
+
+  const handleForceCreate = async () => {
+    if (!title.trim() || !content.trim()) return
+
+    setStatus('uploading')
+    setDuplicateInfo(null)
+
+    try {
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim(),
+          fileName: fileName || title.trim(),
+          fileType: fileName.split('.').pop() || 'md',
+          fileSize: new Blob([content]).size,
+          categoryId: categoryId !== 'auto' && categoryId !== 'none' ? categoryId : undefined,
+          forceCreate: true,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Upload failed')
+      }
+
+      const doc = await res.json()
+      setCreatedDocId(doc.id)
+
+      // Auto-categorize
+      if (categoryId === 'auto') {
+        setStatus('auto-categorizing')
+        try {
+          const catRes = await fetch('/api/documents/auto-categorize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ documentId: doc.id }),
+          })
+
+          if (catRes.ok) {
+            const catData = await catRes.json()
+            if (catData.autoAssigned && catData.category) {
+              setAutoCategoryName(catData.category.name)
+            }
+          }
+        } catch {
+          // Optional
+        }
+      }
+
+      // Extract terms
+      setStatus('extracting-terms')
+      try {
+        await fetch('/api/terms/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ documentId: doc.id }),
+        })
+        onTermsExtracted()
+      } catch {
+        // Optional
+      }
+
+      setStatus('success')
+      onUploadSuccess()
+
+      setTimeout(() => {
+        setTitle('')
+        setContent('')
+        setFileName('')
+        setCategoryId('auto')
+        setStatus('idle')
+        setAutoCategoryName(null)
+        setDuplicateInfo(null)
+        setCreatedDocId(null)
+        setView('documents')
+      }, 2500)
     } catch (err) {
       setStatus('error')
       setErrorMsg(err instanceof Error ? err.message : 'Upload failed')
@@ -115,11 +271,39 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
     setTitle('')
     setContent('')
     setFileName('')
-    setCategoryId('none')
+    setCategoryId('auto')
     setStatus('idle')
     setErrorMsg('')
+    setAutoCategoryName(null)
+    setDuplicateInfo(null)
+    setCreatedDocId(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
+
+  const statusMessage = () => {
+    switch (status) {
+      case 'dedup-check':
+        return { icon: <Shield className="size-4 animate-pulse" />, text: 'Проверка на дубликаты...', color: 'text-amber-600' }
+      case 'auto-categorizing':
+        return { icon: <Sparkles className="size-4 animate-pulse" />, text: 'AI определяет категорию...', color: 'text-violet-600' }
+      case 'extracting-terms':
+        return { icon: <Loader2 className="size-4 animate-spin" />, text: 'Извлечение терминов...', color: 'text-terminal-accent' }
+      case 'success':
+        return {
+          icon: <CheckCircle2 className="size-4" />,
+          text: autoCategoryName
+            ? `Загружено! AI категория: ${autoCategoryName}`
+            : 'Документ загружен успешно!',
+          color: 'text-emerald-600',
+        }
+      case 'error':
+        return { icon: <AlertCircle className="size-4" />, text: errorMsg, color: 'text-destructive' }
+      default:
+        return null
+    }
+  }
+
+  const sm = statusMessage()
 
   return (
     <TerminalFrame title="upload" className="m-3 sm:m-4 md:m-6">
@@ -171,18 +355,36 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
             />
           </div>
 
-          {/* Category */}
+          {/* Category — with auto option */}
           <div className="flex flex-col gap-1.5">
-            <Label>Категория</Label>
+            <Label className="flex items-center gap-2">
+              Категория
+              <span className="text-xs text-violet-500 font-normal flex items-center gap-1">
+                <Sparkles className="size-3" />
+                AI автоматически определит
+              </span>
+            </Label>
             <Select value={categoryId} onValueChange={setCategoryId}>
               <SelectTrigger>
-                <SelectValue placeholder="Без категории" />
+                <SelectValue placeholder="Авто-определение" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="auto">
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="size-3.5 text-violet-500" />
+                    Авто (AI определит)
+                  </span>
+                </SelectItem>
                 <SelectItem value="none">Без категории</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="size-2.5 rounded-full inline-block"
+                        style={{ backgroundColor: cat.color }}
+                      />
+                      {cat.name}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -203,16 +405,22 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
           </div>
 
           {/* Status message */}
-          {status === 'success' && (
-            <div className="flex items-center gap-2 p-3 rounded-md bg-terminal-accent/10 text-terminal-accent">
-              <CheckCircle2 className="size-4" />
-              <span className="text-sm">Документ загружен успешно!</span>
+          {sm && (
+            <div className={`flex items-center gap-2 p-3 rounded-md ${
+              status === 'success' ? 'bg-emerald-500/10' :
+              status === 'error' ? 'bg-destructive/10' :
+              'bg-violet-500/10'
+            } ${sm.color}`}>
+              {sm.icon}
+              <span className="text-sm">{sm.text}</span>
             </div>
           )}
-          {status === 'error' && (
-            <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive">
-              <AlertCircle className="size-4" />
-              <span className="text-sm">{errorMsg}</span>
+
+          {/* Dedup protection badge */}
+          {status === 'idle' && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Shield className="size-3.5" />
+              <span>Защита от дубликатов: по заголовку, хешу контента и семантическому сходству</span>
             </div>
           )}
 
@@ -220,7 +428,7 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
           <div className="flex items-center gap-3">
             <Button
               type="submit"
-              disabled={status === 'uploading' || !title.trim() || !content.trim()}
+              disabled={status !== 'idle' && status !== 'duplicate-similar' && status !== 'duplicate-exact' || !title.trim() || !content.trim()}
               className="gap-2"
             >
               {status === 'uploading' ? (
@@ -235,6 +443,60 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
             </Button>
           </div>
         </form>
+
+        {/* Duplicate alert dialog — similar content */}
+        <AlertDialog open={status === 'duplicate-similar'}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <AlertCircle className="size-5 text-amber-500" />
+                Обнаружен похожий документ
+              </AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2">
+                  <p>{duplicateInfo?.message}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Документ может быть дубликатом с небольшими изменениями.
+                    Создать всё равно?
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => { setStatus('idle'); setDuplicateInfo(null) }}>
+                Отмена
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleForceCreate} className="bg-amber-600 hover:bg-amber-700">
+                Создать всё равно
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Duplicate alert dialog — exact match */}
+        <AlertDialog open={status === 'duplicate-exact'}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <Shield className="size-5 text-destructive" />
+                Документ уже существует
+              </AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2">
+                  <p>{duplicateInfo?.message}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Точное совпадение по заголовку или содержанию. Загрузка невозможна.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => { setStatus('idle'); setDuplicateInfo(null) }}>
+                Понятно
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </TerminalFrame>
   )

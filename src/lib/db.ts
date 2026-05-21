@@ -1,12 +1,5 @@
 import { PrismaClient } from '@prisma/client'
 
-// Runtime-валидация окружения
-const requiredEnvVars = ['DATABASE_URL'] as const
-const missing = requiredEnvVars.filter(key => !process.env[key])
-if (missing.length > 0) {
-  console.warn(`[WARN] Missing env vars: ${missing.join(', ')}.`)
-}
-
 /**
  * Prisma Client singleton for both development and serverless (Vercel).
  *
