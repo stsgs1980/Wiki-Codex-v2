@@ -26,7 +26,7 @@ interface DocumentViewModeProps {
   doc: Document
   isAnalyzing: boolean
   analysis: AIAnalysis | null
-  isSaving: boolean
+  isApplying: boolean
   relatedDocs: RelatedDocument[]
   isRelatedLoading: boolean
   relatedFetched: boolean
@@ -45,7 +45,7 @@ interface DocumentViewModeProps {
 }
 
 export function DocumentViewMode({
-  doc, isAnalyzing, analysis, isSaving,
+  doc, isAnalyzing, analysis, isApplying,
   relatedDocs, isRelatedLoading, relatedFetched,
   showDeleteDialog, setShowDeleteDialog,
   onStar, onDelete, onAnalyze, onApplyAnalysis,
@@ -138,8 +138,8 @@ export function DocumentViewMode({
             analyze
           </Button>
           {analysis && !isAnalyzing && (
-            <Button variant="outline" size="sm" onClick={onApplyAnalysis} disabled={isSaving} className="gap-1.5 text-xs h-6 font-mono">
-              {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
+            <Button variant="outline" size="sm" onClick={onApplyAnalysis} disabled={isApplying} className="gap-1.5 text-xs h-6 font-mono">
+              {isApplying ? <Loader2 className="size-3 animate-spin" /> : <Check className="size-3" />}
               apply
             </Button>
           )}

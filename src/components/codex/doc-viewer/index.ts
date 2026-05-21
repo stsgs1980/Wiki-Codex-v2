@@ -1,2 +1,5 @@
 export { DocumentViewer } from './document-viewer'
 export type { RelatedDocument, DocumentViewerProps } from './types'
+export { useDocumentEdit } from './use-document-edit'
+export { useDocumentAnalysis } from './use-document-analysis'
+export { useRelatedDocuments } from './use-related-documents'

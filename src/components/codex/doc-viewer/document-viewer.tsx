@@ -13,7 +13,7 @@ export function DocumentViewer(props: DocumentViewerProps) {
     editContent, setEditContent,
     editCategoryId, setEditCategoryId,
     showDeleteDialog, setShowDeleteDialog,
-    isAnalyzing, analysis, isSaving,
+    isAnalyzing, analysis, isSaving, isApplying,
     relatedDocs, isRelatedLoading, relatedFetched,
     handleStar, handleDelete, handleSave,
     handleAnalyze, handleApplyAnalysis,
@@ -44,7 +44,7 @@ export function DocumentViewer(props: DocumentViewerProps) {
       doc={doc}
       isAnalyzing={isAnalyzing}
       analysis={analysis}
-      isSaving={isSaving}
+      isApplying={isApplying}
       relatedDocs={relatedDocs}
       isRelatedLoading={isRelatedLoading}
       relatedFetched={relatedFetched}
