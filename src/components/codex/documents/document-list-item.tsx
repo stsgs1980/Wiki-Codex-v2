@@ -1,21 +1,11 @@
 'use client'
 
-import { Star, FileText, File } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { motion } from 'framer-motion'
 import { staggerItem, listItemHover } from '@/lib/motion'
 import type { Document } from '@/lib/types'
-
-function getFileIcon(fileType: string) {
-  switch (fileType) {
-    case 'md':
-      return <FileText className="size-5 text-muted-foreground" />
-    case 'html':
-      return <FileText className="size-5 text-muted-foreground" />
-    default:
-      return <File className="size-5 text-muted-foreground" />
-  }
-}
+import { getFileIcon } from './file-icon'
 
 interface DocumentListItemProps {
   doc: Document

@@ -86,8 +86,8 @@ export function CategoryDialogForm({ dialog }: { dialog: CategoryDialogState }) 
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <div
-                        className="size-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: cat.color }}
+                        className="size-2.5 rounded-full shrink-0 tag-color-bg"
+                        style={{ '--tag-color': cat.color } as React.CSSProperties}
                       />
                       <span className="text-sm font-semibold truncate leading-tight">{cat.name}</span>
                     </div>

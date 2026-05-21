@@ -30,7 +30,7 @@ export function CopyableCodeBlock({ label, code, accentColor }: { label: string;
         <div className="flex items-center gap-2">
           <span
             className="size-2 rounded-full shrink-0"
-            style={{ backgroundColor: accentColor ? accentColor + '99' : 'var(--muted-foreground)' }}
+            style={{ backgroundColor: accentColor ? `color-mix(in srgb, ${accentColor} 60%, transparent)` : 'var(--muted-foreground)' }}
           />
           <span className="text-[11px] font-mono font-medium text-muted-foreground">{label}</span>
         </div>

@@ -148,7 +148,7 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     <span className="flex items-center gap-2">
-                      <span className="size-2.5 rounded-full inline-block" style={{ backgroundColor: cat.color }} />
+                      <span className="size-2.5 rounded-full inline-block tag-color-bg" style={{ '--tag-color': cat.color } as React.CSSProperties} />
                       {cat.name}
                     </span>
                   </SelectItem>

@@ -19,10 +19,7 @@ import { useToast } from '@/hooks/use-toast'
 import { StepCard } from './step-card'
 import type { TemplateGroup } from './types'
 
-/** Build a CSS color with alpha from a var() color token using color-mix */
-function withAlpha(color: string, alpha: number): string {
-  return `color-mix(in srgb, ${color} ${alpha}%, transparent)`
-}
+import { withAlpha } from '@/lib/color-utils'
 
 export function TemplateCard({ group, defaultExpanded = false, onHide }: { group: TemplateGroup; defaultExpanded?: boolean; onHide?: (id: string) => void }) {
   const [expanded, setExpanded] = useState(defaultExpanded)

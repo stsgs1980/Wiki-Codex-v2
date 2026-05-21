@@ -8,10 +8,7 @@ import { StepCallout } from './step-callout'
 import { CopyableCodeBlock } from './copyable-code-block'
 import type { Step } from './types'
 
-/** Build a CSS color with alpha from a var() color token using color-mix */
-function withAlpha(color: string, alpha: number): string {
-  return `color-mix(in srgb, ${color} ${alpha}%, transparent)`
-}
+import { withAlpha } from '@/lib/color-utils'
 
 export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNumber: number; groupColor: string }) {
   const [expanded, setExpanded] = useState(true)

@@ -147,18 +147,18 @@ export function DashboardView({
                     className="flex items-center gap-2"
                   >
                     <span
-                      className="size-2 rounded-full shrink-0"
-                      style={{ backgroundColor: cat.color }}
+                      className="size-2 rounded-full shrink-0 tag-color-bg"
+                      style={{ '--tag-color': cat.color } as React.CSSProperties}
                     />
                     <span className="text-xs font-sans truncate min-w-0 flex-1">{cat.name}</span>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <div
-                        className="h-1.5 rounded-full"
+                        className="h-1.5 rounded-full tag-color-bg"
                         style={{
+                          '--tag-color': cat.color,
                           width: `${Math.max(24, (cat.count / maxCatCount) * 80)}px`,
-                          backgroundColor: cat.color,
                           opacity: 0.6,
-                        }}
+                        } as React.CSSProperties}
                       />
                       <span className="text-[10px] font-mono text-muted-foreground tabular-nums w-5 text-right">{cat.count}</span>
                     </div>

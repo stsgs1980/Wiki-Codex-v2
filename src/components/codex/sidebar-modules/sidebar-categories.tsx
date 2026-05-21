@@ -88,8 +88,8 @@ export function SidebarCategories({
               title={cat.name}
             >
               <div
-                className="size-2.5 rounded-full shrink-0"
-                style={{ backgroundColor: cat.color }}
+                className="size-2.5 rounded-full shrink-0 tag-color-bg"
+                style={{ '--tag-color': cat.color } as React.CSSProperties}
               />
               {!isCollapsed && (
                 <>

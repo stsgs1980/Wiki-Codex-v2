@@ -80,7 +80,7 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
         <div className="flex items-center gap-2">
           {selectedTagId && (
             <Badge variant="secondary" className="gap-1.5">
-              <span className="size-2 rounded-full tag-color-bg" style={{ '--tag-color': tags.find((t) => t.id === selectedTagId)?.color || 'var(--muted-foreground)', backgroundColor: tags.find((t) => t.id === selectedTagId)?.color || 'var(--muted-foreground)' } as React.CSSProperties} />
+              <span className="size-2 rounded-full tag-color-bg" style={{ '--tag-color': tags.find((t) => t.id === selectedTagId)?.color || 'var(--muted-foreground)' } as React.CSSProperties} />
               {tags.find((t) => t.id === selectedTagId)?.name || 'Тег'}
             </Badge>
           )}
