@@ -19,6 +19,7 @@ import type { Note } from '@/lib/types'
 import { formatDate } from '@/lib/format'
 import { TerminalFrame } from '@/components/codex/terminal-frame'
 import { staggerContainer, staggerItem, listItemHover } from '@/lib/motion'
+import { renderTextTags } from '@/components/codex/doc-viewer/text-tags'
 
 interface NotesViewProps {
   notes: Note[]
@@ -68,7 +69,7 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
           </AlertDialog>
         </div>
         {note.content && (
-          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-0.5 font-sans">{preview}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-0.5 font-sans">{renderTextTags(preview)}</p>
         )}
         <span className="text-[10px] text-muted-foreground/80 mt-1 inline-block">
           {formatDate(note.updatedAt)}
