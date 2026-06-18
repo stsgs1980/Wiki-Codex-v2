@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Allows cross-domain requests to dev server from sandbox preview panel.
+  // Without this, browser on chatglm.site/space-z.ai blocks requests to localhost:3000,
+  // causing 502 Bad Gateway in the Z.ai sandbox preview.
+  allowedDevOrigins: ['*'],
   experimental: {
     optimizePackageImports: [
       'lucide-react',
