@@ -202,10 +202,28 @@
 
 /* Override SyntaxHighlighter inline background */
 .prose div[class*="prism"] {
-  background-color: var(--muted) !important;
-  border-radius: 0.5rem;
+  background-color: transparent !important;
+  border-radius: 0;
   max-width: 100%;
   overflow-x: auto !important;
+}
+
+/* Terminal-themed syntax highlighting blocks — keep background transparent
+   so the card background shows through; token colors come from the theme
+   object (syntax-theme.ts) using CSS variables. */
+.prose .syntax-terminal {
+  background: transparent !important;
+}
+.prose .syntax-terminal code,
+.prose .syntax-terminal pre {
+  background: transparent !important;
+  font-family: var(--font-geist-mono), ui-monospace, monospace !important;
+}
+
+/* Ensure token spans inherit the color from inline style (prose might override) */
+.prose .syntax-terminal span[class*="token"],
+.prose .syntax-terminal span.token {
+  background: transparent !important;
 }
 
 .prose pre > code {

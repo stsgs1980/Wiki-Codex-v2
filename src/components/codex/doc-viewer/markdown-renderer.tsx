@@ -1,10 +1,8 @@
 'use client'
 
-import { useState, useCallback, useSyncExternalStore, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 // Only register languages we actually need — avoids importing all 400+ Prism languages
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash'
 import css from 'react-syntax-highlighter/dist/esm/languages/prism/css'
@@ -17,9 +15,10 @@ import sql from 'react-syntax-highlighter/dist/esm/languages/prism/sql'
 import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml'
 import docker from 'react-syntax-highlighter/dist/esm/languages/prism/docker'
 import nginx from 'react-syntax-highlighter/dist/esm/languages/prism/nginx'
-import { useTheme } from 'next-themes'
+import diff from 'react-syntax-highlighter/dist/esm/languages/prism/diff'
 import { Check, Copy } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { terminalSyntaxTheme } from './syntax-theme'
 
 // Register only the languages we need
 SyntaxHighlighter.registerLanguage('bash', bash)
@@ -43,6 +42,8 @@ SyntaxHighlighter.registerLanguage('yml', yaml)
 SyntaxHighlighter.registerLanguage('docker', docker)
 SyntaxHighlighter.registerLanguage('dockerfile', docker)
 SyntaxHighlighter.registerLanguage('nginx', nginx)
+SyntaxHighlighter.registerLanguage('diff', diff)
+SyntaxHighlighter.registerLanguage('patch', diff)
 
 interface MarkdownContentProps {
   content: string
@@ -118,8 +119,6 @@ const TAG_LABELS: Record<string, string> = {
 
 export function MarkdownContent({ content }: MarkdownContentProps) {
   const { toast } = useToast()
-  const { theme } = useTheme()
-  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false)
   const [copiedBlockId, setCopiedBlockId] = useState<string | null>(null)
 
   const { body, signature } = useMemo(() => extractStackSignature(content), [content])
@@ -202,11 +201,12 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
                   </button>
                 </div>
                 <SyntaxHighlighter
-                  style={mounted && theme === 'dark' ? oneDark : oneLight}
+                  style={terminalSyntaxTheme}
                   language={lang || 'text'}
                   PreTag="div"
-                  className="!mt-0 !rounded-none text-xs md:text-sm"
-                  customStyle={{ overflowX: 'auto', margin: 0, background: 'transparent' }}
+                  className="!mt-0 !rounded-none text-xs md:text-sm syntax-terminal"
+                  customStyle={{ overflowX: 'auto', margin: 0, padding: '0.75rem 1rem', background: 'transparent' }}
+                  codeTagProps={{ style: { fontFamily: 'inherit' } }}
                 >
                   {codeText}
                 </SyntaxHighlighter>
