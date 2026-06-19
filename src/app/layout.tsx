@@ -15,7 +15,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wiki Codex -- Интеллектуальная база знаний для разработчиков",
+  metadataBase: new URL("http://localhost:3000"),
+  title: "Wiki Codex — Интеллектуальная база знаний для разработчиков",
   description: "Современная база знаний разработчика для управления документацией, фрагментами кода и техническими заметками с AI-анализом.",
   keywords: ["база знаний", "разработчик", "документация", "markdown", "фрагменты кода", "NEURO"],
   authors: [{ name: "Wiki Codex Team" }],

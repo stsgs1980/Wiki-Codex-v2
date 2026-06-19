@@ -76,7 +76,6 @@ export function FolderInput({ onSelect, disabled }: FolderInputProps) {
       <input
         type="file"
         id="upload-folder-input"
-        // @ts-expect-error — webkitdirectory is not in React's default attrs (declared in folder-input-types.d.ts)
         webkitdirectory=""
         directory=""
         multiple

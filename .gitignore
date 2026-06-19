@@ -60,6 +60,7 @@ worklog.md
 CLAUDE.md
 AGENT_RULES.md
 PROJECT_CONFIG.md
+tool-results/
 
 # Runtime / generated
 db/*.db
