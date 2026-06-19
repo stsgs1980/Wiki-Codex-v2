@@ -63,6 +63,7 @@ PROJECT_CONFIG.md
 
 # Runtime / generated
 db/*.db
+db/*.db-journal
 db/backups/
 download/
 /upload/
@@ -70,3 +71,9 @@ download/
 *.bak
 *.tmp
 *.old
+
+# Prisma local databases (SQLite dev artifacts — never commit real data)
+prisma/*.db
+prisma/*.db-journal
+prisma/dev.db
+prisma/prod.db
