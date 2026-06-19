@@ -39,6 +39,9 @@
 - [ADR-015 — Sticky footer через min-h-screen flex flex-col + mt-auto](#adr-015--sticky-footer-через-minhscreen-flex-flexcol--mtauto)
 - [ADR-016 — Semantic цветовые токены, не хардкод hex/HSL](#adr-016--semantic-цветовые-токены-не-хардкод-hexhsl)
 
+### Загрузка и экспорт данных
+- [ADR-018 — Экспорт словаря терминов в Markdown и AsciiDoc](#adr-018--экспорт-словаря-терминов-в-markdown-и-asciidoc)
+
 ### Инфраструктура
 - [ADR-017 — gitignore для локальных артефактов агентов](#adr-017--gitignore-для-локальных-артефактов-агентов)
 
@@ -538,6 +541,58 @@ Tailwind-паттерн:
 
 ---
 
+## Загрузка и экспорт данных
+
+### ADR-018 — Экспорт словаря терминов в Markdown и AsciiDoc
+
+**Статус:** Принято
+**Дата:** 2026-06-19
+**Связанные файлы:** `src/app/api/terms/export/route.ts`, `_lib/{fetch,formats,shared}.ts`, `src/components/codex/dictionary/term-export-menu.tsx`
+
+#### Контекст
+Словарь терминов — накопленный командой актив. Пользоватьителям нужен был способ забрать его целиком для:
+- офлайн-чтения в editors/viewers (VS Code, Obsidian)
+- встраивания в статическую документацию (Antora, AsciiDoctor, GitBook)
+- бэкапа вне БД
+- шеринга с командами, у которых нет доступа к Wiki Codex
+
+Раньше единственный способ — копировать каждый термин вручную (по 3 поля: term/translation/explanation).
+
+#### Решение
+**Backend:** `GET /api/terms/export?format=markdown|adoc`
+- Возвращает файл с `Content-Disposition: attachment; filename="glossary-YYYY-MM-DD.{md|adoc}"`
+- Игнорирует текущие фильтры поиска (полный snapshot словаря)
+- Сортировка по алфавиту, case-insensitive (`localeCompare ru sensitivity:base`)
+- 404 если словарь пуст
+- Unknown format → fallback на markdown (lenient)
+
+**Форматы:**
+- **Markdown (.md)** — GFM: `# Заголовок` / `## A` (A-Z секции) / `### Term` / `**Перевод:**` / `*Пример:*` / `*Источник:* doc · *Добавлено:* date`
+- **AsciiDoc (.adoc)** — `= Title` / `:toc: left :toclevels: 2` / `== A` / `=== Term` / `Перевод::` (definition list) / `[sidebar]--` block для meta
+
+**Frontend:** `TermExportMenu` dropdown в `dictionary-view-header-actions.tsx`
+- Без новой ui-зависимости (popover) — простой `useState` + click-outside listener
+- A11y: `aria-expanded`, `aria-haspopup="menu"`, `role="menuitem"` на пунктах, Escape-to-close, focus-return на trigger
+- Disabled когда `termsCount === 0`
+
+**R-02 split** (4 файла, все ≤150 строк):
+- `route.ts` (54) — тонкий handler
+- `_lib/fetch.ts` (26) — `fetchTermsForExport()`
+- `_lib/formats.ts` (140) — `toMarkdown()` + `toAsciiDoc()`
+- `_lib/shared.ts` (42) — helpers (`firstLetter`, `isoDate`, `pluralTerms`) + `ExportTerm` type
+
+#### Последствия
+- **+** Пользователи получают весь словарь одним кликом
+- **+** Два формата покрывают 95% use-cases (GitHub README → MD; Antora/enterprise docs → ADOC)
+- **+** Russian plural rules (`1 термин` / `2 термина` / `5 терминов`) — корректная грамматика в шапке файла
+- **+** A-Z секции дают навигацию в любом markdown-viewer
+- **+** Источник-документ cited в каждом термине (traceability)
+- **−** Export всегда полный (без фильтров) — если нужно отфильтрованное, нужен отдельный endpoint (пока не запрошено)
+- **−** Custom dropdown вместо shadcn Popover — но это сознательно, чтобы не тянуть +1 зависимость ради одной кнопки
+- **−** `formats.ts` на 140 строк (близко к лимиту) — если добавится 3-й формат (reST, LaTeX), надо будет split по одному файлу на формат
+
+---
+
 ## Инфраструктура
 
 ### ADR-017 — gitignore для локальных артефактов агентов
@@ -592,3 +647,4 @@ prisma/prod.db
 | Дата | Автор | Изменение |
 |------|-------|-----------|
 | 2026-06-19 | Z.ai Code (main agent) | Создан документ. 17 ADR-записей на основе worklog.md (1210 строк) и git-истории. |
+| 2026-06-19 | Z.ai Code (main agent) | Добавлен ADR-018 — экспорт словаря терминов в Markdown и AsciiDoc (новая секция «Загрузка и экспорт данных»). |

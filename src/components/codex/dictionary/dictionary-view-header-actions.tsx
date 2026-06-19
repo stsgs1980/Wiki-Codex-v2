@@ -3,6 +3,7 @@
 import { Sparkles, Loader2, CheckSquare, Square } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { TermExportMenu } from './term-export-menu'
 
 interface DictionaryViewHeaderActionsProps {
   isLoading: boolean
@@ -40,6 +41,9 @@ export function DictionaryViewHeaderActions({
         {isExtracting ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
         extract
       </Button>
+      {!isLoading && termsCount > 0 && (
+        <TermExportMenu termsCount={termsCount} />
+      )}
       {!isLoading && termsCount > 0 && (
         <Badge variant="secondary" className="text-3xs font-mono px-1.5 py-0">{termsCount}</Badge>
       )}
