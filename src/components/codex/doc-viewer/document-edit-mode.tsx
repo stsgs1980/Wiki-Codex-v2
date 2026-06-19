@@ -22,6 +22,7 @@ interface DocumentEditModeProps {
   editCategoryId: string
   setEditCategoryId: (v: string) => void
   categories: Category[]
+  fileType: string
   isSaving: boolean
   onSave: () => void
   onCancel: () => void
@@ -35,10 +36,15 @@ export function DocumentEditMode({
   editCategoryId,
   setEditCategoryId,
   categories,
+  fileType,
   isSaving,
   onSave,
   onCancel,
 }: DocumentEditModeProps) {
+  const isAdoc = fileType === 'adoc'
+  const formatLabel = isAdoc ? 'AsciiDoc' : 'Markdown'
+  const placeholder = isAdoc ? 'asciidoc... (= Заголовок, == Секция, :toc: left)' : 'markdown...'
+
   return (
     <TerminalFrame title="document/edit" className="m-3 sm:m-4 md:m-6 max-w-4xl mx-auto" headerRight={
       <div className="flex items-center gap-1.5">
@@ -75,12 +81,16 @@ export function DocumentEditMode({
               ))}
             </SelectContent>
           </Select>
+          <span className="ml-auto text-3xs font-mono text-muted-foreground uppercase tracking-wider">
+            {formatLabel}
+          </span>
         </div>
         <Textarea
           value={editContent}
           onChange={(e) => setEditContent(e.target.value)}
           className="min-h-[500px] font-mono text-sm resize-y"
-          placeholder="markdown..."
+          placeholder={placeholder}
+          aria-label={`Содержание документа (${formatLabel})`}
         />
       </div>
     </TerminalFrame>

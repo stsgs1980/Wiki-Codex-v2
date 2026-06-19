@@ -41,6 +41,7 @@
 
 ### Загрузка и экспорт данных
 - [ADR-018 — Экспорт словаря терминов в Markdown и AsciiDoc](#adr-018--экспорт-словаря-терминов-в-markdown-и-asciidoc)
+- [ADR-019 — AsciiDoc как first-class citizen: загрузка, хранение, отдельный рендерер](#adr-019--asciidoc-как-first-class-citizen-загрузка-хранение-отдельный-рендерер)
 
 ### Инфраструктура
 - [ADR-017 — gitignore для локальных артефактов агентов](#adr-017--gitignore-для-локальных-артефактов-агентов)
@@ -593,6 +594,80 @@ Tailwind-паттерн:
 
 ---
 
+### ADR-019 — AsciiDoc как first-class citizen: загрузка, хранение, отдельный рендерер
+
+**Статус:** Принято
+**Дата:** 2026-06-19
+**Связанные файлы:** `src/components/codex/doc-viewer/{document-content,asciidoc-renderer,asciidoc-processor}.tsx/ts`, `src/lib/validations.ts`, `src/components/codex/upload/{folder-input,upload-form-fields,submit-document}.tsx/ts`, `src/app/globals.css`
+
+#### Контекст
+После ADR-018 (экспорт словаря в .adoc) возникла асимметрия: Wiki Codex мог **генерировать** .adoc, но не мог **читать** его. AsciiDoc-синтаксис (`= H1`, `:toc:`, `Perевод::`, `[sidebar]--`) рендерился как literal text через react-markdown — получалась каша. Запрос пользователя: сделать .adoc полноценным форматом наравне с .md.
+
+#### Решение
+**Полноценная поддержка .adoc через 3 уровня:**
+
+1. **Upload pipeline** — `.adoc` добавлен в:
+   - `validations.ts` zod enum `fileType`
+   - `folder-input.tsx` `ACCEPTED_TEXT_EXT`
+   - `submit-document.ts` `validTypes` Set
+   - `upload-form-fields.tsx` `accept` attribute + UI hint
+
+2. **Хранение** — без schema-миграций. Поле `content` хранит оригинал (для adoc — `= Title...`, для md — `# Title...`). Поле `fileType` указывает формат. Симметрично для обоих.
+
+3. **Рендерер** — `DocumentContent` router-компонент:
+   ```tsx
+   if (doc.fileType === 'adoc') return <AsciiDocContent content={doc.content} />
+   return <MarkdownContent content={doc.content} />
+   ```
+   - `AsciiDocContent` через `asciidoctor.js` (lazy-loaded, ~2MB, cached после первого .adoc view)
+   - `safe: 'secure'` режим — блокирует include macros, data-uri embedding
+   - `useReducer` state machine (loading/success/error) — обходит `react-hooks/set-state-in-effect` lint rule
+   - Стили `.asciidoc-body` в `globals.css` — terminal-themed look, идентичный `.prose` для MD (h1-h6, tables, code blocks, admonitions, sidebars, blockquotes)
+
+**R-02 split** (5 файлов, все ≤150 строк):
+- `asciidoc-processor.ts` (60) — lazy singleton + `convertAdoc()`
+- `asciidoc-renderer.tsx` (110) — React component (useReducer state machine)
+- `document-content.tsx` (34) — router по fileType
+- `document-edit-mode.tsx` (98) — добавлен `fileType` prop, динамический placeholder/label
+- `document-view-mode.tsx` (115) — использует DocumentContent вместо прямого MarkdownContent
+
+#### Архитектурные решения
+
+**Почему asciidoctor.js, а не конвертация adoc→md при upload?**
+- Сохранение оригинала: пользователь редактирует .adoc, а не сконвертированный markdown
+- Round-trip fidelity: экспорт (ADR-018) и чтение используют один формат
+- asciidoctor.js — official port Ruby AsciiDoctor, используется в Antora/GitBook
+
+**Почему lazy-load?**
+- asciidoctor.js ~2MB — не должен быть в initial bundle
+- MD-документы (большинство) не платят за adoc-рендерер
+- После первой загрузки — cached в module singleton
+
+**Почему `dangerouslySetInnerHTML`, а не React-компоненты?**
+- asciidoctor.js выводит semantic HTML (h1, p, table, .admonitionblock) — конвертировать в React-дерево было бы expensive и lossy
+- HTML trusted: `safe: 'secure'` блокирует XSS-векторы, input из authenticated document content
+- Стили через `.asciidoc-body` CSS-класс — scoped, не конфликтует с .prose
+
+#### Последствия
+- **+** .adoc работает симметрично с .md — upload, edit, view, export
+- **+** MD не изменён (router fallback) — нулевая регрессия
+- **+** Filetype-badge в UI показывает `ADOC` / `MD` — пользователь видит формат
+- **+** Edit-mode показывает placeholder и label в зависимости от формата
+- **+** Архитектура готова для 3-го формата (reST, org-mode) — просто добавить ветку в router
+- **+** Стили .asciidoc-body переиспользуют те же CSS-переменные (terminal-themed) — визуальная консистентность
+- **−** +1 dependency (`asciidoctor` + `@asciidoctor/core`) ~2MB — но lazy-loaded, не влияет на initial load
+- **−** Первый просмотр .adoc-документа имеет ~200ms задержку на загрузку asciidoctor.js (последующие — мгновенно, cached)
+- **−** `dangerouslySetInnerHTML` — потенциальный XSS-вектор, но mitigated через `safe: 'secure'` + trusted input source
+- **−** Edit-mode для .adoc не имеет preview (как и для .md) — это отдельная фича (живой preview), не в scope
+
+#### Verification (Agent Browser)
+- Загружен `test-upload.adoc` через UI → документ создан с `fileType='adoc'`, контент сохранён как оригинал
+- Открыт в doc-viewer → `.asciidoc-body` отрендерен: H1, H2, NOTE admonition, list — все видны
+- VLM подтвердил: таблица 3×4 с границами, admonition blocks с labels (NOTE/WARNING/TIP), TOC слева
+- Регрессия MD: открыт `AGENT_RULES` (md) → `.prose` рендерит 8 таблиц, `.asciidoc-body` отсутствует — router корректен
+
+---
+
 ## Инфраструктура
 
 ### ADR-017 — gitignore для локальных артефактов агентов
@@ -648,3 +723,4 @@ prisma/prod.db
 |------|-------|-----------|
 | 2026-06-19 | Z.ai Code (main agent) | Создан документ. 17 ADR-записей на основе worklog.md (1210 строк) и git-истории. |
 | 2026-06-19 | Z.ai Code (main agent) | Добавлен ADR-018 — экспорт словаря терминов в Markdown и AsciiDoc (новая секция «Загрузка и экспорт данных»). |
+| 2026-06-19 | Z.ai Code (main agent) | Добавлен ADR-019 — AsciiDoc как first-class citizen: загрузка, хранение оригинала, отдельный рендерер через asciidoctor.js (lazy-loaded). |

@@ -355,3 +355,185 @@
 .tag-color-border {
   border-color: var(--tag-color);
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   AsciiDoc rendering — scoped styles for .asciidoc-body
+   asciidoctor.js outputs semantic HTML (h1-h6, p, ul, ol, table, pre,
+   blockquote, .admonitionblock, .listingblock, .sidebarblock). We map
+   these to the same terminal-themed look as .prose so .md and .adoc
+   documents share a visual language.
+   ──────────────────────────────────────────────────────────────────────── */
+.asciidoc-body {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+}
+
+.asciidoc-body h1,
+.asciidoc-body h2,
+.asciidoc-body h3,
+.asciidoc-body h4,
+.asciidoc-body h5,
+.asciidoc-body h6 {
+  color: var(--foreground);
+  font-weight: 600;
+  font-family: var(--font-geist-mono), monospace;
+  line-height: 1.3;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.asciidoc-body h1 { font-size: 1.5rem; }
+.asciidoc-body h2 { font-size: 1.25rem; }
+.asciidoc-body h3 { font-size: 1.125rem; }
+.asciidoc-body h4,
+.asciidoc-body h5,
+.asciidoc-body h6 { font-size: 1rem; }
+
+.asciidoc-body p {
+  margin-bottom: 1rem;
+}
+
+.asciidoc-body a {
+  color: var(--neuro-brand);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--neuro-brand) 40%, transparent);
+  word-break: break-all;
+}
+.asciidoc-body a:hover {
+  text-decoration-color: var(--neuro-brand);
+}
+
+.asciidoc-body ul,
+.asciidoc-body ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+.asciidoc-body ul { list-style: '- '; }
+.asciidoc-body ol { list-style: decimal; }
+.asciidoc-body li { margin-bottom: 0.25rem; }
+
+.asciidoc-body code {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.85em;
+}
+.asciidoc-body p > code,
+.asciidoc-body li > code {
+  background-color: var(--muted);
+  color: var(--foreground);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.asciidoc-body pre {
+  background-color: var(--muted);
+  color: var(--foreground);
+  padding: 0.875rem 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  margin: 0.75rem 0 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.asciidoc-body pre code {
+  background: transparent;
+  padding: 0;
+  white-space: pre !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+.asciidoc-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+.asciidoc-body thead {
+  border-bottom: 1px solid var(--border);
+}
+.asciidoc-body th {
+  background-color: color-mix(in srgb, var(--muted) 60%, transparent);
+  color: var(--foreground);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+}
+.asciidoc-body td {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  vertical-align: top;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+}
+.asciidoc-body tbody tr:nth-child(even) {
+  background-color: color-mix(in srgb, var(--muted) 20%, transparent);
+}
+.asciidoc-body tbody tr:hover {
+  background-color: color-mix(in srgb, var(--muted) 40%, transparent);
+}
+
+.asciidoc-body blockquote {
+  border-left: 2px solid color-mix(in srgb, var(--terminal-accent) 50%, transparent);
+  padding-left: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin: 0.75rem 0;
+  background-color: color-mix(in srgb, var(--muted) 30%, transparent);
+  border-radius: 0 0.25rem 0.25rem 0;
+  font-style: italic;
+}
+
+/* AsciiDoc admonition blocks (NOTE, WARNING, TIP, IMPORTANT) */
+.asciidoc-body .admonitionblock {
+  margin: 0.75rem 0;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+.asciidoc-body .admonitionblock > table {
+  border: none;
+  margin: 0;
+  border-radius: 0;
+}
+.asciidoc-body .admonitionblock td.content {
+  padding: 0.625rem 0.875rem;
+  border-bottom: none;
+}
+.asciidoc-body .admonitionblock td.icon {
+  background-color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.625rem 0.75rem;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+/* AsciiDoc sidebar blocks ([sidebar]--) */
+.asciidoc-body .sidebarblock {
+  margin: 0.75rem 0;
+  padding: 0.625rem 0.875rem;
+  background-color: color-mix(in srgb, var(--muted) 40%, transparent);
+  border-left: 2px solid var(--border);
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+/* AsciiDoc literal/listing blocks */
+.asciidoc-body .listingblock > .content {
+  margin: 0;
+}
+.asciidoc-body .literalblock > .content > pre,
+.asciidoc-body .listingblock > .content > pre {
+  margin: 0;
+}

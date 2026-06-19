@@ -15,7 +15,7 @@
 import { FolderUp } from 'lucide-react'
 
 const ACCEPTED_TEXT_EXT = new Set([
-  'md', 'txt', 'json', 'js', 'ts', 'tsx', 'jsx',
+  'md', 'adoc', 'txt', 'json', 'js', 'ts', 'tsx', 'jsx',
   'py', 'yaml', 'yml', 'toml', 'xml', 'html', 'css',
   'sql', 'sh', 'csv',
 ])
@@ -71,7 +71,7 @@ export function FolderInput({ onSelect, disabled }: FolderInputProps) {
       <p className="text-xs text-muted-foreground/60">
         Рекурсивно: все поддерживаемые текстовые файлы внутри
         <br />
-        (.md, .txt, .json, .js, .ts, .py, .yaml, .yml, .toml, .xml, .html, .css, .sql, .sh, .csv)
+        (.md, .adoc, .txt, .json, .js, .ts, .py, .yaml, .yml, .toml, .xml, .html, .css, .sql, .sh, .csv)
       </p>
       <input
         type="file"

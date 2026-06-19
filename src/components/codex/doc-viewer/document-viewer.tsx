@@ -32,6 +32,7 @@ export function DocumentViewer(props: DocumentViewerProps) {
         editCategoryId={editCategoryId}
         setEditCategoryId={setEditCategoryId}
         categories={props.categories}
+        fileType={doc.fileType}
         isSaving={isSaving}
         onSave={handleSave}
         onCancel={cancelEdit}

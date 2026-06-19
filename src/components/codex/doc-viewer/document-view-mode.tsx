@@ -12,7 +12,7 @@ import { TerminalFrame } from '@/components/codex/terminal-frame'
 import type { Document, AIAnalysis } from '@/lib/types'
 import type { ViewType } from '@/lib/store'
 import type { RelatedDocument } from './types'
-import { MarkdownContent } from './markdown-renderer'
+import { DocumentContent } from './document-content'
 import { RelatedDocsSection } from './related-docs-section'
 import { DocumentHeader, DocumentHeaderActions } from './document-header'
 import { DocumentAnalysisSection } from './document-analysis-section'
@@ -81,8 +81,8 @@ export function DocumentViewMode({
 
         <Separator />
 
-        {/* Markdown Content */}
-        <MarkdownContent content={doc.content} />
+        {/* Document content — renderer selected by fileType (md/adoc) */}
+        <DocumentContent doc={doc} />
 
         {/* Back button */}
         <div className="mt-4 pt-3 border-t border-dashed">

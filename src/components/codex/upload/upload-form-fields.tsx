@@ -50,13 +50,13 @@ export function UploadFormFields({
           Нажмите для выбора файла или перетащите сюда
         </p>
         <p className="text-xs text-muted-foreground/60" id="upload-file-hint">
-          Поддерживаются текстовые файлы (.md, .txt, .json, .js, .ts, .py)
+          Поддерживаются текстовые файлы (.md, .adoc, .txt, .json, .js, .ts, .py)
         </p>
         <input
           ref={fileInputRef}
           type="file"
           id="upload-file-input"
-          accept=".md,.txt,.json,.js,.ts,.py,.yaml,.yml,.toml,.xml,.html,.css"
+          accept=".md,.adoc,.txt,.json,.js,.ts,.py,.yaml,.yml,.toml,.xml,.html,.css"
           className="sr-only"
           onChange={onFileSelect}
           aria-describedby="upload-file-hint"
