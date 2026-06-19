@@ -19,6 +19,7 @@ import { DuplicatesDialog } from './duplicates-dialog'
 import { DeleteDialogs } from './delete-dialogs'
 import { DictionaryToolbar } from './dictionary-toolbar'
 import { DictionaryEmptyStates } from './dictionary-empty-states'
+import { TermLookup } from './term-lookup'
 import { useDictionaryData } from './use-dictionary-data'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { DictionaryViewProps } from './types'
@@ -62,6 +63,9 @@ export function DictionaryView({
           <span className="truncate">{d.extractionProgress}</span>
         </div>
       )}
+
+      {/* Manual term lookup — EN→RU / RU→EN+desc */}
+      <TermLookup onTermAdded={onTermsExtracted} />
 
       {/* Select all bar */}
       {d.selectionMode && !isLoading && d.filteredTerms.length > 0 && (

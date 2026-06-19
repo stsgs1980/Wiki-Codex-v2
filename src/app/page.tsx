@@ -166,7 +166,10 @@ export default function WikiCodex() {
             terms={termsHook.terms}
             isLoading={termsHook.isTermsLoading}
             documents={docs.allDocuments}
-            onTermsExtracted={() => termsHook.fetchTerms()}
+            onTermsExtracted={() => {
+              termsHook.fetchTerms()
+              counters.fetchGlobalCounters()
+            }}
           />
         )
 
