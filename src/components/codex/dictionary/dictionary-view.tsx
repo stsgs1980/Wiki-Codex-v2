@@ -1,15 +1,7 @@
 'use client'
 
-import {
-  Sparkles,
-  Trash2,
-  Loader2,
-  CheckSquare,
-  Square,
-} from 'lucide-react'
+import { Trash2, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { TerminalFrame } from '@/components/codex/terminal-frame'
@@ -20,6 +12,7 @@ import { DeleteDialogs } from './delete-dialogs'
 import { DictionaryToolbar } from './dictionary-toolbar'
 import { DictionaryEmptyStates } from './dictionary-empty-states'
 import { TermLookup } from './term-lookup'
+import { DictionaryViewHeaderActions } from './dictionary-view-header-actions'
 import { useDictionaryData } from './use-dictionary-data'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { DictionaryViewProps } from './types'
@@ -34,29 +27,14 @@ export function DictionaryView({
 
   return (
     <TerminalFrame title="dictionary" className="m-3 sm:m-4 md:m-6" headerRight={
-      <div className="flex items-center gap-1">
-        {!isLoading && terms.length > 0 && (
-          <Button variant="ghost" size="icon" className="size-6"
-            onClick={() => d.selectionMode ? d.exitSelectionMode() : d.setSelectionMode(true)}>
-            {d.selectionMode ? <CheckSquare className="size-3" /> : <Square className="size-3" />}
-          </Button>
-        )}
-        <Button variant="ghost" size="sm" className="h-6 gap-1 text-xs hidden sm:flex"
-          onClick={d.handleExtractAll} disabled={d.isExtracting || documents.length === 0}>
-          {d.isExtracting ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
-          extract
-        </Button>
-        <Button variant="ghost" size="sm" className="h-6 gap-1 text-xs sm:hidden"
-          onClick={d.handleExtractAll} disabled={d.isExtracting || documents.length === 0}>
-          {d.isExtracting ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
-        </Button>
-        {!isLoading && terms.length > 0 && (
-          <Badge variant="secondary" className="text-[10px] font-mono px-1.5 py-0">{terms.length}</Badge>
-        )}
-      </div>
+      <DictionaryViewHeaderActions
+        isLoading={isLoading} termsCount={terms.length} documentsCount={documents.length}
+        selectionMode={d.selectionMode}
+        onToggleSelectionMode={() => d.selectionMode ? d.exitSelectionMode() : d.setSelectionMode(true)}
+        onExtractAll={d.handleExtractAll} isExtracting={d.isExtracting}
+      />
     }>
       <div className="p-3 sm:p-4 max-w-5xl mx-auto w-full">
-      {/* Extraction progress */}
       {d.isExtracting && d.extractionProgress && (
         <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground font-mono px-1">
           <Loader2 className="size-3 animate-spin" />
@@ -64,10 +42,8 @@ export function DictionaryView({
         </div>
       )}
 
-      {/* Manual term lookup — EN→RU / RU→EN+desc */}
       <TermLookup onTermAdded={onTermsExtracted} />
 
-      {/* Select all bar */}
       {d.selectionMode && !isLoading && d.filteredTerms.length > 0 && (
         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 px-1">
           <Checkbox checked={d.selectedCount === d.filteredTerms.length && d.filteredTerms.length > 0} onCheckedChange={d.toggleSelectAll} />
@@ -77,7 +53,6 @@ export function DictionaryView({
         </div>
       )}
 
-      {/* Toolbar */}
       {!isLoading && terms.length > 0 && (
         <DictionaryToolbar
           searchQuery={d.searchQuery} onSearchChange={d.setSearchQuery}
@@ -86,7 +61,6 @@ export function DictionaryView({
         />
       )}
 
-      {/* Empty / Loading states */}
       <DictionaryEmptyStates
         isLoading={isLoading} termsCount={terms.length}
         filteredTermsCount={d.filteredTerms.length} documentsCount={documents.length}
@@ -94,7 +68,6 @@ export function DictionaryView({
         onResetSearch={() => d.setSearchQuery('')}
       />
 
-      {/* Terms with grouping */}
       {!isLoading && d.filteredTerms.length > 0 && (
         <AnimatePresence mode="wait">
           <motion.div key={d.viewMode} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -129,7 +102,6 @@ export function DictionaryView({
         </AnimatePresence>
       )}
 
-      {/* Floating batch action bar */}
       <AnimatePresence>
         {d.selectionMode && d.hasSelection && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
@@ -145,7 +117,6 @@ export function DictionaryView({
         )}
       </AnimatePresence>
 
-      {/* Delete dialogs */}
       <DeleteDialogs
         deleteTarget={d.deleteTarget} setDeleteTarget={d.setDeleteTarget}
         isDeleting={d.isDeleting} handleDeleteTerm={d.handleDeleteTerm}
@@ -154,7 +125,6 @@ export function DictionaryView({
         handleBatchDelete={d.handleBatchDelete}
       />
 
-      {/* Duplicates dialog */}
       <DuplicatesDialog
         open={d.showDuplicatesDialog} onOpenChange={d.setShowDuplicatesDialog}
         duplicateGroups={d.duplicateGroups} totalDuplicates={d.totalDuplicates}

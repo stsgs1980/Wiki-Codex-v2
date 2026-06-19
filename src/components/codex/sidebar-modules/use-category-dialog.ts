@@ -3,6 +3,12 @@
 import { useState } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import type { SuggestedCategory } from './types'
+import {
+  createCategory,
+  createCategoriesBulk,
+  suggestCategories,
+  deleteCategory,
+} from './use-category-mutations'
 
 interface CategoryDialogCallbacks {
   onCategoryCreated?: () => void
@@ -29,12 +35,8 @@ export function useCategoryDialog(callbacks: CategoryDialogCallbacks) {
     if (!catName.trim()) return
     setIsCatCreating(true)
     try {
-      const res = await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: catName.trim(), color: catColor }),
-      })
-      if (res.ok) {
+      const ok = await createCategory({ name: catName.trim(), color: catColor })
+      if (ok) {
         toast({ title: 'Категория создана', description: catName.trim() })
         setCatName('')
         setCatColor('#78716c')
@@ -54,16 +56,15 @@ export function useCategoryDialog(callbacks: CategoryDialogCallbacks) {
     setSuggestions([])
     setSelectedSuggestions(new Set())
     try {
-      const res = await fetch('/api/categories/suggest', { method: 'POST' })
-      if (res.ok) {
-        const data = await res.json()
-        if (data.categories && data.categories.length > 0) {
-          setSuggestions(data.categories)
-          setSelectedSuggestions(new Set(data.categories.map((_: SuggestedCategory, i: number) => i)))
+      const result = await suggestCategories()
+      if (result) {
+        if (result.categories.length > 0) {
+          setSuggestions(result.categories)
+          setSelectedSuggestions(new Set(result.categories.map((_: SuggestedCategory, i: number) => i)))
         } else {
           toast({
             title: 'Нет предложений',
-            description: data.message || 'AI не смог предложить новые категории',
+            description: result.message || 'AI не смог предложить новые категории',
           })
         }
       }
@@ -96,15 +97,7 @@ export function useCategoryDialog(callbacks: CategoryDialogCallbacks) {
     if (selected.length === 0) return
     setIsCreatingBulk(true)
     try {
-      let created = 0
-      for (const cat of selected) {
-        const res = await fetch('/api/categories', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: cat.name, description: cat.description, color: cat.color }),
-        })
-        if (res.ok) created++
-      }
+      const created = await createCategoriesBulk(selected)
       toast({
         title: 'Категории созданы',
         description: `${created} из ${selected.length} категорий добавлено`,
@@ -123,8 +116,8 @@ export function useCategoryDialog(callbacks: CategoryDialogCallbacks) {
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      const res = await fetch(`/api/categories?id=${id}`, { method: 'DELETE' })
-      if (res.ok) {
+      const ok = await deleteCategory(id)
+      if (ok) {
         toast({ title: 'Категория удалена' })
         callbacks.onCategoryDeleted?.()
       }
@@ -142,25 +135,9 @@ export function useCategoryDialog(callbacks: CategoryDialogCallbacks) {
   }
 
   return {
-    catDialogOpen,
-    setCatDialogOpen,
-    catName,
-    setCatName,
-    catColor,
-    setCatColor,
-    isCatCreating,
-    suggestions,
-    selectedSuggestions,
-    isSuggesting,
-    isCreatingBulk,
-    showSuggestions,
-    handleCreateCategory,
-    handleSuggestCategories,
-    toggleSuggestion,
-    toggleAllSuggestions,
-    handleCreateSelected,
-    handleDeleteCategory,
-    openCatDialog,
-    closeCatDialog,
+    catDialogOpen, setCatDialogOpen, catName, setCatName, catColor, setCatColor, isCatCreating,
+    suggestions, selectedSuggestions, isSuggesting, isCreatingBulk, showSuggestions,
+    handleCreateCategory, handleSuggestCategories, toggleSuggestion, toggleAllSuggestions,
+    handleCreateSelected, handleDeleteCategory, openCatDialog, closeCatDialog,
   }
 }

@@ -1,0 +1,198 @@
+     1→     1→
+     2→     2→---
+     3→     3→Task ID: fix-upload-module-not-found
+     4→     4→Agent: main (Z.ai Code)
+     5→     5→Task: Исправить build error: Module not found: Can't resolve './upload/upload' в src/components/codex/upload-view.tsx
+     6→     6→
+     7→     7→Work Log:
+     8→     8→- Проверил upload-view.tsx: re-export { UploadView } from './upload/upload' (1 строка)
+     9→     9→- Проверил файловую систему: директория src/components/codex/upload/ ОТСУТСТВУЕТ на диске
+    10→    10→- Проверил git: файлы ЕСТЬ в HEAD (6 файлов: upload.tsx, index.ts, use-upload-actions.ts, use-upload-state.ts, duplicate-dialogs.tsx, upload-status-bar.tsx)
+    11→    11→- Root cause: директория была удалена с диска, но осталась в git index. Вероятно потеряна во время предыдущего git reset --hard remote-main — reset удалил локальные файлы которые не были в remote-main
+    12→    12→- Решение: git checkout HEAD -- src/components/codex/upload/
+    13→    13→- Все 6 файлов восстановлены на диск
+    14→    14→- Проверил dev server: curl http://localhost:3000/ возвращает 200 OK с полным HTML (страница компилируется без ошибок)
+    15→    15→- Lint чист (no warnings)
+    16→    16→- Также обнаружил: worklog.md с прошлой сессии был потерян (файл не в git, только локально) — пересоздан с нуля с текущей записью
+    17→    17→
+    18→    18→Stage Summary:
+    19→    19→- Build error устранён: ./upload/upload резолвится
+    20→    20→- 6 файлов восстановлены из git HEAD в src/components/codex/upload/
+    21→    21→- Dev server отвечает 200 OK, страница рендерится
+    22→    22→- Lint чист
+    23→    23→- Lesson learned: после git reset --hard всегда проверять что все tracked файлы присутствуют на диске
+    24→    24→- Lesson learned: worklog.md нужно либо коммитить в git, либо держать резервную копию в docs/
+    25→    25→
+    26→    26→---
+    27→    27→Task ID: 2-b
+    28→    28→Agent: anti-monolith-refactor-seed
+    29→    29→Task: Refactor src/app/api/seed/route.ts from 358 lines to ≤150 lines (R-02 anti-monolith rule)
+    30→    30→
+    31→    31→Work Log:
+    32→    32→- Step 1: Read route.ts (358 lines) and identified data vs logic seams. Logic = prod guard, delete sequence, create loop, error handling, response shape. Data = 4 categories, 10 tags, 5 documents (with markdown content). Key obstacle: original code referenced runtime IDs (frontend.id, tagMap['React']); resolved by introducing stable `key`/`tagNames` references in data files and resolving to IDs in route.ts via lookup maps.
+    33→    33→- Step 2: Extracted SEED_CATEGORIES to src/app/api/seed/data/categories.ts (17 lines) — added stable `key` field (frontend/backend/devops/arch) alongside name/description/color/sortOrder.
+    34→    34→- Step 3: Extracted SEED_TAGS to src/app/api/seed/data/tags.ts (22 lines) — kept original neutral color '#78716c' as a constant; tag name doubles as lookup key.
+    35→    35→- Step 4: Extracted SEED_DOCUMENTS to src/app/api/seed/data/documents.ts (308 lines). Markdown content copied verbatim from original. Replaced `categoryId` → `categoryKey` and `tagIds` → `tagNames`. Documented R-02 exception at top: "pure data file (no logic), exceed limit is intentional".
+    36→    36→- Step 5: Created src/app/api/seed/data/index.ts (3 lines) as barrel re-exporting SEED_CATEGORIES, SEED_TAGS, SEED_DOCUMENTS + their types.
+    37→    37→- Step 6: Refactored route.ts to thin orchestrator (66 lines): imports from ./data, preserves prod guard, preserves delete-then-create sequence, builds categoryMap and tagMap at runtime, loops SEED_DOCUMENTS resolving categoryKey→categoryId and tagNames→tagIds, returns identical response shape (message + counts).
+    38→    38→- Step 7: Ran `bun run lint` — PASSED with 0 errors and 0 warnings.
+    39→    39→- Step 8: Verified endpoint via curl. POST /api/seed returned `{"message":"Тестовые данные успешно созданы","counts":{"categories":4,"tags":10,"documents":5}}` — byte-identical to baseline captured before refactor. Also verified GET /api/seed/data returns 404 (data subfolder is NOT exposed as a route — Next.js routing isolation intact).
+    40→    40→
+    41→    41→Stage Summary:
+    42→    42→- Original: 358 lines → After: 66 lines in route.ts + 4 data files (categories 17, tags 22, documents 308, index 3)
+    43→    43→- All logic files ≤150 lines: YES (route.ts 66, categories.ts 17, tags.ts 22, index.ts 3)
+    44→    44→- Data file exception documented: YES (documents.ts has `// R-02 exception: pure data file (no logic), exceed limit is intentional` header comment)
+    45→    45→- Lint: PASS
+    46→    46→- Seed endpoint: returns 200 with success JSON `{"message":"Тестовые данные успешно созданы","counts":{"categories":4,"tags":10,"documents":5}}` — identical to pre-refactor response
+    47→    47→- Behavior preserved: YES (same DB state produced — verified via /api/documents that documents are created with verbatim markdown content)
+    48→    48→- Files created:
+    49→    49→  - src/app/api/seed/data/categories.ts
+    50→    50→  - src/app/api/seed/data/tags.ts
+    51→    51→  - src/app/api/seed/data/documents.ts
+    52→    52→  - src/app/api/seed/data/index.ts
+    53→    53→- Files modified: src/app/api/seed/route.ts
+    54→    54→- Deviations from proposed split: Task description said "~11 documents"; actual count was 5. Also added stable `key` field to categories and replaced runtime ID references (categoryId/tagIds) with stable key/name references (categoryKey/tagNames) — necessary because Prisma IDs are generated at insert time and cannot live in static data files. Resolved in route.ts via categoryMap/tagMap lookup tables.
+    55→    55→
+    56→    56→---
+    57→    57→Task ID: 2-c
+    58→    58→Agent: anti-monolith-refactor-term-lookup
+    59→    59→Task: Refactor src/components/codex/dictionary/term-lookup.tsx from 327 lines to ≤150 lines (R-02 anti-monolith rule)
+    60→    60→
+    61→    61→Work Log:
+    62→    62→- Read worklog.md, term-lookup.tsx (327 lines), src/app/api/terms/lookup/route.ts, src/lib/types.ts; confirmed the contract (Term shape, /api/terms/lookup POST returns {term, inputLanguage, source, isExisting, saved})
+    63→    63→- Confirmed TermLookup is imported as a NAMED export from dictionary-view.tsx (`import { TermLookup } from './term-lookup'`) — kept named export to preserve behavior (task brief said "default export" but that contradicts strict "zero behavior changes"; kept named export and noted the deviation)
+    64→    64→- Extracted types to term-lookup-types.ts: TermLookupResult, TermLookupProps, and a shared RUSSIAN_CHAR_REGEX constant (same regex the API route uses for Cyrillic detection)
+    65→    65→- Extracted hook to use-term-lookup.ts: owns query/isLoading/result/error state, inputRef, Escape-key handler, detectedLang derived state, handleLookup (POSTs to /api/terms/lookup with save:true), handleClear; same toast calls on save / isExisting
+    66→    66→- Extracted ResultCard to term-lookup-result.tsx as named export TermLookupResult (result prop); copied JSX verbatim — same badges, same direction hint, same usage example block, same footer
+    67→    67→- Refactored term-lookup.tsx to thin orchestrator: uses useTermLookup() hook, renders Card + form + input + language badge + buttons + help text + error AnimatePresence block + result AnimatePresence block; trimmed the JSDoc header from 13 to 6 lines to land at 149 lines (under 150)
+    68→    68→- Ran `bun run lint` after every file change — passed clean (exit 0, no warnings) on every iteration and on final
+    69→    69→- Verified dev server: `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/` → 200 OK; page HTML loads the src_components_codex_dictionary chunk without "Cannot find module" markers
+    70→    70→
+    71→    71→Stage Summary:
+    72→    72→- Original: 327 lines → After: 149 lines in term-lookup.tsx + 3 new sibling files (term-lookup-types.ts 21, use-term-lookup.ts 104, term-lookup-result.tsx 115)
+    73→    73→- All files ≤150 lines: YES (149 / 21 / 104 / 115)
+    74→    74→- Lint: PASS (exit 0, zero warnings)
+    75→    75→- Dev server: 200 OK
+    76→    76→- Behavior preserved: YES (same UI, same fetch to /api/terms/lookup with {input, save:true}, same toast titles/descriptions for save & isExisting paths, same Escape-key clear shortcut, same Cyrillic auto-detection logic, same language badge classes, same AnimatePresence transitions)
+    77→    77→- Files created: src/components/codex/dictionary/term-lookup-types.ts, src/components/codex/dictionary/use-term-lookup.ts, src/components/codex/dictionary/term-lookup-result.tsx
+    78→    78→- Files modified: src/components/codex/dictionary/term-lookup.tsx
+    79→    79→- Deviation from proposed split: none structurally. TermLookup kept as NAMED export (not default) because dictionary-view.tsx imports it as `import { TermLookup } from './term-lookup'` — switching to default export would break that import and violate the "zero behavior changes" rule. The original file also used a named export, so this preserves behavior exactly.
+    80→    80→
+    81→    81→---
+    82→    82→Task ID: 2-a
+    83→    83→Agent: anti-monolith-refactor-dashboard
+    84→    84→Task: Refactor src/components/codex/dashboard-view.tsx from 388 lines to ≤150 lines (R-02 anti-monolith rule)
+    85→    85→
+    86→    86→Work Log:
+    87→    87→- Step 1: Read worklog.md (prev upload/ restore), read dashboard-view.tsx (388 lines) + terminal-frame.tsx + recently-viewed-section.tsx + latest-documents-section.tsx; inspected upload/ and dictionary/ folder patterns as reference. Identified 6 split seams: (a) types, (b) cleanup state+handlers hook, (c) stats-grid JSX, (d) category-breakdown JSX, (e) file-types JSX, (f) cleanup AlertDialog JSX. QuickActions block left inline because the orchestrator remained comfortably under 150 lines (120 final).
+    88→    88→- Step 2: Created dashboard/types.ts (38 lines) — DuplicateEntry, DuplicateGroup, DashboardViewProps, CategoryBreakdownItem, StatItem interfaces. Added 2 derived-data shapes (CategoryBreakdownItem, StatItem) so the orchestrator can keep its derived-data typed without re-declaring interfaces.
+    89→    89→- Step 3: Created dashboard/use-cleanup.ts (99 lines) — owns isScanning/isCleaning/duplicateGroups/showCleanupDialog state and handleCleanupScan/handleCleanupDelete handlers; takes onCleanupComplete callback as arg. Same fetch URLs, same toast wording, same error handling.
+    90→    90→- Step 4: Created dashboard/stats-grid.tsx (46 lines) — pure presentational StatsGrid that maps over StatItem[] with motion staggerContainer/staggerItem/countUp/cardHover.
+    91→    91→- Step 5: Created dashboard/category-breakdown.tsx (62 lines) — top-6 category bars with per-row spring animation; returns null when empty so parent grid gap stays clean.
+    92→    92→- Step 6: Created dashboard/file-types-section.tsx (50 lines) — file-type Badge row sorted desc; returns null when empty.
+    93→    93→- Step 7: Created dashboard/cleanup-dialog.tsx (94 lines) — AlertDialog with duplicate group list, motion-staggered groups, identical Russian copy and destructive button styling as before.
+    94→    94→- Step 8: Created dashboard/index.ts (16 lines) barrel — exports all 5 pieces + types. Deliberately does NOT re-export DashboardView (would cause circular import since dashboard-view.tsx imports from this barrel).
+    95→    95→- Step 9: Refactored dashboard-view.tsx to a 120-line orchestrator: imports pieces via './dashboard' barrel, computes derived data (categoryBreakdown, maxCatCount, fileTypeStats, stats, totalDuplicates), renders TerminalFrame > StatsGrid + QuickActions (inline motion.div) + grid[CategoryBreakdown + FileTypesSection] + RecentlyViewedSection + LatestDocumentsSection + CleanupDialog.
+    96→    96→- Step 10: Ran `bun run lint` — passed (0 errors, 0 warnings). Also ran `npx tsc --noEmit` — passed (no type errors).
+    97→    97→- Step 11: Verified `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/` returns 200. Inspected HTML response — title "Wiki Codex" rendered, no "Failed to compile" / "Application error" markers, dashboard-view chunk compiles and is served.
+    98→    98→
+    99→    99→Stage Summary:
+   100→   100→- Original: 388 lines → After: 120 lines in dashboard-view.tsx + 7 files in dashboard/ folder (405 lines total across the sub-module)
+   101→   101→- All files ≤150 lines: YES (largest is use-cleanup.ts at 99, dashboard-view.tsx at 120)
+   102→   102→- Lint: PASS (eslint clean, tsc --noEmit clean)
+   103→   103→- Dev server: 200 OK
+   104→   104→- Behavior preserved: YES — same public DashboardView export with identical props (documents, categories, tags, totalDocuments, totalStarred, onCleanupComplete), same fetch endpoints (/api/documents/cleanup scan+delete), same toast wording, same AlertDialog copy, same motion variants (staggerContainer, staggerItem, countUp, cardHover, sectionEntrance), same className strings, same icon imports. Zero `any`, zero new dependencies.
+   105→   105→- Files created: src/components/codex/dashboard/types.ts, src/components/codex/dashboard/use-cleanup.ts, src/components/codex/dashboard/stats-grid.tsx, src/components/codex/dashboard/category-breakdown.tsx, src/components/codex/dashboard/file-types-section.tsx, src/components/codex/dashboard/cleanup-dialog.tsx, src/components/codex/dashboard/index.ts
+   106→   106→- Files modified: src/components/codex/dashboard-view.tsx
+   107→   107→
+   108→   108→Deviations from proposed split (with reasons):
+   109→   109→- Added 2 extra type exports (CategoryBreakdownItem, StatItem) to dashboard/types.ts so the orchestrator's derived data keeps proper typing without re-declaring inline interfaces. Pure additive, no behavior change.
+   110→   110→- Did NOT extract QuickActions into its own file (proposed split mentioned it implicitly under "thin orchestrator"). Reason: after extracting the 5 main pieces, dashboard-view.tsx landed at 120 lines — well under the 150 limit. Adding a 6th file just to save ~25 lines of JSX would have been over-decomposition for marginal gain. The inline QuickActions block is cohesive with the orchestrator (it reads setView + handleCleanupScan + isScanning/isCleaning — all values already in scope).
+   111→   111→- dashboard/index.ts barrel deliberately does NOT re-export DashboardView to avoid a circular import (dashboard-view.tsx → ./dashboard → ./dashboard-view would loop). This differs from the dictionary/ pattern where dictionary-view.tsx lives INSIDE the sub-folder; here the task spec required dashboard-view.tsx to stay at codex/ level as the orchestrator.
+   112→   112→
+   113→   113→Issues encountered: None.
+   114→   114→
+   115→   115→---
+   116→   116→Task ID: 3-b
+   117→   117→Agent: anti-monolith-refactor-documents-route
+   118→   118→Task: Refactor src/app/api/documents/route.ts from 290 lines to ≤150 lines (R-02 anti-monolith rule)
+   119→   119→
+   120→   120→Work Log:
+   121→   121→- Step 1: Read worklog.md (Tasks 2-a/2-b/2-c patterns), read route.ts (290 lines) fully, read related libs (db.ts, validations.ts, sanitize.ts, content-hash.ts, db-filter.ts) to confirm the import contract and the DuplicateCheckResult shape used by the POST handler.
+   122→   122→- Step 2: Baseline-tested the live endpoint before touching code: `GET /api/documents` → 200 with valid JSON `{"documents":[...]}`; this is the byte-for-byte reference shape the refactor must reproduce.
+   123→   123→- Step 3: Created `src/app/api/documents/_lib/queries.ts` (75 lines) — exported `buildDocumentsWhere(params)` (pure Prisma where-clause builder: search OR-title/content/summary, categoryId filter with 'none'/'all' bypass, tagId `tags.some` filter, starred boolean) and `fetchDocuments(params)` (Promise.all of findMany + 3 count queries returning the same `{documents, total, allTotal, allStarred, page, limit, totalPages}` shape). Typed `params` as `z.infer<typeof paginationSchema>` to preserve types without re-declaring the schema.
+   124→   124→- Step 4: Created `src/app/api/documents/_lib/duplicates.ts` (67 lines) — extracted the `checkDuplicates(title, content, fp)` helper verbatim (Level-1 title match case-insensitive via `contains` + application-level `.toLowerCase()` compare; Level-2 Jaccard ≥0.7 near-duplicate scan over last 100 documents with ±20% length prefilter). Same Russian user-facing messages preserved.
+   125→   125→- Step 5: Created `src/app/api/documents/_lib/db-errors.ts` (45 lines) — extracted `handleDbError(error)` verbatim mapping Prisma `P2003`→400 (foreign key), `P2002`→409 (unique), `P2021`→500 (table missing), default→500 with truncated message. Same Russian error strings preserved.
+   126→   126→- Step 6: Created `src/app/api/documents/_lib/create.ts` (149 lines) — exported `createDocument(body: Record<string, unknown>): Promise<NextResponse>` orchestrating the full POST pipeline: Zod-validate body → sanitize title/content with stack-signature (preserve the empty-after-sanitize fallback to raw `content`) → non-blocking dup check (failures logged via `console.warn` with the exact original prefix `[documents] Duplicate check failed, proceeding anyway:`) → exact-dup branch (409 unless `forceCreate`, then `db.document.update` with `_updated: true` flag → 200, errors routed through `handleDbError`) → similar-dup branch (409 unless `forceCreate`) → create new → 201 (errors routed through `handleDbError`). Imports `checkDuplicates` from `./duplicates` and `handleDbError` from `./db-errors`. The Prisma `DocumentCreateInput` is constructed identically (category connect if normalized, tags create-if-array).
+   127→   127→- Step 7: Refactored `src/app/api/documents/route.ts` to a 35-line thin orchestrator: GET handler validates pagination params (same Zod-safeParse + flatten + `field: errs.join(', ')` message format → 400) then `await fetchDocuments(parsed.data)` → `NextResponse.json(data)`; wraps everything in try/catch with the original `console.error('Error fetching documents:', error)` + 500 `{error: 'Failed to fetch documents'}`. POST handler parses JSON body (try/catch → 400 `{error: 'Invalid JSON body'}`) then `return createDocument(body)`. Both handlers preserve their original signatures `(request: NextRequest)`.
+   128→   128→- Step 8: Ran `bun run lint` after each file write — passed clean (exit 0, no warnings) on every iteration and on the final run.
+   129→   129→- Step 9: Verified endpoints end-to-end against the baseline:
+   130→   130→  - `GET /api/documents` → 200, body byte-identical prefix to baseline (`{"documents":[{"id":"cmqkn5mbt002nthumj4tb6utd","title":"Паттерны React-компонентов",...`)
+   131→   131→  - `GET /api/documents?page=1&limit=5&starred=true` → 200 (filters still applied)
+   132→   132→  - `GET /api/documents?page=abc` → 400 `{"error":"page: Invalid input: expected number, received NaN"}` (same Zod error format as original)
+   133→   133→  - `POST /api/documents` with invalid JSON body → 400 (invalid-JSON branch intact)
+   134→   134→  - `POST /api/documents` with `{content:"test"}` missing title → 400 `{"error":"title: Invalid input: expected string, received undefined"}` (Zod validation intact)
+   135→   135→  - `POST /api/documents` with valid body → 201, response body contains created document with auto-appended stack signature (`\n\n---\nBuilt with: Next.js 16 + TypeScript + Tailwind CSS\n`)
+   136→   136→  - `POST /api/documents` with duplicate title → 409 `{"error":"Документ с заголовком \"...\" уже существует","existingId":"...","severity":"exact"}` (exact-match dup detection intact)
+   137→   137→  - `POST /api/documents` with duplicate title + `forceCreate:true` → 200 with `_updated:true` flag (forceCreate-update path intact)
+   138→   138→  - `GET /` home page → 200 (no compile errors propagating to UI)
+   139→   139→  - Sibling routes still wired: `POST /api/documents/cleanup` → 200, `/api/documents/auto-categorize` → 405 (GET not allowed, route still registered — Next.js routing isolation intact; `_lib/` folder is correctly NOT exposed as a route)
+   140→   140→
+   141→   141→Stage Summary:
+   142→   142→- Original: 290 lines → After: 35 lines in route.ts + 4 files in `_lib/` (queries 75, create 149, duplicates 67, db-errors 45) = 371 lines total
+   143→   143→- All files ≤150 lines: YES (largest is create.ts at 149)
+   144→   144→- Lint: PASS (exit 0, zero warnings, zero errors)
+   145→   145→- GET /api/documents: 200 OK (response shape byte-identical to pre-refactor baseline)
+   146→   146→- POST /api/documents: 201 Created (with valid body), 409 (duplicate detected), 200 (forceCreate update) — all paths verified
+   147→   147→- Behavior preserved: YES — same Zod validation messages, same Russian error strings, same stack-signature content normalization, same dup-detection Jaccard threshold (0.7) and ±20% length filter, same `console.error`/`console.warn` prefixes, same NextResponse status codes (200/201/400/409/500), same `_updated: true` flag on forceCreate-update path, same `include: { category: true, tags: { include: { tag: true } } }` on all DB reads
+   148→   148→- Files created:
+   149→   149→  - src/app/api/documents/_lib/queries.ts
+   150→   150→  - src/app/api/documents/_lib/duplicates.ts
+   151→   151→  - src/app/api/documents/_lib/db-errors.ts
+   152→   152→  - src/app/api/documents/_lib/create.ts
+   153→   153→- Files modified: src/app/api/documents/route.ts
+   154→   154→
+   155→   155→Deviations from proposed split (with reasons):
+   156→   156→- Proposed split was 2 lib files (queries.ts ~80, create.ts ~100). Actual split is 4 lib files (queries.ts 75, create.ts 149, duplicates.ts 67, db-errors.ts 45). Reason: the POST pipeline (createDocument + checkDuplicates + handleDbError) is ~210 lines of logic even after stripping comments — too large for a single ≤150-line file. Extracted the two self-contained helpers (checkDuplicates is a pure DB-scan with no NextResponse dependency; handleDbError is a pure Prisma-error→NextResponse mapper) into their own cohesive files. create.ts at 149 lines is the orchestration that imports both. This is more granular than the proposal but each file has a single clear responsibility and all stay under the limit.
+   157→   157→- Used `_lib/` subfolder (Next.js App Router convention: underscore-prefixed folders are private and not exposed as routes). Verified by curl that `GET /api/documents/_lib/queries` returns 404 (route not exposed) — well, technically Next.js returns 404 for any non-route file path, but the underscore prefix makes the intent explicit and matches the task brief's recommendation.
+   158→   158→- `createDocument` takes the raw `Record<string, unknown>` body and returns `NextResponse` directly (rather than a tagged result union that route.ts would convert). Reason: preserves the exact original control flow (each branch in the original POST handler already returned `NextResponse.json(...)` directly), keeps route.ts genuinely thin (just JSON-parse + delegate), and avoids inventing a new intermediate result type that would be a behavior-adjacent change. The JSON-parse error (`{error: 'Invalid JSON body'}`, 400) stays in route.ts because it's request-parsing, not document-creation logic.
+   159→   159→- Did NOT add a barrel `index.ts` for `_lib/`. Reason: route.ts only imports from 2 of the 4 files (queries + create); a barrel would re-export duplicates.ts and db-errors.ts which are internal to create.ts and shouldn't be part of the public surface. Keeping imports explicit (`./_lib/queries`, `./_lib/create`) makes the dependency graph clearer.
+   160→   160→- Task brief mentioned "auto-categorize call" in POST, but the actual original route.ts had no auto-categorize call (only duplicate detection). Refactor preserves the actual code behavior — no auto-categorize was added or removed. (The `/api/documents/auto-categorize` route exists as a separate sibling endpoint, not invoked from this route.)
+   161→   161→
+   162→   162→Issues encountered: None.
+   163→   163→
+   164→   164→---
+   165→   165→Task ID: 3-a
+   166→   166→Agent: anti-monolith-refactor-markdown-renderer
+   167→   167→Task: Refactor src/components/codex/doc-viewer/markdown-renderer.tsx from 300 lines to ≤150 lines (R-02 anti-monolith rule)
+   168→   168→
+   169→   169→Work Log:
+   170→   170→- Step 1: Read worklog.md (Tasks 2-a/2-b/2-c completed — same anti-monolith pattern), read markdown-renderer.tsx (300 lines), read sibling files text-tags.tsx + syntax-theme.ts. Confirmed the only consumer is document-view-mode.tsx line 22: `import { MarkdownContent } from './markdown-renderer'` — the exported name is `MarkdownContent` (NOT `MarkdownRenderer` as the task brief said), so the export name is preserved to avoid breaking the import.
+   171→   171→- Step 2: Created markdown-preprocessors.ts (66 lines) — pure functions only, no JSX. Moved MarkdownContentProps interface, extractStackSignature (STD-DOC-002 §8 stack footer detection, with all 3 marker variants), preprocessTextTags (STD-DOC-002 §4.4 [OK]/[FAIL]/[TODO] → `[TAG:NAME]` placeholders), TAG_NAMES + TAG_PREPROCESS_RE constants. Verbatim logic, verbatim comments, verbatim regex.
+   172→   172→- Step 3: Created markdown-code-block.tsx (149 lines) — moved all 12 SyntaxHighlighter Prism language imports + 23 registerLanguage() calls + terminalSyntaxTheme import. Moved TAG_INLINE_RE, TAG_STYLES (10 entries), TAG_LABELS (WARNING→WARN). New MarkdownCode component takes props { className, children, copiedBlockId, onCopy, ...props } — same inline-code detection (match on /language-(\w+)/), same tag-badge rendering, same inline `<code>` className, same fenced-code-block JSX (header with language label + copy button + SyntaxHighlighter with terminalSyntaxTheme + identical customStyle/codeTagProps). Verified TypeScript compatibility: had to use `extends Omit<ComponentPropsWithoutRef<'code'>, 'onCopy'>` because the native HTML `<code>` element already has an `onCopy` ClipboardEvent handler prop that conflicts with our callback signature — Omit cleanly resolves the collision without `any`.
+   173→   173→- Step 4: Created markdown-overrides.tsx (91 lines) — exported createMarkdownOverrides({ copiedBlockId, onCopy }) factory returning a react-markdown `Components` config. `code` override delegates to <MarkdownCode {...props} copiedBlockId={...} onCopy={...} />. All other overrides (h1/h2/h3, p, li, ul, ol, blockquote, a, table, th, td, hr) copied verbatim — same className strings, same JSX structure, same terminal-accent/neuro-brand/star/brand-purple color usage.
+   174→   174→- Step 5: Refactored markdown-renderer.tsx to thin orchestrator (66 lines). Imports extractStackSignature + preprocessTextTags + MarkdownContentProps from ./markdown-preprocessors, createMarkdownOverrides from ./markdown-overrides. Keeps useState<string|null>(copiedBlockId), useCallback(handleCopyCodeBlock with same Russian toast wording: "Скопировано"/"Код скопирован в буфер обмена" success, "Ошибка"/"Не удалось скопировать" destructive), useMemo for body/signature, useMemo for processedBody, useMemo for components config (memoized so ReactMarkdown doesn't see a new components object every render — minor perf win, no behavior change). Renders <ReactMarkdown components={components}>{processedBody}</ReactMarkdown> inside the same outer <div className="prose dark:prose-invert prose-sm md:prose-base max-w-none break-words [&_pre]:overflow-x-auto [&_code]:break-all [&_a]:break-all mt-3"> wrapper, with the same STD-DOC-002 §8 stack signature footer (mt-6 pt-4 border-t border-dashed border-border, $ stack label, signature text in font-mono).
+   175→   175→- Step 6: Ran `bun run lint` after every file change — passed clean (exit 0, no warnings) on every iteration.
+   176→   176→- Step 7: Ran `npx tsc --noEmit` — initially failed with TS2430 (MarkdownCodeProps.onCopy conflicting with native ClipboardEvent handler). Fixed by changing `extends ComponentPropsWithoutRef<'code'>` to `extends Omit<ComponentPropsWithoutRef<'code'>, 'onCopy'>`. Re-ran tsc — passed clean.
+   177→   177→- Step 8: Verified dev server: `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/` → 200 OK. Page HTML has correct title "Wiki Codex -- Интеллектуальная база знаний для разработчиков" and zero "Failed to compile" / "Application error" / "Cannot find module" markers. Also checked /api/documents returns existing docs with markdown content (including `\n---\nBuilt with:` signature) — confirms the rendering pipeline still has data to operate on.
+   178→   178→
+   179→   179→Stage Summary:
+   180→   180→- Original: 300 lines → After: 66 lines in markdown-renderer.tsx + 3 sibling files (markdown-preprocessors.ts 66, markdown-code-block.tsx 149, markdown-overrides.tsx 91)
+   181→   181→- All files ≤150 lines: YES (66 / 66 / 149 / 91 — largest is markdown-code-block.tsx at 149)
+   182→   182→- Lint: PASS (exit 0, zero warnings)
+   183→   183→- tsc --noEmit: PASS (zero errors after Omit<'onCopy'> fix)
+   184→   184→- Dev server: 200 OK
+   185→   185→- Behavior preserved: YES — same exported `MarkdownContent` name, same MarkdownContentProps { content: string } signature, same preprocessing pipeline (extractStackSignature → preprocessTextTags → ReactMarkdown), same terminal-themed overrides (same className strings for h1/h2/h3/p/li/ul/ol/blockquote/a/table/th/td/hr), same code-block rendering (header + copy button + SyntaxHighlighter with terminalSyntaxTheme + identical customStyle/codeTagProps), same text-tag badge rendering (TAG_INLINE_RE + TAG_STYLES + TAG_LABELS verbatim), same inline-code className, same stack signature footer, same Russian toast wording for copy success/error, same 2-second copiedBlockId reset. Zero `any`, zero new dependencies.
+   186→   186→- Files created:
+   187→   187→  - src/components/codex/doc-viewer/markdown-preprocessors.ts
+   188→   188→  - src/components/codex/doc-viewer/markdown-code-block.tsx
+   189→   189→  - src/components/codex/doc-viewer/markdown-overrides.tsx
+   190→   190→- Files modified: src/components/codex/doc-viewer/markdown-renderer.tsx
+   191→   191→
+   192→   192→Deviations from proposed split (with reasons):
+   193→   193→- Task brief said "Same component name — `MarkdownRenderer` must remain the export", but the actual existing export is `MarkdownContent` (imported by document-view-mode.tsx line 22). Renaming to `MarkdownRenderer` would break that import and violate "Zero behavior changes". Preserved `MarkdownContent` as the export name — this matches the existing behavior exactly. (The task brief appears to have used a generic name; the previous Task 2-c worklog noted a similar brief-vs-reality mismatch.)
+   194→   194→- Added `Omit<ComponentPropsWithoutRef<'code'>, 'onCopy'>` to MarkdownCodeProps interface. Reason: the native HTML `<code>` element already declares `onCopy?: ClipboardEventHandler<HTMLElement>` (clipboard event), which collides with our `onCopy: (code: string, id: string) => void` callback. The Omit is a pure type-level fix — no runtime impact, no `any`, preserves the same external API and the same DOM output. Detected by `tsc --noEmit` and fixed in one iteration.
+   195→   195→- Added a `useMemo` wrapper around `createMarkdownOverrides(...)` in the orchestrator. Reason: the original code defined the `components` object inline in JSX (`<ReactMarkdown components={{...}}>`) which created a fresh object every render. The refactor moves it to a factory call — without `useMemo`, this would still create a fresh object every render (same as before, no behavior change) but `useMemo` is a small structural improvement that keeps the components config referentially stable across renders when copiedBlockId/onCopy are unchanged. Pure additive, no UI/behavior change.
+   196→   196→
+   197→   197→Issues encountered: One TypeScript error (TS2430) on first tsc run, fixed immediately via `Omit<..., 'onCopy'>`. No runtime issues, no lint warnings, no behavior diffs.
+   198→   198→

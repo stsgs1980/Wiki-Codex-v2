@@ -1,25 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, Star, Grid, List, Filter, Search } from 'lucide-react'
+import { FileText, Filter, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { useAppStore } from '@/lib/store'
 import type { Document, Category, Tag } from '@/lib/types'
-import { formatDate, formatFileSize, pluralDocs } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { formatDate, formatFileSize } from '@/lib/format'
 import { motion, AnimatePresence } from 'framer-motion'
 import { staggerContainer } from '@/lib/motion'
 import { TerminalFrame } from '@/components/codex/terminal-frame'
 import { DocumentCard } from './document-card'
 import { DocumentListItem } from './document-list-item'
+import { DocumentsToolbar } from './documents-toolbar'
 
 interface DocumentsViewProps {
   documents: Document[]
@@ -28,7 +20,7 @@ interface DocumentsViewProps {
 }
 
 export function DocumentsView({ documents, categories, tags }: DocumentsViewProps) {
-  const { searchQuery, selectDocument, setView, selectedCategoryId, setSelectedCategory, selectedTagId, setSelectedTag } = useAppStore()
+  const { searchQuery, selectDocument, setView, selectedCategoryId, setSelectedCategory, selectedTagId } = useAppStore()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [starFilter, setStarFilter] = useState(false)
 
@@ -76,66 +68,18 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
     <TerminalFrame title="documents" className="m-3 sm:m-4 md:m-6">
       <div className="flex flex-col gap-3 p-4">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          {selectedTagId && (
-            <Badge variant="secondary" className="gap-1.5">
-              <span className="size-2 rounded-full tag-color-bg" style={{ '--tag-color': tags.find((t) => t.id === selectedTagId)?.color || 'var(--muted-foreground)' } as React.CSSProperties} />
-              {tags.find((t) => t.id === selectedTagId)?.name || 'Тег'}
-            </Badge>
-          )}
-          <Select
-            value={selectedCategoryId || 'all'}
-            onValueChange={(val) => setSelectedCategory(val === 'all' ? null : val)}
-          >
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Все категории" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все категории</SelectItem>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Button
-            variant={starFilter ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => setStarFilter(!starFilter)}
-            className="gap-1.5 sm:gap-2"
-          >
-            <Star className={cn('size-4', starFilter && 'fill-star text-star')} />
-            <span className="hidden sm:inline">Избранные</span>
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            {filteredDocs.length} {pluralDocs(filteredDocs.length)}
-          </span>
-          <div className="flex border rounded-md">
-            <Button
-              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="size-8 rounded-r-none"
-              onClick={() => setViewMode('grid')}
-            >
-              <Grid className="size-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="size-8 rounded-l-none"
-              onClick={() => setViewMode('list')}
-            >
-              <List className="size-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <DocumentsToolbar
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        starFilter={starFilter}
+        setStarFilter={setStarFilter}
+        selectedTagId={selectedTagId}
+        selectedCategoryId={selectedCategoryId}
+        setSelectedCategory={setSelectedCategory}
+        tags={tags}
+        categories={categories}
+        filteredDocsCount={filteredDocs.length}
+      />
 
       {/* Documents */}
       <AnimatePresence mode="wait">

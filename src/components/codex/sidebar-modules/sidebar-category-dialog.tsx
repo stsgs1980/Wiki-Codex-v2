@@ -8,11 +8,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import type { SuggestedCategory } from './types'
+import { CategoryManualForm } from './category-dialog-form'
 
 export interface CategoryDialogState {
   catDialogOpen: boolean
@@ -129,38 +128,15 @@ export function CategoryDialogForm({ dialog }: { dialog: CategoryDialogState }) 
       )}
 
       {/* Manual creation */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="cat-name">Название</Label>
-          <Input
-            id="cat-name"
-            placeholder="Введите название"
-            value={dialog.catName}
-            onChange={(e) => dialog.setCatName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && dialog.handleCreateCategory()}
-            autoFocus={!dialog.showSuggestions || dialog.suggestions.length === 0}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="cat-color">Цвет</Label>
-          <div className="flex items-center gap-3">
-            <input
-              id="cat-color"
-              type="color"
-              value={dialog.catColor}
-              onChange={(e) => dialog.setCatColor(e.target.value)}
-              className="size-9 rounded-md border border-input cursor-pointer"
-            />
-            <span className="text-sm text-muted-foreground">{dialog.catColor}</span>
-          </div>
-        </div>
-        <Button
-          onClick={dialog.handleCreateCategory}
-          disabled={!dialog.catName.trim() || dialog.isCatCreating}
-        >
-          {dialog.isCatCreating ? 'Создание...' : 'Создать вручную'}
-        </Button>
-      </div>
+      <CategoryManualForm
+        name={dialog.catName}
+        onNameChange={dialog.setCatName}
+        color={dialog.catColor}
+        onColorChange={dialog.setCatColor}
+        isCreating={dialog.isCatCreating}
+        onCreate={dialog.handleCreateCategory}
+        autoFocus={!dialog.showSuggestions || dialog.suggestions.length === 0}
+      />
     </div>
   )
 }

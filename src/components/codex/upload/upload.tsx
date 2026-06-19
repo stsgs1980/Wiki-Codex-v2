@@ -1,18 +1,8 @@
 'use client'
 
 import { useRef, useCallback, useState } from 'react'
-import { Upload, FileText, X, Loader2, Sparkles } from 'lucide-react'
+import { Upload, X, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { TerminalFrame } from '@/components/codex/terminal-frame'
 import { useAppStore } from '@/lib/store'
 import type { Category } from '@/lib/types'
@@ -20,6 +10,7 @@ import { useUploadState } from './use-upload-state'
 import { submitDocument, autoCategorizeDocument, extractTerms } from './use-upload-actions'
 import { DuplicateDialogs } from './duplicate-dialogs'
 import { UploadStatusBar } from './upload-status-bar'
+import { UploadFormFields } from './upload-form-fields'
 
 interface UploadViewProps {
   categories: Category[]
@@ -101,69 +92,19 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* File drop */}
-          <div
-            className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <FileText className="size-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground mb-1">
-              Нажмите для выбора файла или перетащите сюда
-            </p>
-            <p className="text-xs text-muted-foreground/60">
-              Поддерживаются текстовые файлы (.md, .txt, .json, .js, .ts, .py)
-            </p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".md,.txt,.json,.js,.ts,.py,.yaml,.yml,.toml,.xml,.html,.css"
-              className="hidden"
-              onChange={handleFileSelect}
-            />
-            {state.fileName && (
-              <p className="mt-2 text-sm font-medium text-primary">{state.fileName}</p>
-            )}
-          </div>
-
-          {/* Title */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="title">Заголовок</Label>
-            <Input id="title" value={state.title} onChange={(e) => setTitle(e.target.value)} placeholder="Название документа" required />
-          </div>
-
-          {/* Category */}
-          <div className="flex flex-col gap-1.5">
-            <Label className="flex items-center gap-2">
-              Категория
-              <span className="text-xs text-violet-500 font-normal flex items-center gap-1">
-                <Sparkles className="size-3" />
-                AI автоматически определит
-              </span>
-            </Label>
-            <Select value={state.categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger><SelectValue placeholder="Авто-определение" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="auto">
-                  <span className="flex items-center gap-2"><Sparkles className="size-3.5 text-violet-500" /> Авто (AI определит)</span>
-                </SelectItem>
-                <SelectItem value="none">Без категории</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    <span className="flex items-center gap-2">
-                      <span className="size-2.5 rounded-full inline-block tag-color-bg" style={{ '--tag-color': cat.color } as React.CSSProperties} />
-                      {cat.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Content */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="content">Содержание</Label>
-            <Textarea id="content" value={state.content} onChange={(e) => setContent(e.target.value)} placeholder="Вставьте текст или выберите файл выше" className="min-h-[200px] font-mono text-sm" required />
-          </div>
+          <UploadFormFields
+            title={state.title}
+            onTitleChange={setTitle}
+            content={state.content}
+            onContentChange={setContent}
+            fileName={state.fileName}
+            onFileSelect={handleFileSelect}
+            onFileInputClick={() => fileInputRef.current?.click()}
+            fileInputRef={fileInputRef}
+            categories={categories}
+            selectedCategoryId={state.categoryId}
+            onCategoryChange={setCategoryId}
+          />
 
           {/* Status */}
           <UploadStatusBar

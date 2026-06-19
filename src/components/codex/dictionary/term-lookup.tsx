@@ -1,112 +1,35 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
-import { Search, Loader2, Languages, BookOpen, Sparkles, X, Check, ArrowRight } from 'lucide-react'
+import { Search, Loader2, Languages, Sparkles, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
-import type { Term } from '@/lib/types'
-
-interface TermLookupResult {
-  term: Term
-  inputLanguage: 'en' | 'ru'
-  source: 'database' | 'ai'
-  isExisting: boolean
-  saved: boolean
-}
-
-interface TermLookupProps {
-  /** Called when a new term was added to the dictionary (saved=true) */
-  onTermAdded?: () => void
-}
+import { useTermLookup } from './use-term-lookup'
+import { TermLookupResult } from './term-lookup-result'
+import type { TermLookupProps } from './term-lookup-types'
 
 /**
  * STD-DOC — Manual term lookup card.
- *
- * Lets the user type any term (English OR Russian) and get back a full term card.
- *  - English input  → description in Russian (like the rest of the system)
- *  - Russian input  → description (RU) + English name of the concept
- *
- * Results come from the DB first (fast path), then fall back to AI generation.
- * By default the looked-up term is saved into the dictionary so it's
- * immediately searchable / grouped with the others.
+ * English input → description in Russian; Russian input → RU description + EN name.
+ * DB-first lookup with AI fallback; saves the term by default.
+ * State/fetch/keyboard handling live in `useTermLookup`; the result rendering
+ * lives in `TermLookupResult`. This file is the thin orchestrator.
  */
 export function TermLookup({ onTermAdded }: TermLookupProps) {
-  const [query, setQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<TermLookupResult | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
-
-  // Auto-detect input language for the inline hint badge
-  const isRussian = /[а-яёА-ЯЁ]/.test(query)
-  const detectedLang: 'en' | 'ru' | null = query.trim() ? (isRussian ? 'ru' : 'en') : null
-
-  const handleLookup = useCallback(async (e?: React.FormEvent) => {
-    e?.preventDefault()
-    const trimmed = query.trim()
-    if (!trimmed) return
-
-    setIsLoading(true)
-    setError(null)
-    setResult(null)
-
-    try {
-      const res = await fetch('/api/terms/lookup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: trimmed, save: true }),
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || 'Не удалось найти термин')
-        return
-      }
-
-      setResult(data as TermLookupResult)
-
-      if (data.saved) {
-        toast({
-          title: 'Термин добавлен в словарь',
-          description: `"${data.term.term}" — ${data.term.translation}`,
-        })
-        onTermAdded?.()
-      } else if (data.isExisting) {
-        toast({
-          title: 'Термин уже в словаре',
-          description: `Найдено существующее определение для "${data.term.term}"`,
-        })
-      }
-    } catch {
-      setError('Сетевая ошибка. Попробуйте ещё раз.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [query, toast, onTermAdded])
-
-  const handleClear = useCallback(() => {
-    setQuery('')
-    setResult(null)
-    setError(null)
-    inputRef.current?.focus()
-  }, [])
-
-  // Keyboard: Escape clears the result
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && (result || query)) {
-        handleClear()
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [result, query, handleClear])
+  const {
+    query,
+    setQuery,
+    isLoading,
+    result,
+    error,
+    inputRef,
+    detectedLang,
+    handleLookup,
+    handleClear,
+  } = useTermLookup(onTermAdded)
 
   return (
     <Card className="mb-4 sm:mb-6 border-dashed bg-card/50 backdrop-blur-sm">
@@ -216,112 +139,11 @@ export function TermLookup({ onTermAdded }: TermLookupProps) {
               exit={{ opacity: 0, y: -4 }}
               className="mt-3"
             >
-              <ResultCard result={result} />
+              <TermLookupResult result={result} />
             </motion.div>
           )}
         </AnimatePresence>
       </CardContent>
     </Card>
-  )
-}
-
-function ResultCard({ result }: { result: TermLookupResult }) {
-  const { term, inputLanguage, source, isExisting, saved } = result
-  const isRussianInput = inputLanguage === 'ru'
-
-  return (
-    <div className="rounded-lg border border-border bg-background/60 overflow-hidden">
-      {/* Result header bar */}
-      <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-muted/40 border-b border-border">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <BookOpen className="size-3 text-terminal-accent shrink-0" />
-          <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground truncate">
-            {isRussianInput ? 'русский ввод -&gt; английский термин' : 'английский ввод -&gt; русский перевод'}
-          </span>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <Badge
-            variant="outline"
-            className={cn(
-              'text-[9px] font-mono px-1.5 py-0',
-              source === 'database'
-                ? 'border-terminal-accent/40 text-terminal-accent'
-                : 'border-neuro-brand/40 text-neuro-brand'
-            )}
-          >
-            {source === 'database' ? 'из базы' : 'AI'}
-          </Badge>
-          {saved && (
-            <Badge
-              variant="outline"
-              className="text-[9px] font-mono px-1.5 py-0 border-terminal-accent/40 text-terminal-accent bg-terminal-accent/10"
-            >
-              <Check className="size-2.5 mr-0.5" />
-              добавлен
-            </Badge>
-          )}
-          {isExisting && !saved && (
-            <Badge
-              variant="outline"
-              className="text-[9px] font-mono px-1.5 py-0 border-muted-foreground/40 text-muted-foreground"
-            >
-              существует
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      {/* Result body */}
-      <div className="p-3 sm:p-4">
-        {/* Term + translation row */}
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
-          <span className="font-mono font-bold text-base sm:text-lg text-foreground break-words">
-            {term.term}
-          </span>
-          {isRussianInput && (
-            <>
-              <ArrowRight className="size-3 text-muted-foreground inline-block" />
-              <span className="font-sans text-sm sm:text-base text-neuro-brand break-words">
-                {term.translation}
-              </span>
-            </>
-          )}
-          {!isRussianInput && term.translation && (
-            <span className="font-sans text-sm sm:text-base text-muted-foreground break-words">
-              - {term.translation}
-            </span>
-          )}
-        </div>
-
-        {/* Explanation */}
-        <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed mb-2">
-          {term.explanation}
-        </p>
-
-        {/* Usage example */}
-        {term.usage && (
-          <div className="mt-2 rounded-md bg-muted/50 border border-border px-2.5 py-1.5">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-[9px] font-mono font-semibold uppercase tracking-wider text-terminal-accent">
-                example
-              </span>
-            </div>
-            <code className="text-[11px] sm:text-xs font-mono text-foreground/90 whitespace-pre-wrap break-words">
-              {term.usage}
-            </code>
-          </div>
-        )}
-
-        {/* Direction hint footer */}
-        <div className="mt-3 flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground/70">
-          <Languages className="size-2.5" />
-          <span>
-            {isRussianInput
-              ? `Введено на русском -> найдено английское название: "${term.term}"`
-              : `Введено на английском -> перевод: "${term.translation}"`}
-          </span>
-        </div>
-      </div>
-    </div>
   )
 }

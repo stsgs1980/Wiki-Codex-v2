@@ -1,150 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync } from 'fs'
-import { join } from 'path'
-import {
-  detectContent,
-  detectDarkUI,
-  resolve,
-  getProjectDescription,
-} from '@/lib/theme-detection'
-
-// ---------------------------------------------------------------------------
-// Read SVG logo file for the resolved theme
-// ---------------------------------------------------------------------------
-
-function readLogoSvg(theme: string): string {
-  const svgFileName = `${theme}.svg`
-  const svgPath = join(process.cwd(), 'logos', svgFileName)
-
-  try {
-    return readFileSync(svgPath, 'utf-8')
-  } catch {
-    // Fallback to light.svg if the specific theme file doesn't exist
-    try {
-      return readFileSync(join(process.cwd(), 'logos', 'light.svg'), 'utf-8')
-    } catch {
-      return '<!-- logo not found -->'
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Build HTML email signature
-// ---------------------------------------------------------------------------
-
-function buildSignatureHtml(params: {
-  name: string
-  role: string
-  email: string
-  phone: string
-  logoSvg: string
-}): string {
-  const { name, role, email, phone } = params
-
-  // Sanitize the inline SVG for safe HTML embedding
-  const safeLogoSvg = params.logoSvg
-    .replace(/<\?xml[^?]*\?>/g, '')
-    .trim()
-
-  const emailLink = email
-    ? `<a href="mailto:${escapeHtml(email)}" style="color:#555555;text-decoration:none;">${escapeHtml(email)}</a>`
-    : ''
-  const phoneLink = phone
-    ? `<a href="tel:${escapeHtml(phone)}" style="color:#555555;text-decoration:none;">${escapeHtml(phone)}</a>`
-    : ''
-
-  return `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;">
-<table cellpadding="0" cellspacing="0" border="0" style="border-top:3px solid #FA3913;padding-top:12px;max-width:480px;font-family:Arial,Helvetica,sans-serif;">
-  <tr>
-    <td style="vertical-align:top;padding-right:16px;">
-      <div style="width:48px;height:48px;">
-        ${safeLogoSvg}
-      </div>
-    </td>
-    <td style="vertical-align:top;">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td style="font-size:16px;font-weight:bold;color:#1a1a1a;padding-bottom:2px;">
-            ${escapeHtml(name)}
-          </td>
-        </tr>
-        ${role ? `<tr><td style="font-size:13px;color:#777777;padding-bottom:6px;">${escapeHtml(role)}</td></tr>` : ''}
-        ${email ? `<tr><td style="font-size:13px;color:#555555;padding-bottom:2px;">${emailLink}</td></tr>` : ''}
-        ${phone ? `<tr><td style="font-size:13px;color:#555555;">${phoneLink}</td></tr>` : ''}
-      </table>
-    </td>
-  </tr>
-</table>
-</body>
-</html>`
-}
-
-// ---------------------------------------------------------------------------
-// HTML entity escaping
-// ---------------------------------------------------------------------------
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-
-// ---------------------------------------------------------------------------
-// GET handler
-// ---------------------------------------------------------------------------
+import { generateSignature } from './_lib/generate-signature'
+import type { SignatureParams } from './_lib/signature-types'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const project = searchParams.get('project') || 'wiki-codex'
-    const name = searchParams.get('name') || ''
-    const role = searchParams.get('role') || ''
-    const email = searchParams.get('email') || ''
-    const phone = searchParams.get('phone') || ''
-    const mode = searchParams.get('mode') || 'auto'
-
-    // Validate mode
-    const validModes = ['auto', 'dark', 'light']
-    if (!validModes.includes(mode)) {
-      return NextResponse.json(
-        { error: `Invalid mode "${mode}". Must be one of: auto, dark, light` },
-        { status: 400 },
-      )
+    const params: SignatureParams = {
+      project: searchParams.get('project') || 'wiki-codex',
+      name: searchParams.get('name') || '',
+      role: searchParams.get('role') || '',
+      email: searchParams.get('email') || '',
+      phone: searchParams.get('phone') || '',
+      mode: searchParams.get('mode') || 'auto',
     }
 
-    // Validate required fields
-    if (!name) {
-      return NextResponse.json(
-        { error: 'Query parameter "name" is required' },
-        { status: 400 },
-      )
+    const result = generateSignature(params)
+
+    if ('error' in result) {
+      return NextResponse.json({ error: result.error }, { status: result.status })
     }
 
-    // Detect theme using the same logic as logo-theme
-    const description = getProjectDescription(project)
-    const content = detectContent(description)
-    const darkUI = detectDarkUI(description)
-    const theme = resolve(content, darkUI, mode)
-
-    // Read the appropriate SVG file
-    const logoSvg = readLogoSvg(theme)
-
-    // Generate the HTML signature
-    const html = buildSignatureHtml({
-      name,
-      role,
-      email,
-      phone,
-      logoSvg,
-    })
-
-    return new NextResponse(html, {
+    return new NextResponse(result.html, {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',

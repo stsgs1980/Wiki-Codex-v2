@@ -3,6 +3,13 @@
 import { useCallback } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { getTermPlural } from './utils'
+import {
+  extractTermsFromDocuments,
+  deleteTermById,
+  batchDeleteTerms,
+  fetchDuplicateGroups,
+  mergeDuplicateGroup,
+} from './use-term-mutations'
 import type { DictionaryViewProps, DuplicateGroup, Term } from './types'
 
 interface UseDictionaryActionsParams {
@@ -44,33 +51,13 @@ export function useDictionaryActions(params: UseDictionaryActionsParams) {
       return
     }
     setIsExtracting(true)
-    let totalCreated = 0
-    let totalSkipped = 0
-    const processedIds = new Set<string>()
     try {
-      for (const doc of documents) {
-        if (!doc.content || doc.content.trim().length < 50) continue
-        if (processedIds.has(doc.id)) continue
-        processedIds.add(doc.id)
-        setExtractionProgress(`Обработка: ${doc.title}`)
-        try {
-          const res = await fetch('/api/terms/parse', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: doc.content, documentId: doc.id }),
-          })
-          if (res.ok) {
-            const data = await res.json()
-            totalCreated += data.created || 0
-            totalSkipped += data.skipped || 0
-          }
-        } catch { /* continue */ }
-      }
-      if (totalCreated > 0) {
-        toast({ title: 'Извлечение завершено', description: `Добавлено ${totalCreated} ${getTermPlural(totalCreated)} в словарь${totalSkipped > 0 ? `, ${totalSkipped} пропущено` : ''}` })
+      const { created, skipped } = await extractTermsFromDocuments(documents, setExtractionProgress)
+      if (created > 0) {
+        toast({ title: 'Извлечение завершено', description: `Добавлено ${created} ${getTermPlural(created)} в словарь${skipped > 0 ? `, ${skipped} пропущено` : ''}` })
         onTermsExtracted()
       } else {
-        toast({ title: 'Нет новых терминов', description: totalSkipped > 0 ? `${totalSkipped} ${getTermPlural(totalSkipped)} уже существуют в словаре` : 'Не удалось извлечь термины из документов' })
+        toast({ title: 'Нет новых терминов', description: skipped > 0 ? `${skipped} ${getTermPlural(skipped)} уже существуют в словаре` : 'Не удалось извлечь термины из документов' })
       }
     } catch {
       toast({ title: 'Ошибка', description: 'Не удалось завершить извлечение терминов', variant: 'destructive' })
@@ -84,8 +71,8 @@ export function useDictionaryActions(params: UseDictionaryActionsParams) {
     if (!deleteTarget) return
     setIsDeleting(true)
     try {
-      const res = await fetch(`/api/terms?id=${deleteTarget.id}`, { method: 'DELETE' })
-      if (res.ok) {
+      const ok = await deleteTermById(deleteTarget.id)
+      if (ok) {
         toast({ title: 'Термин удален', description: `"${deleteTarget.term}" удален из словаря` })
         onTermsExtracted()
       }
@@ -101,9 +88,8 @@ export function useDictionaryActions(params: UseDictionaryActionsParams) {
     if (selectedIds.size === 0) return
     setIsBatchDeleting(true)
     try {
-      const ids = Array.from(selectedIds).join(',')
-      const res = await fetch(`/api/terms?ids=${ids}`, { method: 'DELETE' })
-      if (res.ok) {
+      const ok = await batchDeleteTerms(Array.from(selectedIds))
+      if (ok) {
         toast({ title: 'Удалено', description: `${selectedCount} ${getTermPlural(selectedCount)} удалено из словаря` })
         onTermsExtracted()
         exitSelectionMode()
@@ -119,11 +105,10 @@ export function useDictionaryActions(params: UseDictionaryActionsParams) {
   const handleFindDuplicates = useCallback(async () => {
     setIsFetchingDuplicates(true)
     try {
-      const res = await fetch('/api/terms?duplicates=true')
-      if (res.ok) {
-        const data = await res.json()
-        setDuplicateGroups(data.duplicates || [])
-        setTotalDuplicates(data.totalDuplicates || 0)
+      const result = await fetchDuplicateGroups()
+      if (result) {
+        setDuplicateGroups(result.duplicates)
+        setTotalDuplicates(result.totalDuplicates)
         setShowDuplicatesDialog(true)
       }
     } catch {
@@ -140,12 +125,8 @@ export function useDictionaryActions(params: UseDictionaryActionsParams) {
     const keptTerm = [group.original, ...group.duplicates].find((t) => t.id === keepId) || group.original
     setIsMerging(group.original.id)
     try {
-      const res = await fetch('/api/terms', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keepId, mergeIds, mergeTranslations: { translation: keptTerm.translation, explanation: keptTerm.explanation } }),
-      })
-      if (res.ok) {
+      const ok = await mergeDuplicateGroup({ keepId, mergeIds, keptTerm })
+      if (ok) {
         toast({ title: 'Объединено', description: `"${keptTerm.term}" -- ${mergeIds.length} ${getTermPlural(mergeIds.length)} объединено` })
         setDuplicateGroups((prev) => prev.filter((g) => g.original.id !== group.original.id))
         setTotalDuplicates((prev) => Math.max(0, prev - mergeIds.length))

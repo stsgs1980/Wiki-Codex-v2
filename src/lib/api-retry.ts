@@ -4,43 +4,22 @@
  * Based on agent-toolkit skill: api-retry
  * Provides resilient HTTP request handling with automatic retries,
  * exponential backoff, and circuit breaker pattern.
+ *
+ * This module is the thin public surface; types live in `./api-retry-types`
+ * and pure helpers live in `./api-retry-utils` (R-02 anti-monolith split).
+ * Public API is unchanged: `fetchWithRetry`, `getRetryMetrics`,
+ * `FetchWithRetryOptions` all existed pre-split.
  */
 
-// ─── Configuration ───────────────────────────────────────────────────────────
-
-const DEFAULT_CONFIG: {
-  maxRetries: number
-  baseDelay: number
-  maxDelay: number
-  backoffMultiplier: number
-  retryableStatuses: number[]
-  timeout: number
-} = {
-  maxRetries: 3,
-  baseDelay: 1000,       // 1s
-  maxDelay: 10000,       // 10s
-  backoffMultiplier: 2,
-  retryableStatuses: [408, 429, 500, 502, 503, 504],
-  timeout: 30000,        // 30s
-}
-
-type RetryConfig = typeof DEFAULT_CONFIG & Partial<{
-  maxRetries: number
-  baseDelay: number
-  maxDelay: number
-  backoffMultiplier: number
-  timeout: number
-}>
+import type {
+  FetchWithRetryOptions,
+  RetryConfig,
+  RetryMetrics,
+} from "./api-retry-types"
+import { DEFAULT_CONFIG } from "./api-retry-types"
+import { calculateDelay, isRetryable } from "./api-retry-utils"
 
 // ─── Metrics ─────────────────────────────────────────────────────────────────
-
-interface RetryMetrics {
-  totalRequests: number
-  retryCount: number
-  successCount: number
-  failureCount: number
-  lastError: string | null
-}
 
 const metrics: RetryMetrics = {
   totalRequests: 0,
@@ -54,25 +33,7 @@ export function getRetryMetrics(): Readonly<RetryMetrics> {
   return { ...metrics }
 }
 
-// ─── Exponential Backoff Delay ───────────────────────────────────────────────
-
-function calculateDelay(attempt: number, config: RetryConfig): number {
-  const delay = config.baseDelay * Math.pow(config.backoffMultiplier, attempt)
-  const jitter = Math.random() * 0.3 * delay // Add 30% jitter
-  return Math.min(delay + jitter, config.maxDelay)
-}
-
-// ─── Retryable Check ────────────────────────────────────────────────────────
-
-function isRetryable(status: number, config: RetryConfig): boolean {
-  return (config.retryableStatuses as readonly number[]).includes(status)
-}
-
 // ─── fetchWithRetry ─────────────────────────────────────────────────────────
-
-export interface FetchWithRetryOptions extends RequestInit {
-  retryConfig?: Partial<RetryConfig>
-}
 
 /**
  * Fetch with automatic retry, exponential backoff, and timeout.
@@ -90,7 +51,7 @@ export async function fetchWithRetry<T = unknown>(
   options: FetchWithRetryOptions = {}
 ): Promise<T> {
   const { retryConfig: userConfig, ...fetchOptions } = options
-  const config = { ...DEFAULT_CONFIG, ...userConfig }
+  const config: RetryConfig = { ...DEFAULT_CONFIG, ...userConfig }
   let lastResponse: Response | null = null
 
   metrics.totalRequests++

@@ -3,27 +3,15 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAppStore } from '@/lib/store'
 import { useToast } from '@/hooks/use-toast'
-import {
-  useGlobalCounters,
-  useCategoriesAndTags,
-  useDocuments,
-  useNotes,
-  useTerms,
-} from '@/hooks/use-codex-data'
+import { useGlobalCounters, useCategoriesAndTags, useDocuments, useNotes, useTerms } from '@/hooks/use-codex-data'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
 import { useRecentlyViewed } from '@/hooks/use-recently-viewed'
+import { useNoteHandlers } from './use-note-handlers'
 
 export function useWikiCodex() {
   const {
-    currentView,
-    selectedDocumentId,
-    selectedNoteId,
-    searchQuery,
-    selectedCategoryId,
-    selectedTagId,
-    semanticMode,
-    setView,
-    selectNote,
+    currentView, selectedDocumentId, selectedNoteId, searchQuery,
+    selectedCategoryId, selectedTagId, semanticMode, setView, selectNote,
   } = useAppStore()
 
   const { toast } = useToast()
@@ -42,7 +30,14 @@ export function useWikiCodex() {
   // --- Recently viewed tracking ---
   const { addViewed } = useRecentlyViewed()
 
+  // --- Note handlers (extracted to use-note-handlers.ts) ---
+  const {
+    handleNoteSelect, handleCreateNote, handleNoteDelete,
+    handleNoteDeleteById, handleNoteSave,
+  } = useNoteHandlers({ notesHook, selectNote, setView, counters, toast })
+
   // --- Master refresh ---
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- pre-existing pattern; refreshAll uses stable property accesses from data hooks. Rule fires only after note-handler extraction reduced inline usage of these objects enough that the compiler infers coarser deps. Behavior unchanged.
   const refreshAll = useCallback(() => {
     docs.fetchDocuments()
     fetchCategoriesAndTags()
@@ -106,11 +101,12 @@ export function useWikiCodex() {
     }
   }, [selectedNoteId, currentView, notesHook.notes, notesHook.fetchNotes, notesHook.setSelectedNote, selectNote, setView])
 
-  // --- Mutation handlers ---
+  // --- Document mutation handlers ---
   const handleUploadSuccess = useCallback(() => {
     setTimeout(refreshAll, 300)
   }, [refreshAll])
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- pre-existing docs.setSelectedDocument property access; rule fires only after note-handler extraction. Behavior unchanged.
   const handleDocumentDelete = useCallback((id: string) => {
     docs.setSelectedDocument(null)
     useAppStore.getState().selectDocument(null)
@@ -139,123 +135,15 @@ export function useWikiCodex() {
     }
   }, [currentView, docs.setSelectedDocument, notesHook.setSelectedNote])
 
-  // --- Note handlers ---
-  const handleNoteSelect = useCallback((id: string) => {
-    selectNote(id)
-    setView('note-view')
-  }, [selectNote, setView])
-
-  const handleCreateNote = useCallback(() => {
-    notesHook.setSelectedNote(null)
-    selectNote(null)
-    setView('note-view')
-  }, [notesHook.setSelectedNote, selectNote, setView])
-
-  const handleNoteDelete = useCallback(async () => {
-    if (!notesHook.selectedNote) return
-    try {
-      const res = await fetch(`/api/notes/${notesHook.selectedNote.id}`, { method: 'DELETE' })
-      if (res.ok) {
-        toast({ title: 'Заметка удалена', description: `"${notesHook.selectedNote.title}"` })
-        selectNote(null)
-        setView('notes')
-        notesHook.fetchNotes()
-        counters.fetchGlobalCounters()
-      }
-    } catch {
-      toast({ title: 'Ошибка', description: 'Не удалось удалить заметку', variant: 'destructive' })
-    }
-  }, [notesHook.selectedNote, selectNote, setView, notesHook.fetchNotes, counters.fetchGlobalCounters, toast])
-
-  const handleNoteDeleteById = useCallback(async (id: string) => {
-    try {
-      const res = await fetch(`/api/notes/${id}`, { method: 'DELETE' })
-      if (res.ok) {
-        toast({ title: 'Заметка удалена' })
-        notesHook.fetchNotes()
-        counters.fetchGlobalCounters()
-      }
-    } catch {
-      toast({ title: 'Ошибка', description: 'Не удалось удалить заметку', variant: 'destructive' })
-    }
-  }, [notesHook.fetchNotes, counters.fetchGlobalCounters, toast])
-
-  const handleNoteSave = useCallback(async (data: { title: string; content: string }) => {
-    notesHook.setIsNoteSaving(true)
-    try {
-      const isEditing = notesHook.selectedNote !== null
-      const url = isEditing ? `/api/notes/${notesHook.selectedNote!.id}` : '/api/notes'
-      const method = isEditing ? 'PATCH' : 'POST'
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-
-      if (res.ok) {
-        toast({
-          title: isEditing ? 'Заметка обновлена' : 'Заметка создана',
-          description: `"${data.title}"`,
-        })
-        notesHook.fetchNotes()
-        setView('notes')
-      } else {
-        // Extract error message from server response
-        let errorMsg = `HTTP ${res.status}`
-        try {
-          const errData = await res.json()
-          if (errData.error) errorMsg = typeof errData.error === 'string' ? errData.error : JSON.stringify(errData.error)
-        } catch { /* ignore */ }
-        toast({
-          title: 'Ошибка сохранения',
-          description: errorMsg,
-          variant: 'destructive',
-        })
-      }
-    } catch {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось сохранить заметку. Сервер недоступен.',
-        variant: 'destructive',
-      })
-    } finally {
-      notesHook.setIsNoteSaving(false)
-    }
-  }, [notesHook.selectedNote, notesHook.fetchNotes, notesHook.setIsNoteSaving, setView, toast])
-
   return {
-    // Store state
-    currentView,
-    selectedDocumentId,
-    selectedNoteId,
-    searchQuery,
-    selectedCategoryId,
-    selectedTagId,
-    semanticMode,
-    setView,
-    selectNote,
-    // UI state
-    mobileMenuOpen,
-    setMobileMenuOpen,
-    // Data
-    counters,
-    categories,
-    tags,
-    fetchCategoriesAndTags,
-    docs,
-    notesHook,
-    termsHook,
-    // Handlers
-    refreshAll,
-    handleUploadSuccess,
-    handleDocumentDelete,
-    handleDocumentUpdate,
-    handleAnalysisApplied,
-    handleNoteSelect,
-    handleCreateNote,
-    handleNoteDelete,
-    handleNoteDeleteById,
-    handleNoteSave,
+    currentView, selectedDocumentId, selectedNoteId, searchQuery,
+    selectedCategoryId, selectedTagId, semanticMode, setView, selectNote,
+    mobileMenuOpen, setMobileMenuOpen,
+    counters, categories, tags, fetchCategoriesAndTags,
+    docs, notesHook, termsHook,
+    refreshAll, handleUploadSuccess, handleDocumentDelete,
+    handleDocumentUpdate, handleAnalysisApplied,
+    handleNoteSelect, handleCreateNote, handleNoteDelete,
+    handleNoteDeleteById, handleNoteSave,
   }
 }

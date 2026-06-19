@@ -1,9 +1,6 @@
 'use client'
 
-import {
-  Plus,
-  X,
-} from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
@@ -16,20 +13,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { useAppStore } from '@/lib/store'
 import type { Tag } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { SidebarTagItem } from './sidebar-tag-item'
 
 interface TagDialogState {
   tagDialogOpen: boolean
@@ -119,51 +106,21 @@ export function SidebarTags({
             {tags.map((tag) => {
               const isActive = selectedTagId === tag.id
               return (
-                <div key={tag.id} className="group relative inline-flex">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'text-xs cursor-pointer transition-colors',
-                      isActive
-                        ? 'font-medium tag-color-bg tag-color-border tag-color-text'
-                        : 'hover:bg-accent tag-color-text tag-color-border'
-                    )}
-                    style={{ '--tag-color': tag.color } as React.CSSProperties}
-                    onClick={() => {
-                      if (isActive) {
-                        setSelectedTag(null)
-                      } else {
-                        setSelectedTag(tag.id)
-                        setView('documents')
-                      }
-                      onNavigate?.()
-                    }}
-                  >
-                    {tag.name}
-                  </Badge>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button
-                        className="absolute -top-1.5 -right-1.5 size-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <X className="size-2" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Удалить тег?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          &quot;{tag.name}&quot; будет удалён. Связи с документами будут удалены.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Отмена</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => dialog.handleDeleteTag(tag.id)}>Удалить</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
+                <SidebarTagItem
+                  key={tag.id}
+                  tag={tag}
+                  isActive={isActive}
+                  onClick={() => {
+                    if (isActive) {
+                      setSelectedTag(null)
+                    } else {
+                      setSelectedTag(tag.id)
+                      setView('documents')
+                    }
+                    onNavigate?.()
+                  }}
+                  onDelete={dialog.handleDeleteTag}
+                />
               )
             })}
             {tags.length === 0 && (

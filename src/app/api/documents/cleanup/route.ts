@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { Prisma } from '@prisma/client'
+import { handleScan } from './_lib/scan'
+import { handleDelete } from './_lib/delete'
 
 interface ScanBody {
   action: 'scan'
@@ -13,18 +13,6 @@ interface DeleteBody {
 }
 
 type CleanupBody = ScanBody | DeleteBody
-
-interface DuplicateEntry {
-  id: string
-  title: string
-  updatedAt: Date
-}
-
-interface DuplicateGroup {
-  reason: 'title'
-  keep: DuplicateEntry
-  duplicates: DuplicateEntry[]
-}
 
 export async function POST(request: NextRequest) {
   // ── 1. Parse & validate body ────────────────────────────────────────
@@ -48,129 +36,4 @@ export async function POST(request: NextRequest) {
   }
 
   return handleDelete(body.ids)
-}
-
-/**
- * Scan mode: Find all duplicate documents by title (case-insensitive).
- * Keeps the newest document in each group.
- */
-async function handleScan(): Promise<NextResponse> {
-  try {
-    const documents = await db.document.findMany({
-      select: {
-        id: true,
-        title: true,
-        updatedAt: true,
-      },
-      orderBy: { updatedAt: 'desc' },
-    })
-
-    const groups: DuplicateGroup[] = []
-
-    // Group by title (case-insensitive)
-    const titleMap = new Map<string, typeof documents>()
-
-    for (const doc of documents) {
-      const key = doc.title.toLowerCase()
-      const existing = titleMap.get(key)
-      if (existing) {
-        existing.push(doc)
-      } else {
-        titleMap.set(key, [doc])
-      }
-    }
-
-    for (const [, docs] of titleMap) {
-      if (docs.length < 2) continue
-
-      // Sort by updatedAt descending — most recent first
-      docs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-
-      const keep = docs[0]
-      const duplicates = docs.slice(1)
-
-      groups.push({
-        reason: 'title',
-        keep: { id: keep.id, title: keep.title, updatedAt: keep.updatedAt },
-        duplicates: duplicates.map((d) => ({
-          id: d.id,
-          title: d.title,
-          updatedAt: d.updatedAt,
-        })),
-      })
-    }
-
-    const totalDuplicates = groups.reduce((sum, g) => sum + g.duplicates.length, 0)
-    const totalGroups = groups.length
-
-    return NextResponse.json({
-      groups,
-      totalDuplicates,
-      totalGroups,
-    })
-  } catch (error) {
-    console.error('[cleanup] Scan failed:', error)
-    return NextResponse.json(
-      { error: 'Failed to scan for duplicate documents' },
-      { status: 500 }
-    )
-  }
-}
-
-/**
- * Delete mode: Delete specific duplicate documents by IDs.
- * Cascade deletes tags via DocumentTag.
- */
-async function handleDelete(ids: string[] | undefined): Promise<NextResponse> {
-  if (!ids || !Array.isArray(ids) || ids.length === 0) {
-    return NextResponse.json(
-      { error: 'ids must be a non-empty array of document IDs' },
-      { status: 400 }
-    )
-  }
-
-  try {
-    let deleted = 0
-
-    await db.$transaction(async (tx) => {
-      for (const id of ids) {
-        try {
-          // Delete DocumentTag relations first (explicit, even though cascade exists)
-          await tx.documentTag.deleteMany({ where: { documentId: id } })
-          await tx.document.delete({ where: { id } })
-          deleted++
-        } catch (docError) {
-          // Individual document may not exist — skip and continue
-          const errMsg =
-            docError instanceof Error ? docError.message : String(docError)
-          if (errMsg.includes('Record to delete not found')) {
-            console.warn(`[cleanup] Document ${id} not found, skipping`)
-          } else {
-            throw docError // re-throw unexpected errors to rollback transaction
-          }
-        }
-      }
-    })
-
-    return NextResponse.json({
-      deleted,
-      ids,
-    })
-  } catch (error) {
-    console.error('[cleanup] Delete failed:', error)
-
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        return NextResponse.json(
-          { error: 'One or more documents not found' },
-          { status: 404 }
-        )
-      }
-    }
-
-    return NextResponse.json(
-      { error: 'Failed to delete duplicate documents' },
-      { status: 500 }
-    )
-  }
 }
