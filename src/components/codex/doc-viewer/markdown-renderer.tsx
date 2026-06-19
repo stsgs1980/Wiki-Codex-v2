@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useToast } from '@/hooks/use-toast'
 import { extractStackSignature, preprocessTextTags, type MarkdownContentProps } from './markdown-preprocessors'
 import { createMarkdownOverrides } from './markdown-overrides'
@@ -14,9 +15,10 @@ import { createMarkdownOverrides } from './markdown-overrides'
  *      footer (§8) so it can be rendered separately from the prose.
  *   2. preprocessTextTags rewrites [OK]/[FAIL]/[TODO] etc. into inline code
  *      placeholders (`[TAG:OK]`) outside fenced code blocks (§4.4).
- *   3. ReactMarkdown renders the body with terminal-themed overrides built
- *      by createMarkdownOverrides — headings, lists, tables, blockquotes,
- *      links, and the code-block renderer (with copy button + SyntaxHighlighter).
+ *   3. ReactMarkdown renders the body with the `remark-gfm` plugin enabled
+ *      (adds GFM tables, strikethrough, autolink-literals, task lists) and
+ *      terminal-themed overrides built by createMarkdownOverrides — headings,
+ *      lists, tables, blockquotes, links, and the code-block renderer.
  *   4. The stack signature is appended as a terminal-style footer.
  *
  * IMPORTANT: this export is named `MarkdownContent` (not `MarkdownRenderer`)
@@ -46,7 +48,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
 
   return (
     <div className="prose dark:prose-invert prose-sm md:prose-base max-w-none break-words [&_pre]:overflow-x-auto [&_code]:break-all [&_a]:break-all mt-3">
-      <ReactMarkdown components={components}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {processedBody}
       </ReactMarkdown>
       {/* NOTE: body is preprocessed for text tags ([OK] → `[TAG:OK]`) before ReactMarkdown */}

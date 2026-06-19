@@ -74,15 +74,24 @@ export function createMarkdownOverrides({ copiedBlockId, onCopy }: CreateMarkdow
     table({ children }) {
       return (
         <div className="overflow-x-auto mb-4 my-3 border border-border rounded-md">
-          <table className="min-w-full">{children}</table>
+          <table className="min-w-full border-collapse">{children}</table>
         </div>
       )
     },
+    thead({ children }) {
+      return <thead className="border-b border-border">{children}</thead>
+    },
+    tbody({ children }) {
+      return <tbody className="divide-y divide-border/40">{children}</tbody>
+    },
+    tr({ children }) {
+      return <tr className="transition-colors hover:bg-muted/40 even:bg-muted/20">{children}</tr>
+    },
     th({ children }) {
-      return <th className="border-b border-border bg-muted/60 px-3 py-2 text-left text-xs font-mono font-semibold text-foreground uppercase tracking-wide">{children}</th>
+      return <th className="border-b border-border bg-muted/60 px-3 py-2 text-left text-xs font-mono font-semibold text-foreground uppercase tracking-wide align-top">{children}</th>
     },
     td({ children }) {
-      return <td className="border-b border-border/50 px-3 py-2 text-sm text-muted-foreground">{children}</td>
+      return <td className="px-3 py-2 text-sm text-muted-foreground align-top">{children}</td>
     },
     hr() {
       return <hr className="border-border my-6" />
