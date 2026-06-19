@@ -23,21 +23,40 @@ export function TermCardList({
 }: TermCardProps) {
   const [expanded, setExpanded] = useState(false)
 
+  const handleToggle = () => {
+    if (selectionMode) {
+      onToggleSelection()
+    } else {
+      setExpanded(!expanded)
+    }
+  }
+
+  // Keyboard handler: Enter / Space activate the row (a11y for div-as-button)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Don't intercept keys typed inside the inner delete button or checkbox
+    const target = e.target as HTMLElement
+    if (target.closest('button, [role="button"], input')) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleToggle()
+    }
+  }
+
   return (
     <div className="group">
-      <button
-        type="button"
+      {/* Outer row is a div[role=button] because it contains a real <Button>
+          (delete). HTML forbids <button>-inside-<button>, which caused a
+          React hydration error. Keeping the delete as a real <button> is
+          better for a11y than nesting two real buttons. */}
+      <div
+        role="button"
+        tabIndex={0}
         className={cn(
-          'text-left w-full flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 sm:px-4 sm:py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono',
+          'text-left w-full flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 sm:px-4 sm:py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           selected && 'ring-2 ring-primary bg-primary/5 border-solid'
         )}
-        onClick={() => {
-          if (selectionMode) {
-            onToggleSelection()
-          } else {
-            setExpanded(!expanded)
-          }
-        }}
+        onClick={handleToggle}
+        onKeyDown={handleKeyDown}
         aria-expanded={expanded}
         aria-controls={`term-content-${t.id}`}
       >
@@ -93,7 +112,7 @@ export function TermCardList({
             <Trash2 className="size-3" />
           </Button>
         )}
-      </button>
+      </div>
 
       {/* Expanded details */}
       {!selectionMode && expanded && (
