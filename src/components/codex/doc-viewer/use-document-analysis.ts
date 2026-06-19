@@ -45,7 +45,7 @@ export function useDocumentAnalysis({ initialDoc, onApplySuccess }: UseDocumentA
     setIsApplying(true)
     try {
       let categoryId = analysis.suggestedCategory?.id || null
-      const tagIds = [...analysis.matchedTags.map((t) => t.id)]
+      const tagIds = [...new Set(analysis.matchedTags.map((t) => t.id))]
 
       if (analysis.suggestedNewCategory && !categoryId) {
         const catRes = await fetch('/api/categories', {

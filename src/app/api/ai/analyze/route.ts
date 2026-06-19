@@ -87,9 +87,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Сопоставляем предложенные теги с существующими
+    // Сопоставляем предложенные теги с существующими (с дедупликацией по id)
+    // Несколько предложенных имён могут сматчиться на один и тот же существующий
+    // тег из-за нечёткого сравнения includes() в обе стороны — дедуплицируем,
+    // чтобы избежать дублирующихся ключей в UI и повторных tagId при apply.
     const matchedTags: { id: string; name: string; color: string }[] = []
+    const matchedTagIds = new Set<string>()
     const newTagNames: string[] = []
+    const newTagNamesLower = new Set<string>()
 
     if (analysis.suggestedTags && Array.isArray(analysis.suggestedTags)) {
       for (const tagName of analysis.suggestedTags) {
@@ -100,9 +105,16 @@ export async function POST(request: NextRequest) {
             tagName.toLowerCase().includes(t.name.toLowerCase())
         )
         if (match) {
-          matchedTags.push({ id: match.id, name: match.name, color: match.color })
+          if (!matchedTagIds.has(match.id)) {
+            matchedTagIds.add(match.id)
+            matchedTags.push({ id: match.id, name: match.name, color: match.color })
+          }
         } else {
-          newTagNames.push(tagName)
+          const lower = tagName.toLowerCase()
+          if (!newTagNamesLower.has(lower)) {
+            newTagNamesLower.add(lower)
+            newTagNames.push(tagName)
+          }
         }
       }
     }

@@ -54,7 +54,9 @@ export function DocumentAnalysisSection({
           {analysis.matchedTags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               <span className="text-muted-foreground">tags:</span>
-              {analysis.matchedTags.map((t) => (
+              {Array.from(
+                new Map(analysis.matchedTags.map((t) => [t.id, t])).values()
+              ).map((t) => (
                 <Badge key={t.id} variant="outline" className="text-3xs">{t.name}</Badge>
               ))}
               {analysis.newTagNames.map((n, i) => (
