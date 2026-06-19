@@ -1,13 +1,13 @@
 'use client'
 
-import { FileText, Trash2 } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { motion } from 'framer-motion'
 import { staggerItem, cardHover } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { TermCardProps } from './types'
+import { TermDeleteButton } from './term-delete-button'
 
 export function TermCardGrid({
   term: t,
@@ -35,16 +35,7 @@ export function TermCardGrid({
               <span className="font-semibold text-sm sm:text-base truncate font-sans">{t.term}</span>
             </div>
             {!selectionMode && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-6 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
-                onClick={onDelete}
-                title="Удалить термин"
-                aria-label="Удалить термин"
-              >
-                <Trash2 className="size-3" />
-              </Button>
+              <TermDeleteButton onDelete={onDelete} />
             )}
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2 leading-relaxed font-sans">{t.translation}</p>
