@@ -33,11 +33,10 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
   const preview = note.content.length > 100 ? note.content.slice(0, 100) + '...' : note.content
 
   return (
-    <motion.div
+    <motion.li
       variants={staggerItem}
       {...listItemHover}
-      className="flex items-start gap-3 border-b px-3 py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono text-sm group"
-      onClick={() => onSelect(note.id)}
+      className="relative flex items-start gap-3 border-b px-3 py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono text-sm group"
     >
       <span className="text-terminal-accent shrink-0 select-none text-xs leading-5">$</span>
       <div className="flex-1 min-w-0">
@@ -48,8 +47,9 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-6 shrink-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                className="relative z-10 size-6 shrink-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                 onClick={(e) => e.stopPropagation()}
+                aria-label="Удалить заметку"
               >
                 <Trash2 className="size-3" />
               </Button>
@@ -71,11 +71,17 @@ function NoteCard({ note, onSelect, onDelete }: { note: Note; onSelect: (id: str
         {note.content && (
           <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-0.5 font-sans">{renderTextTags(preview)}</p>
         )}
-        <span className="text-[10px] text-muted-foreground/80 mt-1 inline-block">
+        <span className="text-3xs text-muted-foreground/80 mt-1 inline-block">
           {formatDate(note.updatedAt)}
         </span>
       </div>
-    </motion.div>
+      <button
+        type="button"
+        onClick={() => onSelect(note.id)}
+        className="absolute inset-0 w-full h-full cursor-pointer"
+        aria-label={`Открыть заметку: ${note.title}`}
+      />
+    </motion.li>
   )
 }
 
@@ -104,6 +110,7 @@ export function NotesView({ notes, onNoteSelect, onCreateNote, onDeleteNote, isL
         <span className="hidden sm:inline">new</span>
       </Button>
     }>
+      <h1 className="sr-only">Заметки</h1>
       {isLoading ? (
         <div className="p-3">
           <LoadingSkeleton />
@@ -119,16 +126,16 @@ export function NotesView({ notes, onNoteSelect, onCreateNote, onDeleteNote, isL
           </Button>
         </div>
       ) : (
-        <motion.div
+        <motion.ul
           variants={staggerContainer}
           initial="initial"
           animate="animate"
-          className="flex flex-col"
+          className="list-none p-0 m-0 flex flex-col"
         >
           {notes.map((note) => (
             <NoteCard key={note.id} note={note} onSelect={onNoteSelect} onDelete={onDeleteNote} />
           ))}
-        </motion.div>
+        </motion.ul>
       )}
     </TerminalFrame>
   )

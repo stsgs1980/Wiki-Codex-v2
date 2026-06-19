@@ -56,7 +56,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         <div className="mt-6 pt-4 border-t border-dashed border-border">
           <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
             <span className="text-terminal-accent select-none">$</span>
-            <span className="uppercase tracking-wider text-[10px]">stack</span>
+            <span className="uppercase tracking-wider text-3xs">stack</span>
           </div>
           <p className="mt-1.5 text-sm font-mono text-foreground/80">{signature}</p>
         </div>

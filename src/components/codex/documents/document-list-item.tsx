@@ -28,7 +28,7 @@ export function DocumentListItem({ doc, formatDate, formatFileSize, onClick }: D
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm truncate leading-tight font-sans">{doc.title}</span>
+          <span className="font-semibold text-sm sm:text-base truncate leading-tight font-sans">{doc.title}</span>
           {doc.isStarred && (
             <Star className="size-3.5 text-star fill-star shrink-0" />
           )}
@@ -43,7 +43,7 @@ export function DocumentListItem({ doc, formatDate, formatFileSize, onClick }: D
         {doc.category && (
           <Badge
             variant="secondary"
-            className="text-[10px] px-1.5 py-0 font-mono tag-color-text tag-color-bg"
+            className="text-3xs px-1.5 py-0 font-mono tag-color-text tag-color-bg"
             style={{ '--tag-color': doc.category.color } as React.CSSProperties}
           >
             {doc.category.name}

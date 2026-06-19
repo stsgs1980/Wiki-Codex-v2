@@ -31,7 +31,7 @@ export function DuplicateDialogs({ status, duplicateInfo, onCancel, onForceCreat
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertCircle className="size-5 text-amber-500" />
+              <AlertCircle className="size-5 text-neuro-brand" />
               Обнаружен похожий документ
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
@@ -48,7 +48,7 @@ export function DuplicateDialogs({ status, duplicateInfo, onCancel, onForceCreat
             <AlertDialogCancel onClick={onCancel}>
               Отмена
             </AlertDialogCancel>
-            <AlertDialogAction onClick={onForceCreate} className="bg-amber-600 hover:bg-amber-700">
+            <AlertDialogAction onClick={onForceCreate} className="bg-neuro-brand hover:bg-neuro-brand/90">
               Создать всё равно
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -66,6 +66,7 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
 
   return (
     <TerminalFrame title="documents" className="m-3 sm:m-4 md:m-6">
+      <h1 className="sr-only">Документы</h1>
       <div className="flex flex-col gap-3 p-4">
       {/* Toolbar */}
       <DocumentsToolbar
@@ -84,13 +85,13 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
       {/* Documents */}
       <AnimatePresence mode="wait">
         {viewMode === 'grid' ? (
-          <motion.div
+          <motion.ul
             key="grid"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
             exit={{ opacity: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            className="list-none p-0 m-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {filteredDocs.map((doc) => (
               <DocumentCard
@@ -103,15 +104,15 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
                 }}
               />
             ))}
-          </motion.div>
+          </motion.ul>
         ) : (
-          <motion.div
+          <motion.ul
             key="list"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
             exit={{ opacity: 0 }}
-            className="flex flex-col gap-2"
+            className="list-none p-0 m-0 flex flex-col gap-2"
           >
             {filteredDocs.map((doc) => (
               <DocumentListItem
@@ -125,7 +126,7 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
                 }}
               />
             ))}
-          </motion.div>
+          </motion.ul>
         )}
       </AnimatePresence>
       </div>

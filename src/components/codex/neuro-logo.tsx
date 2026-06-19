@@ -16,7 +16,7 @@ const sizeMap: Record<'sm' | 'md' | 'lg', number> = {
 
 const CORAL = 'var(--neuro-brand)';
 const FONT_STACK =
-  'Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  'var(--font-geist-sans), system-ui, sans-serif';
 
 export function NeuroLogo({
   className,

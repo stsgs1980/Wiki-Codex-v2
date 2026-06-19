@@ -37,7 +37,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
             >
               {stat.value}
             </motion.p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground font-mono">{stat.label.toLowerCase()}</p>
+            <p className="text-3xs sm:text-xs text-muted-foreground font-mono">{stat.label.toLowerCase()}</p>
           </div>
         </motion.div>
       ))}

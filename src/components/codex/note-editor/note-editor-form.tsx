@@ -19,7 +19,7 @@ export function NoteEditorForm({ title, content, onTitleChange, onContentChange 
     <>
       {/* Title */}
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="note-title" className="text-[11px] font-mono text-muted-foreground">$ title</Label>
+        <Label htmlFor="note-title" className="text-2xs font-mono text-muted-foreground">$ title</Label>
         <Input
           id="note-title"
           value={title}
@@ -32,8 +32,8 @@ export function NoteEditorForm({ title, content, onTitleChange, onContentChange 
       {/* Content */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <Label htmlFor="note-content" className="text-[11px] font-mono text-muted-foreground">$ content</Label>
-          <span className="text-[10px] font-mono text-muted-foreground tabular-nums">
+          <Label htmlFor="note-content" className="text-2xs font-mono text-muted-foreground">$ content</Label>
+          <span className="text-3xs font-mono text-muted-foreground tabular-nums">
             {charCount} {pluralize(charCount, ['char', 'chars', 'chars'])}
           </span>
         </div>

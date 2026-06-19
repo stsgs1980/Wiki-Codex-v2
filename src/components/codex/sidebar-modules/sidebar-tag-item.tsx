@@ -33,6 +33,7 @@ export function SidebarTagItem({
     <div className="group relative inline-flex">
       <Badge
         variant="outline"
+        asChild
         className={cn(
           'text-xs cursor-pointer transition-colors',
           isActive
@@ -40,14 +41,19 @@ export function SidebarTagItem({
             : 'hover:bg-accent tag-color-text tag-color-border'
         )}
         style={{ '--tag-color': tag.color } as React.CSSProperties}
-        onClick={onClick}
       >
-        {tag.name}
+        <button
+          type="button"
+          onClick={onClick}
+          aria-pressed={isActive}
+        >
+          {tag.name}
+        </button>
       </Badge>
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <button
-            className="absolute -top-1.5 -right-1.5 size-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+            className="absolute -top-1.5 -right-1.5 size-3.5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity hover:scale-110"
             onClick={(e) => e.stopPropagation()}
           >
             <X className="size-2" />

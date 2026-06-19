@@ -28,7 +28,7 @@ export function TerminalFrame({
           <div className="size-2 rounded-full bg-star/50" />
           <div className="size-2 rounded-full bg-terminal-accent/50" />
         </div>
-        <span className="text-[11px] font-mono text-muted-foreground truncate">{title}</span>
+        <span className="text-2xs font-mono text-muted-foreground truncate">{title}</span>
         {headerRight && <div className="ml-auto shrink-0">{headerRight}</div>}
       </div>
       {/* Content */}

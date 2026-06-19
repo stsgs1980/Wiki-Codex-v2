@@ -52,7 +52,7 @@ export function CategoryBreakdown({ categoryBreakdown, maxCatCount }: CategoryBr
                   opacity: 0.6,
                 } as React.CSSProperties}
               />
-              <span className="text-[10px] font-mono text-muted-foreground tabular-nums w-5 text-right">{cat.count}</span>
+              <span className="text-3xs font-mono text-muted-foreground tabular-nums w-5 text-right">{cat.count}</span>
             </div>
           </motion.div>
         ))}

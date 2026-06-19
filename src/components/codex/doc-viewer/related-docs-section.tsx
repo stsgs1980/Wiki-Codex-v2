@@ -25,9 +25,9 @@ export function RelatedDocsSection({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <FileSearch className="size-3 text-muted-foreground" />
-          <span className="text-[11px] font-mono text-muted-foreground">related</span>
+          <span className="text-2xs font-mono text-muted-foreground">related</span>
         </div>
-        <Button variant="ghost" size="icon" className="size-5" onClick={() => onFetchRelated(docId)} disabled={isRelatedLoading}>
+        <Button variant="ghost" size="icon" className="size-5" onClick={() => onFetchRelated(docId)} disabled={isRelatedLoading} aria-label="Обновить связанные документы">
           <RefreshCw className={cn('size-3', isRelatedLoading && 'animate-spin')} />
         </Button>
       </div>
@@ -39,34 +39,36 @@ export function RelatedDocsSection({
       )}
 
       {!isRelatedLoading && relatedDocs.length > 0 && (
-        <div className="flex flex-col gap-1">
+        <ul className="list-none p-0 m-0 flex flex-col gap-1">
           {relatedDocs.map((relDoc) => (
-            <div
-              key={relDoc.id}
-              className="flex items-center justify-between gap-2 rounded-md border border-dashed px-3 py-2 hover:bg-accent/50 transition-colors cursor-pointer font-mono"
-              onClick={() => onRelatedClick(relDoc)}
-            >
-              <span className="text-xs text-foreground truncate min-w-0">{relDoc.title}</span>
-              <Badge
-                variant="secondary"
-                className={cn(
-                  'shrink-0 text-[10px]',
-                  relDoc.similarityScore >= 0.8
-                    ? 'bg-terminal-accent/10 text-terminal-accent border border-terminal-accent/20'
-                    : relDoc.similarityScore >= 0.6
-                      ? 'bg-star/10 text-star border border-star/20'
-                      : 'bg-muted text-muted-foreground'
-                )}
+            <li key={relDoc.id}>
+              <button
+                type="button"
+                className="text-left w-full flex items-center justify-between gap-2 rounded-md border border-dashed px-3 py-2 hover:bg-accent/50 transition-colors cursor-pointer font-mono"
+                onClick={() => onRelatedClick(relDoc)}
               >
-                {Math.round(relDoc.similarityScore * 100)}%
-              </Badge>
-            </div>
+                <span className="text-xs text-foreground truncate min-w-0">{relDoc.title}</span>
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    'shrink-0 text-3xs',
+                    relDoc.similarityScore >= 0.8
+                      ? 'bg-terminal-accent/10 text-terminal-accent border border-terminal-accent/20'
+                      : relDoc.similarityScore >= 0.6
+                        ? 'bg-star/10 text-star font-medium border border-star/20'
+                        : 'bg-muted text-muted-foreground'
+                  )}
+                >
+                  {Math.round(relDoc.similarityScore * 100)}%
+                </Badge>
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       {!isRelatedLoading && relatedFetched && relatedDocs.length === 0 && (
-        <p className="text-[11px] font-mono text-muted-foreground">-- no related docs</p>
+        <p className="text-2xs font-mono text-muted-foreground">-- no related docs</p>
       )}
     </div>
   )

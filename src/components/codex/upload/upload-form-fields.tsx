@@ -40,29 +40,31 @@ export function UploadFormFields({
 }: UploadFormFieldsProps) {
   return (
     <>
-      {/* File drop */}
-      <div
-        className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
-        onClick={onFileInputClick}
+      {/* File drop — label-input association triggers the file dialog on both click and keyboard */}
+      <label
+        htmlFor="upload-file-input"
+        className="block border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
       >
         <FileText className="size-10 mx-auto mb-3 text-muted-foreground" />
         <p className="text-sm text-muted-foreground mb-1">
           Нажмите для выбора файла или перетащите сюда
         </p>
-        <p className="text-xs text-muted-foreground/60">
+        <p className="text-xs text-muted-foreground/60" id="upload-file-hint">
           Поддерживаются текстовые файлы (.md, .txt, .json, .js, .ts, .py)
         </p>
         <input
           ref={fileInputRef}
           type="file"
+          id="upload-file-input"
           accept=".md,.txt,.json,.js,.ts,.py,.yaml,.yml,.toml,.xml,.html,.css"
-          className="hidden"
+          className="sr-only"
           onChange={onFileSelect}
+          aria-describedby="upload-file-hint"
         />
         {fileName && (
           <p className="mt-2 text-sm font-medium text-primary">{fileName}</p>
         )}
-      </div>
+      </label>
 
       {/* Title */}
       <div className="flex flex-col gap-1.5">
@@ -74,7 +76,7 @@ export function UploadFormFields({
       <div className="flex flex-col gap-1.5">
         <Label className="flex items-center gap-2">
           Категория
-          <span className="text-xs text-violet-500 font-normal flex items-center gap-1">
+          <span className="text-xs text-terminal-accent font-normal flex items-center gap-1">
             <Sparkles className="size-3" />
             AI автоматически определит
           </span>
@@ -83,7 +85,7 @@ export function UploadFormFields({
           <SelectTrigger><SelectValue placeholder="Авто-определение" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="auto">
-              <span className="flex items-center gap-2"><Sparkles className="size-3.5 text-violet-500" /> Авто (AI определит)</span>
+              <span className="flex items-center gap-2"><Sparkles className="size-3.5 text-terminal-accent" /> Авто (AI определит)</span>
             </SelectItem>
             <SelectItem value="none">Без категории</SelectItem>
             {categories.map((cat) => (

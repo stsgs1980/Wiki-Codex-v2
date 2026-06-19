@@ -48,7 +48,7 @@ export function SidebarCategories({
     <div className="flex flex-col gap-1 px-2 py-3 flex-1 min-h-0">
       <div className={cn('flex items-center gap-2 px-2 py-1', isCollapsed && 'justify-center')}>
         {!isCollapsed && (
-          <span className="text-[10px] font-mono text-muted-foreground/80 uppercase tracking-wider flex-1">
+          <span className="text-3xs font-mono text-muted-foreground/80 uppercase tracking-wider flex-1">
             {'[ '}категории{' ]'}
           </span>
         )}
@@ -58,7 +58,7 @@ export function SidebarCategories({
             else dialog.closeCatDialog()
           }}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-5 shrink-0">
+              <Button variant="ghost" size="icon" className="size-5 shrink-0" aria-label="Добавить категорию">
                 <Plus className="size-3.5" />
               </Button>
             </DialogTrigger>
@@ -72,8 +72,9 @@ export function SidebarCategories({
         )}
       </div>
       <ScrollArea className="max-h-48">
-        {categories.map((cat) => (
-          <div key={cat.id} className="group flex items-center">
+        <ul className="list-none p-0 m-0 flex flex-col gap-0.5">
+          {categories.map((cat) => (
+            <li key={cat.id} className="group flex items-center">
             <Button
               variant="ghost"
               className={cn(
@@ -94,7 +95,7 @@ export function SidebarCategories({
               {!isCollapsed && (
                 <>
                   <span className="truncate">{cat.name}</span>
-                  <span className="ml-auto text-[10px] text-muted-foreground tabular-nums shrink-0">
+                  <span className="ml-auto text-3xs font-mono text-muted-foreground tabular-nums shrink-0">
                     {cat._count?.documents || 0}
                   </span>
                 </>
@@ -106,8 +107,9 @@ export function SidebarCategories({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-5 shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                    className="size-5 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
                     onClick={(e) => e.stopPropagation()}
+                    aria-label="Удалить категорию"
                   >
                     <Trash2 className="size-3" />
                   </Button>
@@ -126,10 +128,11 @@ export function SidebarCategories({
                 </AlertDialogContent>
               </AlertDialog>
             )}
-          </div>
-        ))}
+            </li>
+          ))}
+        </ul>
         {!isCollapsed && categories.length === 0 && (
-          <p className="text-[10px] text-muted-foreground/70 font-mono px-2">- пусто -</p>
+          <p className="text-3xs text-muted-foreground/70 font-mono px-2">- пусто -</p>
         )}
       </ScrollArea>
     </div>

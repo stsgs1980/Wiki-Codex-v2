@@ -25,9 +25,10 @@ export function TermCardList({
 
   return (
     <div className="group">
-      <div
+      <button
+        type="button"
         className={cn(
-          'flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 sm:px-4 sm:py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono',
+          'text-left w-full flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 sm:px-4 sm:py-2.5 hover:bg-accent/50 transition-colors cursor-pointer font-mono',
           selected && 'ring-2 ring-primary bg-primary/5 border-solid'
         )}
         onClick={() => {
@@ -37,6 +38,8 @@ export function TermCardList({
             setExpanded(!expanded)
           }
         }}
+        aria-expanded={expanded}
+        aria-controls={`term-content-${t.id}`}
       >
         {/* Checkbox in selection mode */}
         {selectionMode && (
@@ -55,7 +58,7 @@ export function TermCardList({
         )}
 
         {/* Term name */}
-        <span className="font-semibold text-xs sm:text-sm min-w-0 shrink-0 text-foreground font-sans">{t.term}</span>
+        <span className="font-semibold text-sm sm:text-base min-w-0 shrink-0 text-foreground font-sans">{t.term}</span>
 
         <span className="text-muted-foreground/70 text-xs hidden sm:inline">=</span>
 
@@ -73,7 +76,7 @@ export function TermCardList({
         )}
 
         {/* Date - desktop only */}
-        <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0 hidden sm:inline">
+        <span className="text-3xs sm:text-xs text-muted-foreground shrink-0 hidden sm:inline">
           {formatDate(t.createdAt)}
         </span>
 
@@ -82,14 +85,15 @@ export function TermCardList({
           <Button
             variant="ghost"
             size="icon"
-            className="size-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0 hidden sm:flex"
+            className="size-6 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0 hidden sm:flex"
             onClick={(e) => { e.stopPropagation(); onDelete() }}
             title="Удалить термин"
+            aria-label="Удалить термин"
           >
             <Trash2 className="size-3" />
           </Button>
         )}
-      </div>
+      </button>
 
       {/* Expanded details */}
       {!selectionMode && expanded && (
@@ -98,10 +102,11 @@ export function TermCardList({
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
           className="px-4 sm:px-10 py-2.5 sm:py-3"
+          id={`term-content-${t.id}`}
         >
           <p className="text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2 break-words leading-relaxed">{t.explanation}</p>
           {t.usage && (
-            <div className="bg-muted font-mono text-[10px] sm:text-xs p-2.5 sm:p-3 rounded-md whitespace-pre-wrap break-words">
+            <div className="bg-muted font-mono text-3xs sm:text-xs p-2.5 sm:p-3 rounded-md whitespace-pre-wrap break-words">
               {t.usage}
             </div>
           )}

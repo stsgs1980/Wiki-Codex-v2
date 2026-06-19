@@ -44,9 +44,9 @@ export function DocumentAnalysisSection({
           <div>
             <span className="text-muted-foreground">category: </span>
             {analysis.suggestedCategory ? (
-              <Badge variant="secondary" className="text-[10px]">{analysis.suggestedCategory.name}</Badge>
+              <Badge variant="secondary" className="text-3xs">{analysis.suggestedCategory.name}</Badge>
             ) : analysis.suggestedNewCategory ? (
-              <Badge variant="outline" className="text-[10px]">new: {analysis.suggestedNewCategory}</Badge>
+              <Badge variant="outline" className="text-3xs">new: {analysis.suggestedNewCategory}</Badge>
             ) : (
               <span className="text-muted-foreground">--</span>
             )}
@@ -55,10 +55,10 @@ export function DocumentAnalysisSection({
             <div className="flex flex-wrap gap-1">
               <span className="text-muted-foreground">tags:</span>
               {analysis.matchedTags.map((t) => (
-                <Badge key={t.id} variant="outline" className="text-[10px]">{t.name}</Badge>
+                <Badge key={t.id} variant="outline" className="text-3xs">{t.name}</Badge>
               ))}
               {analysis.newTagNames.map((n, i) => (
-                <Badge key={i} variant="secondary" className="text-[10px]">+{n}</Badge>
+                <Badge key={i} variant="secondary" className="text-3xs">+{n}</Badge>
               ))}
             </div>
           )}

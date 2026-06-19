@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { STEP_TYPE_CONFIG, resolveStepType } from './step-type-config'
@@ -12,6 +12,7 @@ import { withAlpha } from '@/lib/color-utils'
 
 export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNumber: number; groupColor: string }) {
   const [expanded, setExpanded] = useState(true)
+  const contentId = useId()
   const stepType = resolveStepType(step.type)
   const typeConfig = STEP_TYPE_CONFIG[stepType]
   const activeColor = stepType === 'step' ? groupColor : typeConfig.color
@@ -28,7 +29,7 @@ export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNum
       />
       {/* Number badge with glow */}
       <div
-        className="absolute left-0.5 top-0 size-7 rounded-lg flex items-center justify-center text-[11px] font-mono font-bold text-primary-foreground"
+        className="absolute left-0.5 top-0 size-7 rounded-lg flex items-center justify-center text-2xs font-mono font-bold text-primary-foreground"
         style={{
           backgroundColor: activeColor,
           boxShadow: `0 0 12px ${withAlpha(activeColor, 40)}`,
@@ -41,22 +42,24 @@ export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNum
         <button
           className="flex items-center gap-2.5 text-left w-full group/step"
           onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+          aria-controls={contentId}
         >
           {expanded
             ? <ChevronDown className="size-4 text-muted-foreground shrink-0 transition-transform group-hover/step:text-primary" />
             : <ChevronRight className="size-4 shrink-0 transition-transform" style={{ color: activeColor }} />
           }
-          <h3 className="text-sm font-semibold text-foreground leading-snug group-hover/step:text-primary transition-colors font-sans">
+          <h3 className="text-sm sm:text-base font-semibold text-foreground leading-snug group-hover/step:text-primary transition-colors font-sans">
             {step.title}
           </h3>
           {isNonStepType && (
-            <span className={cn('text-[10px] font-mono px-2 py-0.5 rounded-full border', typeConfig.badgeClass)}>
+            <span className={cn('text-3xs font-mono px-2 py-0.5 rounded-full border', typeConfig.badgeClass)}>
               {typeConfig.label}
             </span>
           )}
           {/* Tags */}
           {step.tags && step.tags.map((tag) => (
-            <span key={tag} className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-muted/50 text-muted-foreground border-border">
+            <span key={tag} className="text-3xs font-mono px-2 py-0.5 rounded-full border bg-muted/50 text-muted-foreground border-border">
               {tag}
             </span>
           ))}
@@ -64,7 +67,7 @@ export function StepCard({ step, stepNumber, groupColor }: { step: Step; stepNum
       </div>
 
       {expanded && (
-        <div className="mt-4 space-y-4 pl-6">
+        <div className="mt-4 space-y-4 pl-6" id={contentId}>
           {/* Callout box for non-default types */}
           {isNonStepType && step.description && (
             <StepCallout type={stepType} description={step.description} />

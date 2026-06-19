@@ -67,10 +67,11 @@ export function CategoryDialogForm({ dialog }: { dialog: CategoryDialogState }) 
           <ScrollArea className="max-h-52">
             <div className="flex flex-col gap-2 pr-3">
               {dialog.suggestions.map((cat, i) => (
-                <div
+                <button
                   key={i}
+                  type="button"
                   className={cn(
-                    'flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
+                    'text-left w-full flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
                     dialog.selectedSuggestions.has(i)
                       ? 'border-primary/50 bg-primary/5'
                       : 'border-border hover:border-foreground/20 hover:bg-muted/50'
@@ -96,7 +97,7 @@ export function CategoryDialogForm({ dialog }: { dialog: CategoryDialogState }) 
                       </span>
                     )}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </ScrollArea>

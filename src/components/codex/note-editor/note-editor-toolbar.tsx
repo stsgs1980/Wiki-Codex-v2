@@ -35,6 +35,7 @@ export function NoteEditorToolbar({ note, isSaving, isSaveDisabled, onSave, onCa
               size="icon"
               className="size-5 text-destructive hover:text-destructive"
               disabled={isSaving}
+              aria-label="Удалить заметку"
             >
               <Trash2 className="size-3" />
             </Button>
@@ -83,12 +84,13 @@ export function NoteEditorAnalyzeButton({ isAnalyzing, charCount, onAnalyze }: N
         onClick={onAnalyze}
         disabled={isAnalyzing || charCount < 10}
         className="gap-1.5 text-xs h-6 font-mono"
+        aria-describedby="analyze-hint"
       >
         {isAnalyzing ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
         analyze
       </Button>
       {charCount < 10 && charCount > 0 && (
-        <span className="text-[10px] font-mono text-muted-foreground">
+        <span id="analyze-hint" className="text-3xs font-mono text-muted-foreground">
           min 10 chars
         </span>
       )}

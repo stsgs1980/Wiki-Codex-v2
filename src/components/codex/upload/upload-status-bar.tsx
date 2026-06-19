@@ -38,7 +38,7 @@ export function UploadStatusBar({ status, autoCategoryName, errorMsg, isUpdate }
             : (autoCategoryName
                 ? `Загружено! AI категория: ${autoCategoryName}`
                 : 'Документ загружен успешно!'),
-          color: 'text-emerald-600',
+          color: 'text-terminal-accent',
           bg: 'bg-emerald-500/10',
         }
       case 'error':
@@ -51,7 +51,7 @@ export function UploadStatusBar({ status, autoCategoryName, errorMsg, isUpdate }
   if (!config) return null
 
   return (
-    <div className={`flex items-center gap-2 p-3 rounded-md ${config.bg} ${config.color}`}>
+    <div className={`flex items-center gap-2 p-3 rounded-md ${config.bg} ${config.color}`} aria-live="polite">
       {config.icon}
       <span className="text-sm">{config.text}</span>
     </div>

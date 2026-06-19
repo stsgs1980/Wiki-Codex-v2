@@ -70,6 +70,8 @@ export function DocumentsToolbar({
           size="sm"
           onClick={() => setStarFilter(!starFilter)}
           className="gap-1.5 sm:gap-2"
+          aria-label="Только избранные"
+          aria-pressed={starFilter}
         >
           <Star className={cn('size-4', starFilter && 'fill-star text-star')} />
           <span className="hidden sm:inline">Избранные</span>
@@ -86,6 +88,8 @@ export function DocumentsToolbar({
             size="icon"
             className="size-8 rounded-r-none"
             onClick={() => setViewMode('grid')}
+            aria-label="Сетка"
+            aria-pressed={viewMode === 'grid'}
           >
             <Grid className="size-4" />
           </Button>
@@ -94,6 +98,8 @@ export function DocumentsToolbar({
             size="icon"
             className="size-8 rounded-l-none"
             onClick={() => setViewMode('list')}
+            aria-label="Список"
+            aria-pressed={viewMode === 'list'}
           >
             <List className="size-4" />
           </Button>

@@ -4,6 +4,19 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Type scale — extended with 2 micro-sizes for terminal-style labels.
+     Hierarchy: text-3xs (10px) < text-2xs (11px) < text-xs (12px) < text-sm (14px) < text-base (16px).
+     Rule: NEVER use arbitrary text-[Npx] — pick from this scale. */
+  --text-3xs: 0.625rem;      /* 10px — uppercase micro-labels, badges */
+  --text-3xs--line-height: 1rem;
+  --text-2xs: 0.6875rem;     /* 11px — footer, breadcrumbs, metadata */
+  --text-2xs--line-height: 1rem;
+  /* tracking convention (documented):
+     tracking-tight → headings (h1/h2)
+     tracking-wide → table headers, inline <code> badges
+     tracking-wider → ALL uppercase micro-labels (counts, badges, section markers)
+     tracking-widest → ONLY the brand tagline (special case) */
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -88,16 +101,25 @@
   --sidebar-border: hsl(0 0% 90%);
   --sidebar-ring: hsl(0 0% 50%);
 
-  /* Brand tokens — dark, minimal saturation, no vivid spots */
+  /* Brand tokens — dark, minimal saturation, no vivid spots.
+     --star bumped from 38% → 32% L for WCAG 1.4.3 AA (≥4.5:1 on white). */
   --terminal-accent: hsl(160 35% 28%);
   --neuro-brand: hsl(15 50% 35%);
-  --star: hsl(40 55% 38%);
+  --star: hsl(40 55% 32%);
   --brand-purple: hsl(270 45% 40%);
 
   /* Raw channel tokens — for alpha compositing in inline styles */
   --terminal-accent-raw: 160 35% 28%;
   --neuro-brand-raw: 15 50% 35%;
-  --star-raw: 40 55% 38%;
+  --star-raw: 40 55% 32%;
+}
+
+/* WCAG 1.4.11 — focus ring at 100% alpha (was /50 = 1.82:1 FAIL, now 3.89:1 PASS).
+   Global focus-visible outline for plain <button> elements (breadcrumbs, alphabet,
+   copy buttons) that don't go through shadcn primitives. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 /* ─── Dark theme — full redesign with HSL ─── */
@@ -152,13 +174,26 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   html,
   body {
     @apply bg-background text-foreground;
     height: 100%;
     margin: 0;
+  }
+}
+
+/* WCAG 2.3.3 Animation from Interactions — respect user preference.
+   Gate all CSS animations and transitions when the user opts out. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -229,7 +264,7 @@
 .prose pre > code {
   background: none;
   padding: 0;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   line-height: 1.5;
   white-space: pre;
   overflow-x: auto;
@@ -237,7 +272,7 @@
 
 @media (min-width: 768px) {
   .prose pre > code {
-    font-size: 0.8125rem;
+    font-size: var(--text-2xs);
     line-height: 1.6;
   }
 }
@@ -277,6 +312,19 @@
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-size: 0.8em;
+}
+
+/* Skip-to-content link — WCAG 2.4.1 Bypass Blocks. Hidden visually, shown on focus. */
+.skip-to-content {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-150%);
+  transition: transform 0.2s ease-in-out;
+}
+.skip-to-content:focus {
+  transform: translateY(0);
 }
 
 /* Blockquote styling */

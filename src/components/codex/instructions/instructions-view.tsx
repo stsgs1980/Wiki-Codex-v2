@@ -41,7 +41,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
   return (
     <TerminalFrame title="instructions" className="m-3 sm:m-4 md:m-6" headerRight={
       <div className="flex items-center gap-2">
-        <Badge variant="secondary" className="text-[10px] font-mono px-1.5 py-0">
+        <Badge variant="secondary" className="text-3xs font-mono px-1.5 py-0">
           {totalCount}
         </Badge>
         <Dialog open={extractDialogOpen} onOpenChange={setExtractDialogOpen}>
@@ -60,7 +60,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
                 AI проанализирует документ и извлечёт все пошаговые инструкции автоматически.
               </p>
               <Select value={selectedDocId} onValueChange={setSelectedDocId}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Выберите документ">
                   <SelectValue placeholder="Выберите документ..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -84,6 +84,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
         </Dialog>
       </div>
     }>
+      <h1 className="sr-only">Инструкции</h1>
       <div className="flex flex-col gap-4 p-3 sm:p-4">
       {/* Search */}
       <div className="relative">
@@ -92,6 +93,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
           placeholder="grep -r ... (search instructions)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Поиск инструкций"
           className="pl-9 font-mono text-xs h-8"
         />
       </div>
@@ -113,7 +115,7 @@ export function InstructionsView({ onCountChange }: { onCountChange?: () => void
       {filteredDb.length > 0 && filteredTemplates.length > 0 && (
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-border border-dashed" />
-          <span className="text-[10px] font-mono text-muted-foreground/80">built-in</span>
+          <span className="text-3xs font-mono text-muted-foreground/80">built-in</span>
           <div className="flex-1 h-px bg-border border-dashed" />
         </div>
       )}

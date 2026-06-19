@@ -58,10 +58,10 @@ export function DuplicateGroupCard({
               <div className="text-xs sm:text-sm font-semibold truncate leading-tight">
                 {t.term}
                 {t.id === group.original.id && (
-                  <span className="text-[10px] sm:text-xs text-muted-foreground ml-1.5">(основной)</span>
+                  <span className="text-3xs sm:text-xs text-muted-foreground ml-1.5">(основной)</span>
                 )}
               </div>
-              <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
+              <div className="text-3xs sm:text-xs text-muted-foreground truncate">
                 {t.translation}
               </div>
             </div>
@@ -75,7 +75,7 @@ export function DuplicateGroupCard({
         ))}
       </div>
 
-      <p className="text-[10px] sm:text-xs text-muted-foreground">
+      <p className="text-3xs sm:text-xs text-muted-foreground" id="merge-hint">
         Выберите термин, который нужно сохранить. Остальные будут удалены и объединены с выбранным.
       </p>
 
@@ -84,6 +84,7 @@ export function DuplicateGroupCard({
         className="w-full gap-2"
         onClick={() => onMergeGroup(group)}
         disabled={isMerging === group.original.id}
+        aria-describedby="merge-hint"
       >
         {isMerging === group.original.id ? (
           <>

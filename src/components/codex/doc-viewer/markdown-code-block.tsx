@@ -114,11 +114,11 @@ export function MarkdownCode({ className, children, copiedBlockId, onCopy, ...pr
     <div className="group relative my-4 rounded-lg border border-border overflow-hidden bg-card">
       {/* Header: language label + copy button (STD-DOC-002 §5.4) */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-muted/60 border-b border-border">
-        <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="text-3xs font-mono font-medium uppercase tracking-wider text-muted-foreground">
           {lang || 'text'}
         </span>
         <button
-          className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-2xs font-mono text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => onCopy(codeText, blockId)}
         >
           {copiedBlockId === blockId ? (

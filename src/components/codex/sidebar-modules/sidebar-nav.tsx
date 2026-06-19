@@ -63,9 +63,10 @@ export function SidebarNav({
               )}
               onClick={() => { setView(item.view); onNavigate?.() }}
               title={item.label}
+              aria-current={isActive ? 'page' : undefined}
             >
               <span className={cn(
-                'text-[10px] select-none shrink-0',
+                'text-3xs select-none shrink-0',
                 isActive ? 'text-terminal-accent' : 'text-muted-foreground/70'
               )}>
                 {isActive ? '>' : '-'}
@@ -74,7 +75,7 @@ export function SidebarNav({
                 <>
                   <span className={cn('truncate', isActive && 'text-foreground font-semibold')}>{item.label}</span>
                   {item.count !== undefined && item.count > 0 && (
-                    <span className="ml-auto text-[10px] text-muted-foreground tabular-nums shrink-0">{item.count}</span>
+                    <span className="ml-auto text-3xs font-mono text-muted-foreground tabular-nums shrink-0">{item.count}</span>
                   )}
                 </>
               )}

@@ -41,10 +41,10 @@ export function SidebarContent({
         <NeuroLogo size="sm" className="shrink-0 text-foreground" />
         {!isCollapsed && (
           <div className="flex flex-col gap-0.5 min-w-0">
-            <h1 className="text-sm font-bold tracking-tight text-foreground leading-tight font-mono">
+            <div className="text-sm font-bold tracking-tight text-foreground leading-tight font-mono">
               Wiki Codex
-            </h1>
-            <span className="text-[9px] font-mono text-neuro-brand tracking-widest uppercase">
+            </div>
+            <span className="text-3xs font-mono text-neuro-brand tracking-widest uppercase">
               NEURO
             </span>
           </div>

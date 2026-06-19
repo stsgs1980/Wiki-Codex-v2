@@ -32,6 +32,7 @@ export function NoteAnalysisCard({ analysis, onDismiss, onApplyTitle }: NoteAnal
             size="icon"
             className="size-5"
             onClick={onDismiss}
+            aria-label="Закрыть"
           >
             <X className="size-2.5" />
           </Button>
@@ -43,7 +44,7 @@ export function NoteAnalysisCard({ analysis, onDismiss, onApplyTitle }: NoteAnal
             <span className="font-medium">{analysis.suggestedTitle}</span>
             <Button
               size="sm"
-              className="h-5 px-2 text-[10px] gap-0.5 bg-star/10 text-star border border-star/20 hover:bg-star/20 font-mono"
+              className="h-5 px-2 text-3xs gap-0.5 bg-star/10 text-star font-medium border border-star/20 hover:bg-star/20 font-mono"
               onClick={onApplyTitle}
             >
               apply
@@ -61,7 +62,7 @@ export function NoteAnalysisCard({ analysis, onDismiss, onApplyTitle }: NoteAnal
           <div className="flex flex-wrap items-center gap-1">
             <Tag className="size-3 text-muted-foreground" />
             {analysis.topics.map((topic, i) => (
-              <Badge key={i} variant="secondary" className="text-[10px] font-mono">
+              <Badge key={i} variant="secondary" className="text-3xs font-mono">
                 {topic}
               </Badge>
             ))}
@@ -71,7 +72,7 @@ export function NoteAnalysisCard({ analysis, onDismiss, onApplyTitle }: NoteAnal
         {analysis.mood && (
           <div className="flex items-center gap-1 text-xs font-mono">
             <span className="text-muted-foreground">type:</span>
-            <Badge variant="outline" className="text-[10px] font-mono">
+            <Badge variant="outline" className="text-3xs font-mono">
               {analysis.mood}
             </Badge>
           </div>

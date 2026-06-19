@@ -56,7 +56,7 @@ export function CleanupDialog({
                   className="rounded-md border border-dashed p-3"
                 >
                   <div className="flex items-center gap-2 mb-1.5">
-                    <Badge variant="secondary" className="text-[10px] font-mono gap-1">
+                    <Badge variant="secondary" className="text-3xs font-mono gap-1">
                       заголовок
                     </Badge>
                     <span className="text-xs text-muted-foreground">

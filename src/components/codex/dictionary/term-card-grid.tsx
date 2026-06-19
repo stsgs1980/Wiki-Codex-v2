@@ -38,18 +38,19 @@ export function TermCardGrid({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
+                className="size-6 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
                 onClick={onDelete}
                 title="Удалить термин"
+                aria-label="Удалить термин"
               >
                 <Trash2 className="size-3" />
               </Button>
             )}
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2 leading-relaxed font-sans">{t.translation}</p>
-          <p className="text-[10px] sm:text-xs text-muted-foreground/80 line-clamp-2 sm:line-clamp-3">{t.explanation}</p>
+          <p className="text-3xs sm:text-xs text-muted-foreground/80 line-clamp-2 sm:line-clamp-3">{t.explanation}</p>
           {t.document && (
-            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2">
+            <div className="flex items-center gap-1 text-3xs sm:text-xs text-muted-foreground mt-1.5 sm:mt-2">
               <FileText className="size-2.5 sm:size-3" />
               <span className="truncate">{t.document.title}</span>
             </div>

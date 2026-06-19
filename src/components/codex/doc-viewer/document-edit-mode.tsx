@@ -58,11 +58,12 @@ export function DocumentEditMode({
           onChange={(e) => setEditTitle(e.target.value)}
           placeholder="Заголовок документа"
           className="text-base font-semibold font-mono"
+          aria-label="Заголовок документа"
         />
         <div className="flex items-center gap-2">
           <FolderOpen className="size-3.5 text-muted-foreground shrink-0" />
           <Select value={editCategoryId} onValueChange={setEditCategoryId}>
-            <SelectTrigger className="w-48 text-xs font-mono h-7">
+            <SelectTrigger className="w-48 text-xs font-mono h-7" aria-label="Категория">
               <SelectValue placeholder="Категория" />
             </SelectTrigger>
             <SelectContent>

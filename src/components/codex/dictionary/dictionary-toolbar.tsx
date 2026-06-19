@@ -27,6 +27,7 @@ export function DictionaryToolbar({
           placeholder="Поиск терминов..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
+          aria-label="Поиск терминов"
           className="pl-9 text-sm"
         />
       </div>
@@ -53,6 +54,8 @@ export function DictionaryToolbar({
             size="icon"
             className="size-7 sm:size-8 rounded-r-none"
             onClick={() => onViewModeChange('grid')}
+            aria-label="Сетка"
+            aria-pressed={viewMode === 'grid'}
           >
             <Grid className="size-3.5 sm:size-4" />
           </Button>
@@ -61,6 +64,8 @@ export function DictionaryToolbar({
             size="icon"
             className="size-7 sm:size-8 rounded-l-none"
             onClick={() => onViewModeChange('list')}
+            aria-label="Список"
+            aria-pressed={viewMode === 'list'}
           >
             <List className="size-3.5 sm:size-4" />
           </Button>

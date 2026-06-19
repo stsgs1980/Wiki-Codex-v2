@@ -82,10 +82,10 @@ export function UploadView({ categories, onUploadSuccess, onTermsExtracted }: Up
     <TerminalFrame title="upload" className="m-3 sm:m-4 md:m-6">
       <div className="p-4 max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Upload className="size-5" />
             Загрузить документ
-          </h2>
+          </h1>
           <Button variant="ghost" size="sm" onClick={() => setView('documents')}>
             <X className="size-4" />
           </Button>

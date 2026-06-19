@@ -20,15 +20,12 @@ export function DocumentCard({ doc, formatDate, onClick }: DocumentCardProps) {
       variants={staggerItem}
       {...cardHover}
     >
-      <Card
-        className="cursor-pointer hover:shadow-md transition-shadow hover:border-foreground/20 group"
-        onClick={onClick}
-      >
+      <Card className="relative cursor-pointer hover:shadow-md transition-shadow hover:border-foreground/20 group">
         <CardContent className="pt-0">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               {getFileIcon(doc.fileType)}
-              <h3 className="font-semibold text-sm text-foreground line-clamp-1 leading-tight group-hover:text-muted-foreground transition-colors font-sans">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-1 leading-tight group-hover:text-muted-foreground transition-colors font-sans">
                 {doc.title}
               </h3>
             </div>
@@ -66,7 +63,7 @@ export function DocumentCard({ doc, formatDate, onClick }: DocumentCardProps) {
               {doc.category && (
                 <Badge
                   variant="secondary"
-                  className="text-[10px] px-1.5 py-0 font-mono tag-color-text tag-color-bg"
+                  className="text-3xs px-1.5 py-0 font-mono tag-color-text tag-color-bg"
                   style={{ '--tag-color': doc.category.color } as React.CSSProperties}
                 >
                   {doc.category.name}
@@ -76,6 +73,12 @@ export function DocumentCard({ doc, formatDate, onClick }: DocumentCardProps) {
             <span>{formatDate(doc.updatedAt)}</span>
           </div>
         </CardContent>
+        <button
+          type="button"
+          onClick={onClick}
+          className="absolute inset-0 w-full h-full cursor-pointer"
+          aria-label={`Открыть документ: ${doc.title}`}
+        />
       </Card>
     </motion.div>
   )

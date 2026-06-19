@@ -21,7 +21,7 @@ export function DocumentHeader({ doc, setView, setSelectedCategory }: DocumentHe
   return (
     <>
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground mb-3">
+      <div className="flex items-center gap-1.5 text-2xs font-mono text-muted-foreground mb-3">
         <button onClick={() => setView('dashboard')} className="hover:text-foreground transition-colors flex items-center gap-1">
           <LayoutDashboard className="size-3" /><span>~</span>
         </button>
@@ -49,11 +49,11 @@ export function DocumentHeader({ doc, setView, setSelectedCategory }: DocumentHe
       </div>
 
       {/* Metadata */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 text-[11px] font-mono text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 text-2xs font-mono text-muted-foreground">
         {doc.category && (
           <div className="flex items-center gap-1">
             <FolderOpen className="size-3" />
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-mono tag-color-text tag-color-bg" style={{ '--tag-color': doc.category.color } as React.CSSProperties}>
+            <Badge variant="secondary" className="text-3xs px-1.5 py-0 font-mono tag-color-text tag-color-bg" style={{ '--tag-color': doc.category.color } as React.CSSProperties}>
               {doc.category.name}
             </Badge>
           </div>
@@ -69,7 +69,7 @@ export function DocumentHeader({ doc, setView, setSelectedCategory }: DocumentHe
         <div className="flex flex-wrap items-center gap-1.5 mb-3">
           <TagIcon className="size-3 text-muted-foreground shrink-0" />
           {doc.tags.map((dt) => (
-            <Badge key={dt.tag.id} variant="outline" className="text-[10px] font-mono tag-color-text tag-color-border" style={{ '--tag-color': dt.tag.color } as React.CSSProperties}>
+            <Badge key={dt.tag.id} variant="outline" className="text-3xs font-mono tag-color-text tag-color-border" style={{ '--tag-color': dt.tag.color } as React.CSSProperties}>
               {dt.tag.name}
             </Badge>
           ))}
@@ -96,14 +96,14 @@ interface DocumentHeaderActionsProps {
 export function DocumentHeaderActions({ doc, onStar, onEdit, onDeleteClick }: DocumentHeaderActionsProps) {
   return (
     <div className="flex items-center gap-1">
-      <Button variant="ghost" size="icon" className="size-6" onClick={onStar} title={doc.isStarred ? 'Убрать из избранного' : 'В избранное'}>
+      <Button variant="ghost" size="icon" className="size-6" onClick={onStar} title={doc.isStarred ? 'Убрать из избранного' : 'В избранное'} aria-label={doc.isStarred ? 'Убрать из избранных' : 'Добавить в избранные'} aria-pressed={doc.isStarred}>
         <Star className={cn('size-3.5', doc.isStarred ? 'fill-star text-star' : 'text-muted-foreground')} />
       </Button>
       <Button variant="ghost" size="sm" className="gap-1 text-xs h-6" onClick={onEdit}>
         <Edit3 className="size-3" />
         <span className="hidden sm:inline">edit</span>
       </Button>
-      <Button variant="ghost" size="icon" className="size-6 text-destructive hover:text-destructive" onClick={onDeleteClick}>
+      <Button variant="ghost" size="icon" className="size-6 text-destructive hover:text-destructive" onClick={onDeleteClick} aria-label="Удалить документ">
         <Trash2 className="size-3.5" />
       </Button>
     </div>

@@ -62,12 +62,12 @@ export function Header({ onMenuToggle }: HeaderProps) {
             <span className="sr-only">Меню</span>
           </Button>
 
-          <h2 className="text-sm sm:text-base font-mono font-semibold tracking-tight leading-tight truncate">
+          <p className="text-sm sm:text-base font-mono font-semibold tracking-tight leading-tight truncate">
             <span className="text-terminal-accent">codex</span>
             <span className="text-muted-foreground">:</span>
             <span className="text-foreground">{getTitle()}</span>
             <span className="text-terminal-accent"> $</span>
-          </h2>
+          </p>
         </div>
 
         {/* Right: search + actions (ml-auto pushes to right on md+) */}
@@ -106,6 +106,8 @@ export function Header({ onMenuToggle }: HeaderProps) {
                 size="icon"
                 onClick={toggleTheme}
                 title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+                aria-label="Переключить тему"
+                aria-pressed={theme === 'dark'}
               >
                 {theme === 'dark' ? (
                   <Sun className="size-4" />

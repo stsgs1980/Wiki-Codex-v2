@@ -27,7 +27,7 @@ export function LatestDocumentsSection({ documents }: LatestDocumentsSectionProp
         <FileText className="size-3.5 text-muted-foreground" />
         <span className="text-xs font-mono text-muted-foreground">latest</span>
         <div className="flex-1 h-px border-t border-dashed" />
-        <span className="text-[10px] font-mono text-muted-foreground/80">{latestDocs.length}</span>
+        <span className="text-3xs font-mono text-muted-foreground/80">{latestDocs.length}</span>
       </div>
 
       {latestDocs.length === 0 ? (
@@ -46,53 +46,57 @@ export function LatestDocumentsSection({ documents }: LatestDocumentsSectionProp
           </Button>
         </div>
       ) : (
-        <motion.div
+        <motion.ul
           variants={staggerContainer}
           initial="initial"
           animate="animate"
-          className="flex flex-col gap-1"
+          className="list-none p-0 m-0 flex flex-col gap-1"
         >
           {latestDocs.map((doc) => (
-            <motion.button
+            <motion.li
               key={doc.id}
               variants={staggerItem}
               {...listItemHover}
-              className="flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 text-left hover:bg-accent/50 transition-colors w-full font-mono group"
-              onClick={() => {
-                selectDocument(doc.id)
-                setView('document-view')
-              }}
             >
-              <span className="text-terminal-accent text-xs shrink-0 select-none">$</span>
-              <div className="flex items-center justify-center size-7 rounded-sm bg-muted shrink-0">
-                <FileText className="size-3.5 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-sm truncate leading-tight font-sans">{doc.title}</span>
-                  {doc.isStarred && (
-                    <Star className="size-3 text-star fill-star shrink-0" />
-                  )}
+              <button
+                type="button"
+                className="flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 text-left hover:bg-accent/50 transition-colors w-full font-mono group"
+                onClick={() => {
+                  selectDocument(doc.id)
+                  setView('document-view')
+                }}
+              >
+                <span className="text-terminal-accent text-xs shrink-0 select-none">$</span>
+                <div className="flex items-center justify-center size-7 rounded-sm bg-muted shrink-0">
+                  <FileText className="size-3.5 text-muted-foreground" />
                 </div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  {doc.category && (
-                    <Badge
-                      variant="secondary"
-                      className="text-[10px] px-1.5 py-0 font-mono tag-color-text tag-color-bg"
-                      style={{ '--tag-color': doc.category.color } as React.CSSProperties}
-                    >
-                      {doc.category.name}
-                    </Badge>
-                  )}
-                  <span className="text-[10px] text-muted-foreground/80">
-                    {formatDate(doc.updatedAt)}
-                  </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-sm truncate leading-tight font-sans">{doc.title}</span>
+                    {doc.isStarred && (
+                      <Star className="size-3 text-star fill-star shrink-0" />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    {doc.category && (
+                      <Badge
+                        variant="secondary"
+                        className="text-3xs px-1.5 py-0 font-mono tag-color-text tag-color-bg"
+                        style={{ '--tag-color': doc.category.color } as React.CSSProperties}
+                      >
+                        {doc.category.name}
+                      </Badge>
+                    )}
+                    <span className="text-3xs text-muted-foreground/80">
+                      {formatDate(doc.updatedAt)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <ArrowRight className="size-3.5 text-muted-foreground shrink-0 hidden sm:block" />
-            </motion.button>
+                <ArrowRight className="size-3.5 text-muted-foreground shrink-0 hidden sm:block" />
+              </button>
+            </motion.li>
           ))}
-        </motion.div>
+        </motion.ul>
       )}
     </motion.div>
   )

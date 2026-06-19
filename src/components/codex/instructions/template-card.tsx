@@ -44,38 +44,43 @@ export function TemplateCard({ group, defaultExpanded = false, onHide }: { group
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md hover:shadow-terminal-accent/5">
       {/* Header with color accent */}
-      <CardHeader
-        className="cursor-pointer select-none pb-4 border-b border-border"
-        onClick={() => setExpanded(!expanded)}
-      >
+      <CardHeader className="cursor-pointer select-none pb-4 border-b border-border">
         <div className="flex items-start gap-4">
-          <div
-            className="flex items-center justify-center size-11 rounded-xl shrink-0"
-            style={{
-              background: `linear-gradient(135deg, ${withAlpha(group.color, 20)}, ${withAlpha(group.color, 5)})`,
-              color: group.color,
-            }}
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+            aria-controls={`template-content-${group.id}`}
+            className="flex items-start gap-4 flex-1 min-w-0 text-left cursor-pointer"
           >
-            {group.icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-1">
-              <CardTitle className="text-lg font-sans font-bold">{group.title}</CardTitle>
-              <span
-                className="text-[10px] font-mono px-2 py-0.5 rounded-full border"
-                style={{
-                  backgroundColor: withAlpha(group.color, 10),
-                  color: group.color,
-                  borderColor: withAlpha(group.color, 20),
-                }}
-              >
-                {group.steps.length} {group.steps.length === 1 ? 'step' : 'steps'}
-              </span>
+            <div
+              className="flex items-center justify-center size-11 rounded-xl shrink-0"
+              style={{
+                background: `linear-gradient(135deg, ${withAlpha(group.color, 20)}, ${withAlpha(group.color, 5)})`,
+                color: group.color,
+              }}
+            >
+              {group.icon}
             </div>
-            <CardDescription className="font-sans">{group.description}</CardDescription>
-          </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-1">
+                <CardTitle className="text-lg font-sans font-bold">{group.title}</CardTitle>
+                <span
+                  className="text-3xs font-mono px-2 py-0.5 rounded-full border"
+                  style={{
+                    backgroundColor: withAlpha(group.color, 10),
+                    color: group.color,
+                    borderColor: withAlpha(group.color, 20),
+                  }}
+                >
+                  {group.steps.length} {group.steps.length === 1 ? 'step' : 'steps'}
+                </span>
+              </div>
+              <CardDescription className="font-sans">{group.description}</CardDescription>
+            </div>
+          </button>
           <div className="flex items-center gap-2 shrink-0 mt-1">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+            <span className="text-3xs font-mono px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
               template
             </span>
             {onHide && (
@@ -86,6 +91,7 @@ export function TemplateCard({ group, defaultExpanded = false, onHide }: { group
                     size="icon"
                     className="size-7 text-muted-foreground hover:text-destructive"
                     onClick={(e) => e.stopPropagation()}
+                    aria-label="Скрыть шаблон"
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
@@ -124,7 +130,7 @@ export function TemplateCard({ group, defaultExpanded = false, onHide }: { group
       </CardHeader>
 
       {expanded && (
-        <CardContent className="pt-6 pb-6 px-6">
+        <CardContent className="pt-6 pb-6 px-6" id={`template-content-${group.id}`}>
           {group.steps.map((step, idx) => (
             <StepCard key={group.id + '-' + idx} step={step} stepNumber={idx + 1} groupColor={group.color} />
           ))}

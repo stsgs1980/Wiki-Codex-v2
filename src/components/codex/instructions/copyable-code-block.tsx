@@ -32,12 +32,12 @@ export function CopyableCodeBlock({ label, code, accentColor }: { label: string;
             className="size-2 rounded-full shrink-0"
             style={{ backgroundColor: accentColor ? `color-mix(in srgb, ${accentColor} 60%, transparent)` : 'var(--muted-foreground)' }}
           />
-          <span className="text-[11px] font-mono font-medium text-muted-foreground">{label}</span>
+          <span className="text-2xs font-mono font-medium text-muted-foreground">{label}</span>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 gap-1.5 px-2 text-[11px] opacity-0 group-hover/code:opacity-100 transition-opacity font-mono text-muted-foreground hover:text-foreground"
+          className="h-6 gap-1.5 px-2 text-2xs opacity-0 group-hover/code:opacity-100 group-focus-within/code:opacity-100 transition-opacity font-mono text-muted-foreground hover:text-foreground"
           onClick={handleCopy}
         >
           {copied ? (
@@ -47,7 +47,7 @@ export function CopyableCodeBlock({ label, code, accentColor }: { label: string;
           )}
         </Button>
       </div>
-      <pre className="px-4 py-3 overflow-x-auto text-[13px] leading-relaxed">
+      <pre className="px-4 py-3 overflow-x-auto text-sm leading-relaxed">
         <code className="font-mono whitespace-pre text-foreground/90">{highlighted}</code>
       </pre>
     </div>

@@ -34,7 +34,7 @@ export function RecentlyViewedSection({ items, onClear }: RecentlyViewedSectionP
             <X className="size-3" />
           </button>
         )}
-        <span className="text-[10px] font-mono text-muted-foreground/80">{items.length}</span>
+        <span className="text-3xs font-mono text-muted-foreground/80">{items.length}</span>
       </div>
 
       {items.length === 0 ? (
@@ -43,35 +43,39 @@ export function RecentlyViewedSection({ items, onClear }: RecentlyViewedSectionP
           <p className="font-mono text-xs text-muted-foreground/80">~ no history yet</p>
         </div>
       ) : (
-        <motion.div
+        <motion.ul
           variants={staggerContainer}
           initial="initial"
           animate="animate"
-          className="flex flex-col gap-1"
+          className="list-none p-0 m-0 flex flex-col gap-1"
         >
           {items.map((item) => (
-            <motion.button
+            <motion.li
               key={item.id}
               variants={staggerItem}
               {...listItemHover}
-              className="flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 text-left hover:bg-accent/50 transition-colors w-full font-mono group"
-              onClick={() => {
-                selectDocument(item.id)
-                setView('document-view')
-              }}
             >
-              <span className="text-terminal-accent text-xs shrink-0 select-none">$</span>
-              <div className="flex items-center justify-center size-7 rounded-sm bg-muted shrink-0">
-                <Eye className="size-3.5 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="font-semibold text-sm truncate leading-tight font-sans block">{item.title}</span>
-                <span className="text-[10px] text-muted-foreground/80">{formatRelativeTime(item.viewedAt)}</span>
-              </div>
-              <ArrowRight className="size-3.5 text-muted-foreground shrink-0 hidden sm:block" />
-            </motion.button>
+              <button
+                type="button"
+                className="flex items-center gap-2 sm:gap-3 rounded-md border border-dashed px-3 py-2 text-left hover:bg-accent/50 transition-colors w-full font-mono group"
+                onClick={() => {
+                  selectDocument(item.id)
+                  setView('document-view')
+                }}
+              >
+                <span className="text-terminal-accent text-xs shrink-0 select-none">$</span>
+                <div className="flex items-center justify-center size-7 rounded-sm bg-muted shrink-0">
+                  <Eye className="size-3.5 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold text-sm truncate leading-tight font-sans block">{item.title}</span>
+                  <span className="text-3xs text-muted-foreground/80">{formatRelativeTime(item.viewedAt)}</span>
+                </div>
+                <ArrowRight className="size-3.5 text-muted-foreground shrink-0 hidden sm:block" />
+              </button>
+            </motion.li>
           ))}
-        </motion.div>
+        </motion.ul>
       )}
     </motion.div>
   )

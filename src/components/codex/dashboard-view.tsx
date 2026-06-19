@@ -61,6 +61,7 @@ export function DashboardView({
 
   return (
     <TerminalFrame title="dashboard" className="m-3 sm:m-4 md:m-6">
+      <h1 className="sr-only">Панель управления</h1>
       <div className="flex flex-col gap-4 p-3 sm:p-4">
         {/* Stats Grid */}
         <StatsGrid stats={stats} />

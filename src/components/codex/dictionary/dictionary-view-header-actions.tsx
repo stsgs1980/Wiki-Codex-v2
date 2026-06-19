@@ -26,7 +26,7 @@ export function DictionaryViewHeaderActions({
   return (
     <div className="flex items-center gap-1">
       {!isLoading && termsCount > 0 && (
-        <Button variant="ghost" size="icon" className="size-6" onClick={onToggleSelectionMode}>
+        <Button variant="ghost" size="icon" className="size-6" onClick={onToggleSelectionMode} aria-label="Режим выбора" aria-pressed={selectionMode}>
           {selectionMode ? <CheckSquare className="size-3" /> : <Square className="size-3" />}
         </Button>
       )}
@@ -41,7 +41,7 @@ export function DictionaryViewHeaderActions({
         extract
       </Button>
       {!isLoading && termsCount > 0 && (
-        <Badge variant="secondary" className="text-[10px] font-mono px-1.5 py-0">{termsCount}</Badge>
+        <Badge variant="secondary" className="text-3xs font-mono px-1.5 py-0">{termsCount}</Badge>
       )}
     </div>
   )

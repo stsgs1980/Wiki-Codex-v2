@@ -48,6 +48,8 @@ export function HeaderSearch({
               size="icon"
               className={cn('size-8 shrink-0', semanticMode && 'bg-primary hover:bg-primary/90 text-primary-foreground')}
               onClick={onSemanticToggle}
+              aria-label="Семантический поиск"
+              aria-pressed={semanticMode}
             >
               <Brain className="size-4" />
             </Button>
@@ -64,6 +66,7 @@ export function HeaderSearch({
           placeholder={semanticMode ? 'AI поиск...' : 'Поиск...'}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
+          aria-label="Поиск документов"
           className={cn(
             'w-full pl-9 pr-8',
             semanticMode && 'border-terminal-accent/50 focus-visible:ring-terminal-accent/30'
@@ -75,6 +78,7 @@ export function HeaderSearch({
             size="icon"
             className="absolute right-1 top-1/2 -translate-y-1/2 size-6"
             onClick={() => onSearchChange('')}
+            aria-label="Очистить поиск"
           >
             <X className="size-3" />
           </Button>

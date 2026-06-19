@@ -40,7 +40,7 @@ export function TermLookup({ onTermAdded }: TermLookupProps) {
           <span className="text-xs font-mono font-semibold uppercase tracking-wider text-terminal-accent">
             Ручной ввод термина
           </span>
-          <span className="text-[10px] font-mono text-muted-foreground/70 ml-1">
+          <span className="text-3xs font-mono text-muted-foreground/70 ml-1">
             EN -&gt; RU · RU -&gt; EN + описание
           </span>
         </div>
@@ -58,13 +58,14 @@ export function TermLookup({ onTermAdded }: TermLookupProps) {
               disabled={isLoading}
               autoComplete="off"
               spellCheck={false}
+              aria-label="Введите термин" aria-describedby="term-lookup-hint"
             />
             {/* Language indicator badge */}
             {detectedLang && !isLoading && (
               <Badge
                 variant="outline"
                 className={cn(
-                  'absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0 select-none',
+                  'absolute right-2 top-1/2 -translate-y-1/2 text-3xs font-mono px-1.5 py-0 select-none',
                   detectedLang === 'ru'
                     ? 'border-neuro-brand/40 text-neuro-brand bg-neuro-brand/5'
                     : 'border-terminal-accent/40 text-terminal-accent bg-terminal-accent/5'
@@ -99,7 +100,7 @@ export function TermLookup({ onTermAdded }: TermLookupProps) {
               size="icon"
               onClick={handleClear}
               className="shrink-0 text-muted-foreground hover:text-foreground"
-              title="Очистить (Esc)"
+              title="Очистить (Esc)" aria-label="Очистить"
             >
               <X className="size-3.5" />
             </Button>
@@ -108,7 +109,7 @@ export function TermLookup({ onTermAdded }: TermLookupProps) {
 
         {/* Inline help text */}
         {!result && !error && !isLoading && (
-          <p className="mt-2 text-[11px] text-muted-foreground/80 leading-relaxed">
+          <p id="term-lookup-hint" className="mt-2 text-2xs text-muted-foreground/80 leading-relaxed">
             Английский термин -&gt; описание на русском. Русский термин -&gt; английское название + описание.
           </p>
         )}
@@ -122,7 +123,7 @@ export function TermLookup({ onTermAdded }: TermLookupProps) {
               exit={{ opacity: 0, height: 0 }}
               className="mt-3"
             >
-              <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive flex items-start gap-2">
+              <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive flex items-start gap-2">
                 <X className="size-3.5 mt-px shrink-0" />
                 <span>{error}</span>
               </div>
@@ -137,7 +138,7 @@ export function TermLookup({ onTermAdded }: TermLookupProps) {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="mt-3"
+              className="mt-3" aria-live="polite"
             >
               <TermLookupResult result={result} />
             </motion.div>

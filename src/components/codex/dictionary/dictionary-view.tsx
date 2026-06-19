@@ -34,6 +34,7 @@ export function DictionaryView({
         onExtractAll={d.handleExtractAll} isExtracting={d.isExtracting}
       />
     }>
+      <h1 className="sr-only">Словарь терминов</h1>
       <div className="p-3 sm:p-4 max-w-5xl mx-auto w-full">
       {d.isExtracting && d.extractionProgress && (
         <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground font-mono px-1">
@@ -76,10 +77,10 @@ export function DictionaryView({
                 <div className="flex items-center gap-2 mb-2 sm:mb-3">
                   <span className="text-xs font-mono font-bold text-terminal-accent min-w-5 sm:min-w-7 leading-tight select-none">[{letter}]</span>
                   <Separator className="flex-1" />
-                  <span className="text-[10px] sm:text-xs font-mono text-muted-foreground/80">{group.length}</span>
+                  <span className="text-3xs sm:text-xs font-mono text-muted-foreground/80">{group.length}</span>
                 </div>
                 {d.viewMode === 'grid' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+                  <div role="list" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
                     {group.map((t) => (
                       <TermCardGrid key={t.id} term={t} onDelete={() => d.setDeleteTarget(t)}
                         selectionMode={d.selectionMode} selected={d.selectedIds.has(t.id)}
@@ -88,7 +89,7 @@ export function DictionaryView({
                   </div>
                 )}
                 {d.viewMode === 'list' && (
-                  <div className="flex flex-col gap-1 sm:gap-1.5">
+                  <div role="list" className="flex flex-col gap-1 sm:gap-1.5">
                     {group.map((t) => (
                       <TermCardList key={t.id} term={t} onDelete={() => d.setDeleteTarget(t)}
                         selectionMode={d.selectionMode} selected={d.selectedIds.has(t.id)}

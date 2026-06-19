@@ -7,7 +7,7 @@ type LogoProps = SVGProps<SVGSVGElement>
  */
 export function NextJsLogo({ className, ...props }: LogoProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
       <path d="M12 2L2 20h20L12 2Z" fill="currentColor" opacity="0.15" />
       <path d="M12 2L2 20h20L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       <path d="M9 16l5-7h2l-5 7H9Z" fill="currentColor" />
@@ -20,10 +20,10 @@ export function NextJsLogo({ className, ...props }: LogoProps) {
  */
 export function TypeScriptLogo({ className, ...props }: LogoProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
       <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" opacity="0.15" />
       <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <text x="12" y="16.5" textAnchor="middle" fill="currentColor" fontSize="11" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">TS</text>
+      <text x="12" y="16.5" textAnchor="middle" fill="currentColor" fontSize="11" fontWeight="700" fontFamily="var(--font-geist-sans), system-ui, sans-serif">TS</text>
     </svg>
   )
 }
@@ -33,7 +33,7 @@ export function TypeScriptLogo({ className, ...props }: LogoProps) {
  */
 export function TailwindLogo({ className, ...props }: LogoProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
       <path d="M12 6C9.5 6 8 7.5 8 9.5c0 3 4 3.5 4 5.5 0 1-0.5 1.5-1.5 1.5S8 15 8 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M12 6c2.5 0 4 1.5 4 3.5 0 3-4 3.5-4 5.5 0 1 0.5 1.5 1.5 1.5S16 15 16 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <path d="M9.5 3c-3 1.5-5 4-5 7 0 4 3.5 6 7.5 6s7.5-2 7.5-6c0-3-2-5.5-5-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -46,10 +46,10 @@ export function TailwindLogo({ className, ...props }: LogoProps) {
  */
 export function PostgresqlLogo({ className, ...props }: LogoProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
       <path d="M17 3c-1.5 0-3 .5-4 1.5C12 4 11 3.5 9.5 3.5 6.5 3.5 4 6 4 9.5c0 4.5 3.5 9 8 11 .5.2 1 .2 1.5 0 4.5-2 8-6.5 8-11C21.5 5.5 19.5 3 17 3Z" fill="currentColor" opacity="0.12" />
       <path d="M17 3c-1.5 0-3 .5-4 1.5C12 4 11 3.5 9.5 3.5 6.5 3.5 4 6 4 9.5c0 4.5 3.5 9 8 11 .5.2 1 .2 1.5 0 4.5-2 8-6.5 8-11C21.5 5.5 19.5 3 17 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      <text x="13" y="12" textAnchor="middle" fill="currentColor" fontSize="6" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">PG</text>
+      <text x="13" y="12" textAnchor="middle" fill="currentColor" fontSize="6" fontWeight="700" fontFamily="var(--font-geist-sans), system-ui, sans-serif">PG</text>
     </svg>
   )
 }
@@ -59,7 +59,7 @@ export function PostgresqlLogo({ className, ...props }: LogoProps) {
  */
 export function PrismaLogo({ className, ...props }: LogoProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
       <path d="M12 2L3 19h18L12 2Z" fill="currentColor" opacity="0.12" />
       <path d="M12 2L3 19h18L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       <path d="M12 9L8 17h8L12 9Z" fill="currentColor" opacity="0.25" />
@@ -73,7 +73,7 @@ export function PrismaLogo({ className, ...props }: LogoProps) {
  */
 export function ZustandLogo({ className, ...props }: LogoProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
       {/* Ears */}
       <circle cx="8" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="16" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5" />
@@ -94,9 +94,9 @@ export function ZustandLogo({ className, ...props }: LogoProps) {
  */
 export function NeuroLogoSmall({ className, ...props }: LogoProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true" {...props}>
       <rect x="3" y="3" width="18" height="18" rx="3" fill="var(--neuro-brand)" />
-      <text x="12" y="16.5" textAnchor="middle" fill="var(--primary-foreground)" fontSize="14" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">R</text>
+      <text x="12" y="16.5" textAnchor="middle" fill="var(--primary-foreground)" fontSize="14" fontWeight="700" fontFamily="var(--font-geist-sans), system-ui, sans-serif">R</text>
     </svg>
   )
 }
