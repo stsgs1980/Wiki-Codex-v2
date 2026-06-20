@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   // Without this, browser on chatglm.site/space-z.ai blocks requests to localhost:3000,
   // causing 502 Bad Gateway in the Z.ai sandbox preview.
   allowedDevOrigins: ['*'],
+  // @zai/select-element ships raw .ts/.tsx (no build step) — must be transpiled by Next.
+  transpilePackages: ['@zai/select-element'],
   experimental: {
     optimizePackageImports: [
       'lucide-react',
