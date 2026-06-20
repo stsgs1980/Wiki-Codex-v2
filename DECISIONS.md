@@ -717,6 +717,65 @@ prisma/prod.db
 
 ---
 
+### ADR-020 — @zai/select-element как vendored file:-зависимость (DOM element picker FAB)
+
+**Статус:** Принято
+**Дата:** 2026-06-20
+**Связанные коммиты:** `0c7d83f`, `b917408`
+
+#### Контекст
+
+Нужен drop-in DOM element picker (как DevTools "Inspect Element") для отладки UI: кликабельный FAB, hover-подсветка элементов, диалог с tag/id/classes/styles/HTML. Пакет `@zai/select-element` (private GitHub repo `stsgs1980/SelectElement`, позже made public) — zero-dependency, React peer-only, ships raw `.ts/.tsx`.
+
+Альтернативы:
+- npm publish → standard `bun add @zai/select-element` — не было доступа к npm publish
+- git+ssh URL в package.json — утекает токен в git history (проверено: GitHub auto-revoke)
+- Копировать в `src/components/ui/` — смешивает third-party с project code, ломает update path
+
+#### Решение
+
+**Vendor через `file:`-зависимость:**
+
+```json
+"@zai/select-element": "file:vendor/select-element"
+```
+
+Исходники пакета копируются в `vendor/select-element/` (без `.git`, без токена) и коммитятся в основной репозиторий. `bun install` создаёт symlink `node_modules/@zai/select-element → ../../vendor/select-element`.
+
+**Конфигурация:**
+- `next.config.ts`: `transpilePackages: ['@zai/select-element']` — пакет шипит сырой `.ts/.tsx`, Next должен его транспилировать
+- `eslint.config.mjs`: `vendor/**` в `ignores` — third-party код не линтится project rules (React Compiler rules `react-hooks/set-state-in-effect`, `react-hooks/preserve-manual-memoization` дают false positives на чужом коде)
+- `src/components/codex/select-element-fab.tsx`: `'use client'` wrapper (layout.tsx — server component, FAB использует useState/useEffect)
+- `src/app/layout.tsx`: `<SelectElementFABWrapper />` монтируется глобально (виден на всех страницах)
+
+**Обновление:** `git clone --depth 1 https://github.com/stsgs1980/SelectElement.git /tmp/se && cp /tmp/se/{*.ts,*.tsx,*.json,*.md,VERSION} vendor/select-element/ && bun install`
+
+**Гигиена при переустановке (правила не сформулированы явно, но соблюдаются):**
+1. Полное удаление: wrapper, `vendor/`, `node_modules/@zai/`, вычистить из `package.json` / `next.config.ts` / `eslint.config.mjs` / `layout.tsx`
+2. **Чистка кэша**: `~/.bun/install/cache/@zai`, `~/.bun/install/cache/*select-element*`, `.next/cache` (Next кэширует transpiled chunks)
+3. `bun install` — должен показать `1 package removed` (убедиться что чисто)
+4. Только после этого — свежий clone + vendor + install
+
+#### Соответствие стандартам
+
+- **Reproducibility Standard (Standard 2):** `git clone + bun install + bun run dev = working`. `file:`-зависимость с закоммиченным `vendor/` — соответствует (на любом клоне `bun install` подхватит vendored пакет)
+- **No-Unicode Policy:** пакет использует SVG-иконку курсора (lucide-style) — соответствует
+- **R-02 (150 строк):** wrapper 22 строки, vendor исключён из lint
+- **WCAG 2.1 AA:** FAB имеет `aria-label`, keyboard Escape-to-close в picker mode — встроено в пакет
+
+#### Последствия
+- **+** Нет утечки токена (`file:` вместо git+token URL)
+- **+** Reproducible: `vendor/` в git, `bun install` работает на чистом клоне
+- **+** Update path простой: re-clone + cp + bun install
+- **+** Изоляция: third-party код в `vendor/`, не смешивается с `src/`
+- **+** Пакет публичный — обновления без токена
+- **−** Vendor дублирует ~95KB исходников в git (приемлемо для zero-dep пакета)
+- **−** Ручной update (нет `npm update`) — но это осознанный компромисс
+- **−** React Compiler rules дают 4 false-positive на vendored коде — mitigated через `vendor/**` в eslint ignores
+- **−** При переустановке надо чистить кэш (`.bun/install/cache`, `.next/cache`) — иначе bun может отдать stale symlink
+
+---
+
 ## Журнал изменений документа
 
 | Дата | Автор | Изменение |
@@ -724,3 +783,4 @@ prisma/prod.db
 | 2026-06-19 | Z.ai Code (main agent) | Создан документ. 17 ADR-записей на основе worklog.md (1210 строк) и git-истории. |
 | 2026-06-19 | Z.ai Code (main agent) | Добавлен ADR-018 — экспорт словаря терминов в Markdown и AsciiDoc (новая секция «Загрузка и экспорт данных»). |
 | 2026-06-19 | Z.ai Code (main agent) | Добавлен ADR-019 — AsciiDoc как first-class citizen: загрузка, хранение оригинала, отдельный рендерер через asciidoctor.js (lazy-loaded). |
+| 2026-06-20 | Z.ai Code (main agent) | Добавлен ADR-020 — @zai/select-element как vendored file:-зависимость (DOM element picker FAB). |
