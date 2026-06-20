@@ -21,10 +21,16 @@ export function useDocumentViewer({
   const [doc, setDoc] = useState<Document>(initialDoc)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
-  // Sync doc when the incoming prop changes
+  // Sync local `doc` when the incoming prop's *identity* changes.
+  // Deps use initialDoc.id (primitive) so this only fires on real document
+  // switches, not on every parent re-render with a new object reference.
+  // React 19 "set-state-in-effect" rule is intentionally suppressed here:
+  // this is the canonical "reset state when prop changes" pattern from
+  // https://react.dev/learn/you-might-not-need-an-effect#resetting-all-state-when-a-prop-changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDoc(initialDoc)
-  }, [initialDoc])
+  }, [initialDoc.id])
 
   // Sub-hooks
   const edit = useDocumentEdit({

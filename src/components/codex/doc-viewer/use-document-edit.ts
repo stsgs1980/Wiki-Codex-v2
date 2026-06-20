@@ -18,13 +18,18 @@ export function useDocumentEdit({ initialDoc, onSaveSuccess }: UseDocumentEditOp
   const [editCategoryId, setEditCategoryId] = useState(initialDoc.categoryId || '')
   const [isSaving, setIsSaving] = useState(false)
 
-  // Reset form state when the document changes
+  // Reset form state when the document *identity* changes.
+  // Deps use initialDoc.id (primitive) so this only fires on real document
+  // switches. React 19 "set-state-in-effect" rule is intentionally suppressed:
+  // this is the canonical "reset state when prop changes" pattern from
+  // https://react.dev/learn/you-might-not-need-an-effect#resetting-all-state-when-a-prop-changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEditTitle(initialDoc.title)
     setEditContent(initialDoc.content)
     setEditCategoryId(initialDoc.categoryId || '')
     setIsEditing(false)
-  }, [initialDoc])
+  }, [initialDoc.id])
 
   const handleSave = async (doc: Document) => {
     if (!editTitle.trim()) {

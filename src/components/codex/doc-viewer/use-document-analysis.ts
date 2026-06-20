@@ -16,10 +16,15 @@ export function useDocumentAnalysis({ initialDoc, onApplySuccess }: UseDocumentA
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null)
   const [isApplying, setIsApplying] = useState(false)
 
-  // Reset analysis when the document changes
+  // Reset analysis when the document *identity* changes.
+  // Deps use initialDoc.id (primitive) so this only fires on real document
+  // switches. React 19 "set-state-in-effect" rule is intentionally suppressed:
+  // this is the canonical "reset state when prop changes" pattern from
+  // https://react.dev/learn/you-might-not-need-an-effect#resetting-all-state-when-a-prop-changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAnalysis(null)
-  }, [initialDoc])
+  }, [initialDoc.id])
 
   const handleAnalyze = async (doc: Document) => {
     setIsAnalyzing(true)

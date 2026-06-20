@@ -48,10 +48,16 @@ export function NoteEditor({ note, onSave, onCancel, onDelete, isSaving }: NoteE
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const { toast } = useToast()
 
+  // Reset editor state when the *note identity* changes.
+  // Deps use note?.id (primitive) so this only fires on real note switches.
+  // React 19 "set-state-in-effect" rule is intentionally suppressed:
+  // this is the canonical "reset state when prop changes" pattern from
+  // https://react.dev/learn/you-might-not-need-an-effect#resetting-all-state-when-a-prop-changes
   useEffect(() => {
     dispatch({ type: 'RESET', payload: note })
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAnalysis(null)
-  }, [note])
+  }, [note?.id])
 
   const handleAnalyze = useCallback(async () => {
     if (!state.content.trim() || state.content.trim().length < 10) {

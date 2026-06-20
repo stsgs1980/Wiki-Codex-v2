@@ -15,7 +15,11 @@ export function useInstructionsData(onCountChange?: () => void) {
   const [extractDialogOpen, setExtractDialogOpen] = useState(false)
   const [selectedDocId, setSelectedDocId] = useState('')
   const [documents, setDocuments] = useState<{ id: string; title: string }[]>([])
-  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
+  // Lazy init from localStorage — no setState-in-effect needed on mount.
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set()
+    return getHiddenIds()
+  })
 
   const { toast } = useToast()
 
@@ -42,7 +46,33 @@ export function useInstructionsData(onCountChange?: () => void) {
     }
   }, [])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  // Initial fetch — async wrapper avoids synchronous setState-in-effect.
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setIsLoading(true)
+      try {
+        const [instrRes, docRes] = await Promise.all([
+          fetch('/api/instructions'),
+          fetch('/api/documents?limit=100'),
+        ])
+        if (cancelled) return
+        if (instrRes.ok) {
+          const data = await instrRes.json()
+          setDbInstructions(data.instructions || [])
+        }
+        if (docRes.ok) {
+          const data = await docRes.json()
+          setDocuments((data.documents || []).map((d: { id: string; title: string }) => ({ id: d.id, title: d.title })))
+        }
+      } catch {
+        // silent
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // Extract instructions from a document
   const handleExtract = useCallback(async () => {
@@ -72,11 +102,6 @@ export function useInstructionsData(onCountChange?: () => void) {
       setIsExtracting(false)
     }
   }, [selectedDocId, documents, fetchData, toast])
-
-  // Load hidden IDs from localStorage
-  useEffect(() => {
-    setHiddenIds(getHiddenIds())
-  }, [])
 
   const handleHideTemplate = useCallback((id: string) => {
     addHiddenId(id)

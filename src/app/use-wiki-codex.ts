@@ -37,7 +37,6 @@ export function useWikiCodex() {
   } = useNoteHandlers({ notesHook, selectNote, setView, counters, toast })
 
   // --- Master refresh ---
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- pre-existing pattern; refreshAll uses stable property accesses from data hooks. Rule fires only after note-handler extraction reduced inline usage of these objects enough that the compiler infers coarser deps. Behavior unchanged.
   const refreshAll = useCallback(() => {
     docs.fetchDocuments()
     fetchCategoriesAndTags()
@@ -106,7 +105,7 @@ export function useWikiCodex() {
     setTimeout(refreshAll, 300)
   }, [refreshAll])
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- pre-existing docs.setSelectedDocument property access; rule fires only after note-handler extraction. Behavior unchanged.
+  // --- Document mutation handlers ---
   const handleDocumentDelete = useCallback((id: string) => {
     docs.setSelectedDocument(null)
     useAppStore.getState().selectDocument(null)
