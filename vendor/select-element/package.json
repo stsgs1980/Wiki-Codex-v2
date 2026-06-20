@@ -19,9 +19,6 @@
     "CHANGELOG.md",
     "VERSION"
   ],
-  "scripts": {
-    "prepublishOnly": "node -e \"const fs=require('fs'); const v=require('./package.json').version; fs.writeFileSync('VERSION', v+'\\n')\""
-  },
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
@@ -53,9 +50,5 @@
   },
   "license": "MIT",
   "author": "stsgs1980",
-  "private": false,
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org"
-  }
+  "private": false
 }

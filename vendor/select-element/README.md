@@ -1,6 +1,6 @@
 # @zai/select-element
 
-[![npm version](https://img.shields.io/npm/v/@zai/select-element.svg?style=flat-square)](https://www.npmjs.com/package/@zai/select-element)
+[![GitHub release](https://img.shields.io/github/v/release/stsgs1980/SelectElement?style=flat-square&include_prereleases)](https://github.com/stsgs1980/SelectElement/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?style=flat-square)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18+-61dafb?style=flat-square)](https://react.dev/)
@@ -18,12 +18,20 @@
 ## Install
 
 ```bash
-npm install @zai/select-element
+bun add github:stsgs1980/SelectElement
 # or
-yarn add @zai/select-element
+npm install github:stsgs1980/SelectElement
 # or
-pnpm add @zai/select-element
+yarn add github:stsgs1980/SelectElement
 ```
+
+For a specific version / tag:
+
+```bash
+bun add github:stsgs1980/SelectElement#v1.1.0
+```
+
+> **Next.js**: add `transpilePackages: ['@zai/select-element']` to `next.config.ts` so TypeScript sources are compiled automatically.
 
 ## Quick Start
 
@@ -148,18 +156,10 @@ import { CATPPUCCIN_COLORS, MIDNIGHT_COLORS } from '@zai/select-element';
 
 ## Updating
 
-To update to the latest version:
-
 ```bash
-npm update @zai/select-element
+bun update @zai/select-element
 # or
-npm install @zai/select-element@latest
-```
-
-Check for outdated packages:
-
-```bash
-npm outdated @zai/select-element
+npm install github:stsgs1980/SelectElement
 ```
 
 ## Security
