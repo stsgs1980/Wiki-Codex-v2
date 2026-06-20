@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { SelectElementFABWrapper } from "@/components/codex/select-element-fab";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
         >
           {children}
           <Toaster />
+          <SelectElementFABWrapper />
         </ThemeProvider>
       </body>
     </html>
