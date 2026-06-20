@@ -517,7 +517,7 @@
 
     "@yarnpkg/lockfile": ["@yarnpkg/lockfile@1.1.0", "", {}, "sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ=="],
 
-    "@zai/select-element": ["@zai/select-element@github:stsgs1980/SelectElement#805d79f", { "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0", "react-syntax-highlighter": ">=15.0.0" } }, "stsgs1980-SelectElement-805d79f", "sha512-SX0pT8hirC0zFURRfMdIwye2/fdP4EjRsXx6MqMWXvsTVi4IYDUfr3cc8fc0zSUWaiB4G1EFqQU3TC6y1IE+OA=="],
+    "@zai/select-element": ["@zai/select-element@github:stsgs1980/SelectElement#68277e7", { "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0", "react-syntax-highlighter": ">=15.0.0" } }, "stsgs1980-SelectElement-68277e7", "sha512-+laD6iE6QtYy9DXSgsCztOOVTL2Z/Go4wyczNeZrIlIV33HIvaqJIN92nHCv3vsISR5gXan29TX/YBoQ7bkgRw=="],
 
     "a-sync-waterfall": ["a-sync-waterfall@1.0.1", "", {}, "sha512-RYTOHHdWipFUliRFMCS4X2Yn2X8M87V/OpSqWzKKOGhzqyUxzyVmhHDH9sAvG+ZuQf/TAOFsLCpMw09I1ufUnA=="],
 
