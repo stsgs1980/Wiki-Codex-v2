@@ -1,6 +1,6 @@
 'use client'
 
-import { Star, Grid, List } from 'lucide-react'
+import { Star, Grid, List, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -25,6 +25,7 @@ interface DocumentsToolbarProps {
   tags: Tag[]
   categories: Category[]
   filteredDocsCount: number
+  onBatchAnalyze: () => void
 }
 
 export function DocumentsToolbar({
@@ -38,6 +39,7 @@ export function DocumentsToolbar({
   tags,
   categories,
   filteredDocsCount,
+  onBatchAnalyze,
 }: DocumentsToolbarProps) {
   return (
     <div className="flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
@@ -76,6 +78,19 @@ export function DocumentsToolbar({
           <Star className={cn('size-4', starFilter && 'fill-star text-star')} />
           <span className="hidden sm:inline">Избранные</span>
         </Button>
+
+        {filteredDocsCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBatchAnalyze}
+            className="gap-1.5 sm:gap-2"
+            aria-label="AI-анализ всех документов"
+          >
+            <Sparkles className="size-4" />
+            <span className="hidden sm:inline">AI-анализ</span>
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center gap-2">

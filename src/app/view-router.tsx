@@ -71,7 +71,12 @@ export function ViewRouter(props: ViewRouterProps) {
               </Badge>
             </div>
           )}
-          <DocumentsView documents={docs.documents} categories={categories} tags={tags} />
+          <DocumentsView
+            documents={docs.documents}
+            categories={categories}
+            tags={tags}
+            onBatchAnalyzeDone={refreshAll}
+          />
         </div>
       )
 

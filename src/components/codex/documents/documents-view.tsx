@@ -12,21 +12,43 @@ import { TerminalFrame } from '@/components/codex/terminal-frame'
 import { DocumentCard } from './document-card'
 import { DocumentListItem } from './document-list-item'
 import { DocumentsToolbar } from './documents-toolbar'
+import { BatchAnalyzeDialog } from './batch-analyze-dialog'
+import { useBatchAnalyze } from './use-batch-analyze'
+import type { BatchAnalyzeInput } from './batch-analyze-types'
 
 interface DocumentsViewProps {
   documents: Document[]
   categories: Category[]
   tags: Tag[]
+  onBatchAnalyzeDone: () => void
 }
 
-export function DocumentsView({ documents, categories, tags }: DocumentsViewProps) {
+export function DocumentsView({ documents, categories, tags, onBatchAnalyzeDone }: DocumentsViewProps) {
   const { searchQuery, selectDocument, setView, selectedCategoryId, setSelectedCategory, selectedTagId } = useAppStore()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [starFilter, setStarFilter] = useState(false)
 
+  const batch = useBatchAnalyze()
+
   const filteredDocs = starFilter
     ? documents.filter((doc) => doc.isStarred)
     : documents
+
+  const handleStartBatch = (skipAnalyzed: boolean) => {
+    const inputs: BatchAnalyzeInput[] = filteredDocs.map((d) => ({
+      id: d.id, title: d.title, content: d.content,
+      summary: d.summary, tags: d.tags,
+    }))
+    void batch.start(inputs, {
+      skipAnalyzed,
+      onProgress: () => { /* state already updated inside hook */ },
+    })
+  }
+
+  const handleCloseBatch = () => {
+    batch.close()
+    if (batch.isDone) onBatchAnalyzeDone()
+  }
 
   if (filteredDocs.length === 0) {
     return (
@@ -80,6 +102,7 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
         tags={tags}
         categories={categories}
         filteredDocsCount={filteredDocs.length}
+        onBatchAnalyze={batch.open}
       />
 
       {/* Documents */}
@@ -130,6 +153,18 @@ export function DocumentsView({ documents, categories, tags }: DocumentsViewProp
         )}
       </AnimatePresence>
       </div>
+
+      {/* Batch analyze dialog */}
+      <BatchAnalyzeDialog
+        isOpen={batch.isOpen}
+        isRunning={batch.isRunning}
+        isDone={batch.isDone}
+        progress={batch.progress}
+        docs={filteredDocs.map((d) => ({ id: d.id, title: d.title, content: d.content, summary: d.summary, tags: d.tags }))}
+        onStart={handleStartBatch}
+        onClose={handleCloseBatch}
+        onCancel={batch.cancel}
+      />
     </TerminalFrame>
   )
 }
