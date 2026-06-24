@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -6,6 +8,12 @@ const nextConfig: NextConfig = {
   // Without this, browser on chatglm.site/space-z.ai blocks requests to localhost:3000,
   // causing 502 Bad Gateway in the Z.ai sandbox preview.
   allowedDevOrigins: ['*'],
+  // Fix "Next.js inferred your workspace root, but it may not be correct" warning.
+  // The FabInspector submodule under src/components/inspector has its own package.json,
+  // which confuses Turbopack's workspace-root detection. Pin root explicitly to project dir.
+  turbopack: {
+    root: dirname(fileURLToPath(import.meta.url)),
+  },
   experimental: {
     optimizePackageImports: [
       'lucide-react',
