@@ -15,6 +15,13 @@ const nextConfig: NextConfig = {
       'z-ai-web-dev-sdk',
     ],
   },
+  // FabInspector: авто-data-src через Turbopack ОТКЛЮЧЁН.
+  // В Next.js 16 API experimental.turbo.plugins удалён.
+  // Альтернатива turbopack.rules + loader работает, но наивная регулярка
+  // плагина ломает TypeScript generics (typeof, Array<T>, React.FC<Props>).
+  // Корректное решение — SWC plugin с настоящим парсером. Отдельная задача.
+  // Пока: проставляйте data-src вручную на ключевых элементах,
+  // инспектор работает для тех элементов, где data-src есть.
 };
 
 export default nextConfig;
