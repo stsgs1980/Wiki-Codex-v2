@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@zai/select-element'],
   reactStrictMode: true,
   // Allows cross-domain requests to dev server from sandbox preview panel.
   // Without this, browser on chatglm.site/space-z.ai blocks requests to localhost:3000,
