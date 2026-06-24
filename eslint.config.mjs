@@ -1,8 +1,16 @@
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 import noUnicodePolicyRule from "./eslint-rules/no-unicode-policy.mjs";
+import inspectorConfig from "./vendor/fab-inspector/eslint.config.mjs";
 
-const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
+// Adapt inspector config: remap src/components/inspector/** → vendor/fab-inspector/**
+// (submodule lives under vendor/, not src/components/inspector/)
+const adaptedInspectorConfig = inspectorConfig.map((block) => ({
+  ...block,
+  files: block.files?.map((f) => f.replace('src/components/inspector/', 'vendor/fab-inspector/')),
+}));
+
+const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, ...adaptedInspectorConfig, {
   plugins: {
     "no-unicode-policy": noUnicodePolicyRule,
   },
@@ -46,7 +54,7 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "no-unicode-policy/no-unicode-policy": "warn",
   },
 }, {
-  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills/**", "tests/**", "templates/**", "standards/**", "instructions/**", "scripts-logo/**", "logos/**", "vendor/**"]
+  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills/**", "tests/**", "templates/**", "standards/**", "instructions/**", "scripts-logo/**", "logos/**"]
 }];
 
 export default eslintConfig;

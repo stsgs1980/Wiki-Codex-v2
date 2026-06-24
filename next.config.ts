@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { dataSrcPlugin } from './vendor/fab-inspector/plugins/data-src-plugin';
 
 const nextConfig: NextConfig = {
   // FabInspector is a git submodule at vendor/fab-inspector shipping raw .tsx.
@@ -17,6 +18,12 @@ const nextConfig: NextConfig = {
       'react-syntax-highlighter',
       'z-ai-web-dev-sdk',
     ],
+    // FabInspector: auto-inject data-src="file:line" on JSX elements in dev.
+    // Enables source inspection without manual data-src attributes.
+    // Dev-only — Next.js does not invoke turbo plugins in production build.
+    turbo: {
+      plugins: [dataSrcPlugin()],
+    },
   },
 };
 
