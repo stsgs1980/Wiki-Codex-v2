@@ -1,3 +1,0 @@
-[submodule "vendor/fab-inspector"]
-	path = vendor/fab-inspector
-	url = git@github.com:stsgs1980/FabInspector.git
