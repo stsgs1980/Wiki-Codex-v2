@@ -26,12 +26,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@/components/inspector": [
-        "./vendor/fab-inspector/index.ts"
-      ],
-      "@/components/inspector/*": [
-        "./vendor/fab-inspector/*"
       ]
     }
   },

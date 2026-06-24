@@ -1,0 +1,3 @@
+[submodule "src/components/inspector"]
+	path = src/components/inspector
+	url = git@github.com:stsgs1980/FabInspector.git
