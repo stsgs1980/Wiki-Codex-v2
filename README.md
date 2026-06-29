@@ -5,7 +5,34 @@
 
 ![NEURO](logos/dark.svg)
 
----
+
+[![Next.js](https://img.shields.io/badge/Next.js-black?style=flat-square)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square)](https://www.typescriptlang.org)
+[![Tailwind_CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square)](https://tailwindcss.com)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square)](https://www.prisma.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square)](https://www.postgresql.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+
+
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [1. Setup environment](#1-setup-environment)
+- [2. Install dependencies](#2-install-dependencies)
+- [3. Create database](#3-create-database)
+- [4. Run dev server](#4-run-dev-server)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Project Structure](#project-structure)
+- [Data Models](#data-models)
+- [API Reference](#api-reference)
+- [Standards & Rules](#standards-&-rules)
+- [Agent Rules](#agent-rules)
+- [NEURO Branding](#neuro-branding)
+- [Scripts](#scripts)
+- [License](#license)
 
 ## Features
 
@@ -21,11 +48,10 @@
 | **Backups** | DB snapshots (last 10 retained) |
 | **Keyboard** | `Ctrl+K` search, `Ctrl+N` new note, `Ctrl+U` upload, `Esc` back |
 
----
 
 ## Tech Stack
 
-```
+```bash
 Built with: Next.js 16 + TypeScript 5 + Tailwind CSS 4 + PostgreSQL + Prisma ORM + Zustand
 ```
 
@@ -42,25 +68,42 @@ Built with: Next.js 16 + TypeScript 5 + Tailwind CSS 4 + PostgreSQL + Prisma ORM
 | z-ai-web-dev-sdk | AI Integration |
 | NEURO Branding | Logo system (agent-logo) |
 
----
 
 ## Quick Start
 
 ```bash
-# 1. Setup environment
+## 1. Setup environment
 cp .env.example .env
 
-# 2. Install dependencies
+## 2. Install dependencies
 bun install
 
-# 3. Create database
+## 3. Create database
 bun run db:push
 
-# 4. Run dev server
+## 4. Run dev server
 bun run dev
 ```
 
----
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+ or Bun
+
+### Installation
+
+```bash
+git clone https://github.com/stsgs1980/Wiki-Codex-v2.git
+cd Wiki-Codex-v2
+bun install
+```
+
+### Run
+
+```bash
+bun run dev
+```
 
 ## Configuration
 
@@ -71,11 +114,10 @@ All environment variables are documented in `.env.example` per REPRODUCIBILITY-S
 | `DATABASE_URL` | Yes | - | PostgreSQL connection string |
 | `OPENAI_API_KEY` | No | - | For AI features (analysis, semantic search) |
 
----
 
 ## Project Structure
 
-```
+```css
 src/
   app/
     layout.tsx                          # Root layout (ThemeProvider, Toaster, NEURO metadata)
@@ -191,11 +233,10 @@ Dockerfile                              # Multi-stage build (prisma migrate depl
   logo.yml                              # Logo theme detection CI
 ```
 
----
 
 ## Data Models
 
-```
+```bash
 Category --------< Document >-------- Tag
   id                 id                  id
   name               title               name
@@ -218,7 +259,6 @@ Category --------< Document >-------- Tag
   isBuiltIn
 ```
 
----
 
 ## API Reference
 
@@ -227,7 +267,7 @@ Category --------< Document >-------- Tag
 
 ### Documents
 
-```
+```bash
 GET    /api/documents?search=&categoryId=&tagId=&starred=&page=&limit=
 POST   /api/documents                          # Dedup by title (409 on conflict)
 GET    /api/documents/:id                      # +viewCount increment
@@ -238,7 +278,7 @@ POST   /api/documents/related                  # AI: find similar documents
 
 ### AI
 
-```
+```sql
 POST /api/ai/analyze              # Document analysis: summary, category, tags
 POST /api/search/semantic         # Semantic search across documents
 POST /api/categories/suggest      # AI: suggest new categories
@@ -249,7 +289,7 @@ POST /api/instructions?extractFromDocId=   # AI: extract instructions
 
 ### Categories & Tags
 
-```
+```bash
 GET    /api/categories            # List with _count.documents
 POST   /api/categories            # Create (dedup)
 DELETE /api/categories?id=
@@ -260,7 +300,7 @@ DELETE /api/tags?id=
 
 ### Terms
 
-```
+```bash
 GET    /api/terms?search=&documentId=&duplicates=true
 POST   /api/terms                  # Create (dedup)
 DELETE /api/terms?id= | ?ids=a,b,c # Single + bulk delete
@@ -269,7 +309,7 @@ PATCH  /api/terms                  # Merge duplicates (keepId + mergeIds)
 
 ### Notes
 
-```
+```bash
 GET    /api/notes?search=
 POST   /api/notes
 GET    /api/notes/:id
@@ -279,7 +319,7 @@ DELETE /api/notes/:id
 
 ### Instructions
 
-```
+```sql
 GET    /api/instructions                    # List (extracted + built-in)
 POST   /api/instructions?extractFromDocId=  # Extract from document
 DELETE /api/instructions/:id
@@ -287,27 +327,25 @@ DELETE /api/instructions/:id
 
 ### NEURO Branding
 
-```
+```bash
 GET /api/logo-theme?project=&mode=auto|dark|light   # Logo theme detection
 GET /api/signature?project=&name=&role=&email=&phone=&mode=auto|dark|light  # Email signature
 ```
 
 ### System
 
-```
+```bash
 GET  /api           # Health check
 POST /api/seed      # Dev-only DB seeding (blocked in production)
 GET  /api/backup    # List backups
 POST /api/backup    # Create backup
 ```
 
----
 
 ## Standards & Rules
 
 All standards are mandatory for development, AI generation, and application usage.
 
----
 
 ### Standard 1: No-Unicode Policy v2.1
 
@@ -358,32 +396,27 @@ Goals:
 - Allowed: Latin, Cyrillic, digits
 - Banned: Any symbols outside standard alphabet, any graphic elements
 
----
 
 ### Standard 2: Z.ai Reproducibility Standard v1.0
 
 > **`git clone` + `bun install` + `bun run dev` = working application.**
 > Always. Everywhere. On any machine. No exceptions.
 
----
 
 ### Rule 3. Deduplication-First
 
 All create endpoints **must** check for existing records before creation.
 
----
 
 ### Rule 4. Safe Delete Policy
 
 Deleting any entity requires **explicit confirmation** via AlertDialog. All 7 entities. No exceptions.
 
----
 
 ### Rule 5. AI Prompt Language Standard
 
 All AI system prompts are written **in Russian** (except instruction extraction prompt -- in English per No-Unicode Policy).
 
----
 
 ## Agent Rules
 
@@ -397,7 +430,6 @@ This project includes AI agent behavioral rules:
 - **skills/** -- 5 automated agent capabilities (git-safe-ops, dev-watchdog, api-retry, health-check, fallback)
 - **standards/** -- 8 governance documents
 
----
 
 ## NEURO Branding
 
@@ -411,7 +443,6 @@ This project uses the NEURO brand system:
 - **Brand colors:** Coral `#FA3913`, Dark `#12121a`, Graphite `#343439`
 - **Icon standard:** SVG only (Lucide library)
 
----
 
 ## Scripts
 
@@ -425,6 +456,9 @@ This project uses the NEURO brand system:
 | `bun run logo` | Detect NEURO logo theme |
 | `bun run vercel-build` | Vercel deployment build |
 
----
 
 Built with: Next.js 16 + TypeScript 5 + Tailwind CSS 4 + PostgreSQL + Prisma ORM + Zustand
+
+## License
+
+[MIT](LICENSE)
